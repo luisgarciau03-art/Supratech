@@ -185,7 +185,12 @@
         errorDiv.style.display = 'block';
       }
     } catch (error) {
-      errorDiv.textContent = 'Error de login: ' + error.message;
+      // Si el error es de credenciales inválidas, mostrar mensaje personalizado
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        errorDiv.textContent = 'Contraseña o correo incorrecto';
+      } else {
+        errorDiv.textContent = 'Error de login: ' + error.message;
+      }
       errorDiv.style.display = 'block';
     }
   });
