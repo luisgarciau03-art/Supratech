@@ -5,9 +5,10 @@ from google.cloud import firestore
 
 app = Flask(__name__)
 
-cred = credentials.Certificate('ruta/a/tu/credencial-firebase.json')
+# Usar el nombre real del archivo de credenciales subido como Secret File en Render
+cred = credentials.Certificate('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
 firebase_admin.initialize_app(cred)
-db = firestore.Client.from_service_account_json('ruta/a/tu/credencial-firebase.json')
+db = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
 
 @app.route('/api/login', methods=['POST'])
 def login():
