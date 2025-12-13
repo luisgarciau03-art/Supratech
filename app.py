@@ -7,19 +7,10 @@ from google.cloud import firestore
 
 app = Flask(__name__)
 
-# --- Manejo de credenciales multiplataforma (Render/Vercel) ---
-import os
-
-FIREBASE_CREDENTIALS_PATH = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-if not os.path.exists(FIREBASE_CREDENTIALS_PATH):
-    firebase_json = os.environ.get('FIREBASE_CREDENTIALS_JSON')
-    if firebase_json:
-        with open(FIREBASE_CREDENTIALS_PATH, 'w') as f:
-            f.write(firebase_json)
-
-cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+# Usar el nombre real del archivo de credenciales subido como Secret File en Render
+cred = credentials.Certificate('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
 firebase_admin.initialize_app(cred)
-db = firestore.Client.from_service_account_json(FIREBASE_CREDENTIALS_PATH)
+db = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
 
 @app.route('/')
 def home():
