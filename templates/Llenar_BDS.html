@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Llenar BDS</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bds-card {
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 8px 32px #0050d822;
+      max-width: 500px;
+      width: 98vw;
+      margin: 0 auto;
+      padding: 38px 40px 28px 40px;
+      transition: box-shadow 0.3s;
+      animation: fadeInCard 1.1s cubic-bezier(.68,-0.55,.27,1.55) 1;
+      text-align: center;
+    }
+    @keyframes fadeInCard {
+      0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+      60% { opacity: 1; transform: translateY(-8px) scale(1.03); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    h2 {
+      color: #0050d8;
+      font-size: 2em;
+      font-weight: 700;
+      margin-bottom: 22px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #0050d822;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    label {
+      font-weight: 600;
+      color: #0050d8;
+      font-size: 1.08em;
+      margin-bottom: 2px;
+      text-align: left;
+    }
+    input, select {
+      border: 2px solid #b3c6e6;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 1.08em;
+      outline: none;
+      transition: border 0.2s, background 0.2s;
+      background: #f7faff;
+    }
+    input:focus, select:focus {
+      border-color: #0050d8;
+      background: #eaf0fa;
+    }
+    button {
+      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 0;
+      font-size: 1.08em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0050d822;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+      margin-top: 8px;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #0077ff 60%, #0050d8 100%);
+      box-shadow: 0 6px 24px #0050d822;
+      transform: scale(1.07);
+    }
+    .success {
+      color: #008a2e;
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.08em;
+    }
+    .error {
+      color: #d80032;
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.08em;
+    }
+  </style>
+</head>
+<body>
+  <div class="bds-card">
+    <h2>Llenar BDS</h2>
+    <form id="bds-form">
+      <label for="producto">Producto</label>
+      <input type="text" id="producto" name="producto" required>
+      <label for="cantidad">Cantidad</label>
+      <input type="number" id="cantidad" name="cantidad" min="1" required>
+      <label for="precio">Precio</label>
+      <input type="number" id="precio" name="precio" min="0" step="0.01" required>
+      <button type="submit">Registrar</button>
+    </form>
+    <hr style="margin:30px 0;">
+    <div style="margin-bottom:10px;">
+      <b>Registro masivo (pega aquí tus datos):</b><br>
+      <small>Formato: SKU[tab]COSTO (puedes copiar y pegar desde Excel o texto, una línea por producto)</small>
+    </div>
+    <textarea id="masivo-textarea" rows="10" style="width:100%;font-size:1em;padding:10px;border-radius:10px;border:2px solid #b3c6e6;background:#f7faff;"></textarea>
+    <button id="masivo-btn" style="margin-top:10px;width:100%;">Registrar masivo</button>
+    <div id="masivo-success" class="success" style="display:none;"></div>
+    <div id="masivo-error" class="error" style="display:none;"></div>
+    <div id="bds-success" class="success" style="display:none;"></div>
+    <div id="bds-error" class="error" style="display:none;"></div>
+  </div>
+</body>
+<script>
+  // Lógica para enviar datos individuales
+  document.getElementById('bds-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const producto = document.getElementById('producto').value;
+    const cantidad = document.getElementById('cantidad').value;
+    const precio = document.getElementById('precio').value;
+    const successDiv = document.getElementById('bds-success');
+    const errorDiv = document.getElementById('bds-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    try {
+      let idToken = null;
+      if (window.firebase && firebase.auth().currentUser) {
+        idToken = await firebase.auth().currentUser.getIdToken();
+      } else if (localStorage.getItem('idToken')) {
+        idToken = localStorage.getItem('idToken');
+      }
+      if (!idToken) {
+        throw new Error('No autenticado. Inicia sesión nuevamente.');
+      }
+      const response = await fetch('/api/registrar_compra', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + idToken
+        },
+        body: JSON.stringify({ producto, cantidad, precio })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        successDiv.textContent = 'Registro exitoso';
+        successDiv.style.display = 'block';
+        document.getElementById('bds-form').reset();
+      } else {
+        errorDiv.textContent = data.error || 'Error al registrar';
+        errorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      errorDiv.textContent = error.message || 'Error inesperado';
+      errorDiv.style.display = 'block';
+    }
+  });
+
+  // Lógica para registro masivo
+  document.getElementById('masivo-btn').addEventListener('click', async function() {
+    const textarea = document.getElementById('masivo-textarea');
+    const lines = textarea.value.trim().split(/\r?\n/);
+    const successDiv = document.getElementById('masivo-success');
+    const errorDiv = document.getElementById('masivo-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    if (lines.length === 0 || (lines.length === 1 && lines[0] === '')) {
+      errorDiv.textContent = 'Pega al menos una línea de datos.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    let idToken = null;
+    try {
+      if (window.firebase && firebase.auth().currentUser) {
+        idToken = await firebase.auth().currentUser.getIdToken();
+      } else if (localStorage.getItem('idToken')) {
+        idToken = localStorage.getItem('idToken');
+      }
+      if (!idToken) {
+        throw new Error('No autenticado. Inicia sesión nuevamente.');
+      }
+      let successCount = 0, failCount = 0, failLines = [];
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line) continue;
+        // Separar por tabulador, coma o espacio
+        let parts = line.split(/\t|,|\s{2,}|\s/).filter(Boolean);
+        if (parts.length < 2) {
+          failCount++;
+          failLines.push(i+1);
+          continue;
+        }
+        let producto = parts[0];
+        let cantidad = 1; // Por defecto 1
+        let precio = parts[1].replace(/[^\d.,-]/g, '').replace(',', '.');
+        if (isNaN(parseFloat(precio))) {
+          failCount++;
+          failLines.push(i+1);
+          continue;
+        }
+        // Enviar al backend
+        try {
+          const response = await fetch('/api/registrar_compra', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + idToken
+            },
+            body: JSON.stringify({ producto, cantidad, precio })
+          });
+          if (response.ok) {
+            successCount++;
+          } else {
+            failCount++;
+            failLines.push(i+1);
+          }
+        } catch (err) {
+          failCount++;
+          failLines.push(i+1);
+        }
+      }
+      if (successCount > 0) {
+        successDiv.textContent = `Registros exitosos: ${successCount}`;
+        successDiv.style.display = 'block';
+      }
+      if (failCount > 0) {
+        errorDiv.textContent = `Fallaron ${failCount} líneas: ${failLines.join(', ')}`;
+        errorDiv.style.display = 'block';
+      }
+      if (successCount > 0) textarea.value = '';
+    } catch (error) {
+      errorDiv.textContent = error.message || 'Error inesperado';
+      errorDiv.style.display = 'block';
+    }
+  });
+</script>
+</html>
