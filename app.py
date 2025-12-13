@@ -73,6 +73,11 @@ def get_spreadsheet():
     except Exception as e:
         return jsonify({'error': 'Invalid token', 'details': str(e)}), 401
 
+
+@app.route('/Llenar_BDS')
+def llenar_bds():
+    return render_template('Llenar_BDS.html')
+
 @app.route('/api/userinfo', methods=['GET'])
 def userinfo():
     auth_header = request.headers.get('Authorization')
