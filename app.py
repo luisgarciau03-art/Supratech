@@ -74,6 +74,11 @@ def get_spreadsheet():
         return jsonify({'error': 'Invalid token', 'details': str(e)}), 401
 
 
+
+@app.route('/panel_opciones')
+def panel_opciones():
+    return render_template('panel_opciones.html')
+
 @app.route('/Llenar_BDS')
 def llenar_bds():
     return render_template('Llenar_BDS.html')
