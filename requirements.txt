@@ -1,5 +1,6 @@
-google-api-python-client
-Flask
-firebase-admin
-gunicorn
-google-cloud-firestore
+Flask==3.0.0
+gunicorn==21.2.0
+firebase-admin==6.2.0
+google-api-python-client==2.108.0
+google-cloud-firestore==2.13.1
+openpyxl==3.1.2

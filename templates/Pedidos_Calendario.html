@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CALENDARIO - Pedidos 9.0</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #222;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .panel-card {
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 8px 32px #0050d822;
+      margin-bottom: 20px;
+      padding: 28px 32px;
+      animation: fadeInCard 0.6s ease;
+    }
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h2 {
+      color: #0050d8;
+      font-size: 1.8em;
+      font-weight: 700;
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: #0050d8;
+      text-decoration: underline;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button {
+      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0050d822;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #0077ff 60%, #0050d8 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px #0050d833;
+    }
+    .success {
+      color: #008a2e;
+      margin: 10px 0;
+      font-weight: 600;
+      display: none;
+    }
+    .error {
+      color: #d80032;
+      margin: 10px 0;
+      font-weight: 600;
+      display: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 15px;
+      font-size: 0.95em;
+      box-shadow: 0 2px 8px rgba(0,80,216,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th {
+      background: linear-gradient(135deg, #0050d8 0%, #0077ff 100%);
+      color: white;
+      padding: 14px 10px;
+      text-align: center;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border: none;
+      font-size: 0.95em;
+      letter-spacing: 0.3px;
+    }
+    th:first-child {
+      border-top-left-radius: 12px;
+    }
+    th:last-child {
+      border-top-right-radius: 12px;
+    }
+    td {
+      border: none;
+      border-bottom: 1px solid #e8f0fe;
+      padding: 0;
+      text-align: center;
+    }
+    td input {
+      width: 100%;
+      border: none;
+      padding: 12px 8px;
+      font-size: 0.93em;
+      text-align: center;
+      background: transparent;
+      transition: background 0.2s;
+      outline: none;
+    }
+    td input:focus {
+      background: #eaf0fa;
+      box-shadow: inset 0 0 0 2px #0050d8;
+    }
+    tr:nth-child(even) {
+      background: #f7faff;
+    }
+    tr:hover {
+      background: #eaf0fa;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:last-child td:first-child input {
+      border-bottom-left-radius: 12px;
+    }
+    tr:last-child td:last-child input {
+      border-bottom-right-radius: 12px;
+    }
+    .table-container {
+      overflow-x: auto;
+      max-height: 650px;
+      overflow-y: auto;
+      border-radius: 12px;
+    }
+    .loading {
+      text-align: center;
+      color: #0050d8;
+      font-weight: 600;
+      padding: 20px;
+    }
+    @media (max-width: 768px) {
+      .panel-card { padding: 18px; }
+      h2 { font-size: 1.4em; }
+      table { font-size: 0.8em; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83",
+      measurementId: "G-JC8Y89CPQH"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <a class="back-link" href="/pedidos">&larr; Volver</a>
+
+    <div class="panel-card">
+      <h2>📅 CALENDARIO - Pedidos 9.0</h2>
+      <button id="save-btn" type="button">💾 Guardar Cambios</button>
+      <div id="success" class="success"></div>
+      <div id="error" class="error"></div>
+      <div id="loading" class="loading" style="display:none;">Cargando datos...</div>
+
+      <div class="table-container">
+        <table id="calendar-table">
+          <thead>
+            <tr id="header-row">
+              <!-- Headers dinámicos -->
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Filas dinámicas -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  let idToken = null;
+  const NUM_ROWS = 13; // Filas 2-14 = 13 filas
+  const NUM_COLS = 7;  // Columnas A-G = 7 columnas
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      try {
+        idToken = await user.getIdToken();
+        console.log('[CALENDARIO] Token obtenido');
+        inicializarTabla();
+        // Cargar datos automáticamente
+        await cargarDatos();
+      } catch (e) {
+        console.error('[CALENDARIO] Error:', e);
+        window.location.href = '/';
+      }
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  function inicializarTabla() {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    for (let row = 2; row <= 14; row++) {
+      const tr = document.createElement('tr');
+
+      // Columnas A-G (sin columna de número de fila)
+      for (let col = 0; col < NUM_COLS; col++) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.dataset.row = row;
+        input.dataset.col = String.fromCharCode(65 + col); // A-G
+        input.placeholder = '';
+        td.appendChild(input);
+        tr.appendChild(td);
+      }
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  async function cargarDatos() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('success').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+
+    try {
+      const res = await fetch('/api/pedidos_calendario_datos', {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        document.getElementById('error').textContent = data.error || 'Error al cargar datos';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+        return;
+      }
+
+      // data.encabezados es un array con los headers de la fila 1
+      // data.datos es un array de arrays [[A2,B2,C2...], [A3,B3,C3...], ...]
+      const encabezados = data.encabezados || [];
+      const tableData = data.datos || [];
+
+      // Actualizar los headers de la tabla
+      const thead = document.querySelector('#calendar-table thead tr');
+      thead.innerHTML = ''; // Resetear
+      for (let i = 0; i < NUM_COLS; i++) {
+        const th = document.createElement('th');
+        th.textContent = encabezados[i] || String.fromCharCode(65 + i);
+        thead.appendChild(th);
+      }
+
+      // Llenar la tabla con los datos
+      for (let i = 0; i < NUM_ROWS; i++) {
+        const rowData = tableData[i] || [];
+        for (let j = 0; j < NUM_COLS; j++) {
+          const col = String.fromCharCode(65 + j);
+          const input = document.querySelector(`input[data-row="${i+2}"][data-col="${col}"]`);
+          if (input) {
+            input.value = rowData[j] || '';
+          }
+        }
+      }
+
+      document.getElementById('success').textContent = '✅ Datos cargados exitosamente';
+      document.getElementById('success').style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+
+    } catch (error) {
+      document.getElementById('error').textContent = error.message || 'Error inesperado';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  async function guardarCambios() {
+    document.getElementById('success').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+
+    // Recolectar todos los datos de la tabla
+    const tableData = [];
+    for (let i = 0; i < NUM_ROWS; i++) {
+      const rowData = [];
+      for (let j = 0; j < NUM_COLS; j++) {
+        const col = String.fromCharCode(65 + j);
+        const input = document.querySelector(`input[data-row="${i+2}"][data-col="${col}"]`);
+        rowData.push(input ? input.value : '');
+      }
+      tableData.push(rowData);
+    }
+
+    try {
+      const res = await fetch('/api/pedidos_calendario_guardar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + idToken
+        },
+        body: JSON.stringify({ datos: tableData })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById('success').textContent = '✅ Cambios guardados exitosamente';
+        document.getElementById('success').style.display = 'block';
+      } else {
+        document.getElementById('error').textContent = data.error || 'Error al guardar';
+        document.getElementById('error').style.display = 'block';
+      }
+    } catch (error) {
+      document.getElementById('error').textContent = error.message || 'Error inesperado';
+      document.getElementById('error').style.display = 'block';
+    }
+  }
+
+  document.getElementById('save-btn').addEventListener('click', guardarCambios);
+</script>
+</html>

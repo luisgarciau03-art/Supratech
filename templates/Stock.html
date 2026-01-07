@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>STOCK</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .panel-card {
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 8px 32px #0050d822;
+      max-width: 540px;
+      width: 98vw;
+      margin: 0 auto;
+      padding: 38px 40px 28px 40px;
+      transition: box-shadow 0.3s;
+      animation: fadeInCard 1.1s cubic-bezier(.68,-0.55,.27,1.55) 1;
+      text-align: center;
+    }
+    @keyframes fadeInCard {
+      0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+      60% { opacity: 1; transform: translateY(-8px) scale(1.03); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    h2 {
+      color: #0050d8;
+      font-size: 2em;
+      font-weight: 700;
+      margin-bottom: 22px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #0050d822;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    label {
+      font-weight: 600;
+      color: #0050d8;
+      font-size: 1.08em;
+      margin-bottom: 2px;
+      text-align: left;
+    }
+    input, select {
+      border: 2px solid #b3c6e6;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 1.08em;
+      outline: none;
+      transition: border 0.2s, background 0.2s;
+      background: #f7faff;
+    }
+    input:focus, select:focus {
+      border-color: #0050d8;
+      background: #eaf0fa;
+    }
+    button {
+      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 0;
+      font-size: 1.08em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0050d822;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+      margin-top: 8px;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #0077ff 60%, #0050d8 100%);
+      box-shadow: 0 6px 24px #0050d822;
+      transform: scale(1.07);
+    }
+    .success {
+      color: #008a2e;
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.08em;
+      display: none;
+    }
+    .error {
+      color: #d80032;
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.08em;
+      display: none;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 18px;
+      color: #0050d8;
+      text-decoration: underline;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    @media (max-width: 540px) {
+      .panel-card {
+        padding: 18px 6px 18px 6px;
+        max-width: 99vw;
+      }
+      h2 { font-size: 1.3em; }
+      button { padding: 12px 10px; font-size: 1em; }
+    }
+  </style>
+  <!-- Firebase App (core) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <!-- Firebase Auth -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    // Configuración real de tu proyecto Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83",
+      measurementId: "G-JC8Y89CPQH"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      console.log('[STOCK] Firebase inicializado');
+    } else {
+      console.log('[STOCK] Firebase ya estaba inicializado');
+    }
+  </script>
+<script>
+function setLastUpdate() {
+  const now = new Date();
+  const formatted = now.toLocaleString('es-MX', { hour12: false });
+  const div = document.getElementById('last-update');
+  if (div) {
+    div.textContent = 'Última actualización: ' + formatted;
+  }
+}
+</script>
+</head>
+<body>
+  <div class="panel-card">
+    <a class="back-link" href="/Llenar_BDS">&larr; Volver</a>
+    <h2>STOCK</h2>
+    <form id="stock-form">
+      <!-- Campos dinámicos aquí -->
+    </form>
+    <div style="margin: 18px 0;">
+        <a href="/static/plantilla_stock.csv" download style="display:block;margin-bottom:8px;color:#0050d8;font-weight:600;">Descargar plantilla CSV</a>
+      <label for="bulk-file" style="color:#0050d8;font-weight:600;">Carga masiva (CSV):</label>
+      <input type="file" id="bulk-file" accept=".csv" style="margin-bottom:8px;">
+      <button id="bulk-upload-btn" type="button">Cargar archivo</button>
+    </div>
+    <div id="last-update" style="color:#555;font-size:0.98em;margin-bottom:10px;"></div>
+    <div id="stock-success" class="success"></div>
+    <div id="stock-error" class="error"></div>
+    <div id="bulk-preview" style="margin-top:18px;text-align:left;max-height:300px;overflow:auto;"></div>
+  </div>
+</body>
+<script>
+  setLastUpdate();
+  firebase.auth().onAuthStateChanged(async function(user) {
+    console.log('[STOCK] onAuthStateChanged:', user);
+    if (user) {
+      try {
+        const idToken = await user.getIdToken();
+        console.log('[STOCK] Token obtenido tras restaurar sesión:', idToken);
+        cargarCamposDinamicos(idToken);
+      } catch (e) {
+        console.error('[STOCK] Error obteniendo token tras restaurar sesión:', e);
+        window.location.href = '/';
+      }
+    } else {
+      console.warn('[STOCK] No autenticado tras onAuthStateChanged, redirigiendo');
+      window.location.href = '/';
+    }
+  });
+
+  async function cargarCamposDinamicos(idToken) {
+    if (!idToken) {
+      console.warn('[STOCK] Redirigiendo a login por falta de token');
+      window.location.href = '/';
+      return;
+    }
+    const res = await fetch('/api/stock_campos', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + idToken }
+    });
+    if (res.headers.get('content-type') && !res.headers.get('content-type').includes('application/json')) {
+      document.getElementById('stock-error').textContent = 'Error: el backend no devolvió JSON. Revisa el endpoint /api/stock_campos.';
+      document.getElementById('stock-error').style.display = 'block';
+      return;
+    }
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById('stock-error').textContent = data.error || 'Error al obtener campos';
+      document.getElementById('stock-error').style.display = 'block';
+      console.error('[STOCK] Error al obtener campos:', data);
+      return;
+    }
+    const campos = data.campos;
+    const form = document.getElementById('stock-form');
+    form.innerHTML = '';
+    for (const campo of campos) {
+      const label = document.createElement('label');
+      label.setAttribute('for', campo);
+      label.textContent = campo.replace(/_/g, ' ').toUpperCase();
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = campo;
+      input.name = campo;
+      input.required = true;
+      form.appendChild(label);
+      form.appendChild(input);
+    }
+    const btn = document.createElement('button');
+    btn.type = 'submit';
+    btn.textContent = 'Registrar';
+    form.appendChild(btn);
+    form.dataset.idToken = idToken;
+    document.getElementById('bulk-upload-btn').dataset.idToken = idToken;
+  }
+
+  document.getElementById('stock-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = document.getElementById('stock-form');
+    const idToken = form.dataset.idToken;
+    if (!idToken) {
+      console.warn('[STOCK] Redirigiendo a login por falta de token en submit');
+      window.location.href = '/';
+      return;
+    }
+    const formData = {};
+    for (const el of form.elements) {
+      if (el.tagName === 'INPUT') {
+        formData[el.name] = el.value;
+      }
+    }
+    const successDiv = document.getElementById('stock-success');
+    const errorDiv = document.getElementById('stock-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    try {
+      const response = await fetch('/api/stock_registro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + idToken
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        successDiv.textContent = 'Registro exitoso en Spreadsheet';
+        successDiv.style.display = 'block';
+        form.reset();
+        setLastUpdate();
+      } else {
+        errorDiv.textContent = data.error || 'Error al registrar en Spreadsheet';
+        errorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      errorDiv.textContent = error.message || 'Error inesperado';
+      errorDiv.style.display = 'block';
+    }
+  });
+
+  document.getElementById('bulk-upload-btn').addEventListener('click', async function() {
+    const fileInput = document.getElementById('bulk-file');
+    const idToken = this.dataset.idToken;
+    const successDiv = document.getElementById('stock-success');
+    const errorDiv = document.getElementById('stock-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    if (!fileInput.files.length) {
+      errorDiv.textContent = 'Selecciona un archivo CSV.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await fetch('/api/stock_bulk', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + idToken },
+        body: formData
+      });
+      const previewDiv = document.getElementById('bulk-preview');
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        errorDiv.textContent = 'Error inesperado en el servidor. Intenta de nuevo o contacta soporte.';
+        errorDiv.style.display = 'block';
+        previewDiv.innerHTML = '';
+        return;
+      }
+      if (response.ok) {
+        successDiv.textContent = `Carga masiva exitosa: ${data.rows} filas`;
+        successDiv.style.display = 'block';
+        setLastUpdate();
+        if (data.preview && data.preview.length > 0) {
+          const keys = Object.keys(data.preview[0]);
+          let html = '<table style="border-collapse:collapse;width:100%;font-size:0.97em;">';
+          html += '<thead><tr>' + keys.map(k => `<th style='border:1px solid #b3c6e6;padding:4px 8px;background:#eaf0fa;'>${k}</th>`).join('') + '</tr></thead>';
+          html += '<tbody>' + data.preview.map(row => '<tr>' + keys.map(k => `<td style='border:1px solid #b3c6e6;padding:4px 8px;'>${row[k] ?? ''}</td>`).join('') + '</tr>').join('') + '</tbody>';
+          html += '</table>';
+          previewDiv.innerHTML = html;
+        } else {
+          previewDiv.innerHTML = '<em>No hay datos para mostrar.</em>';
+        }
+      } else {
+        errorDiv.textContent = data.error || 'Error en carga masiva';
+        errorDiv.style.display = 'block';
+        previewDiv.innerHTML = '';
+      }
+    } catch (error) {
+      errorDiv.textContent = error.message || 'Error inesperado en carga masiva';
+      errorDiv.style.display = 'block';
+      document.getElementById('bulk-preview').innerHTML = '';
+    }
+  });
+</script>
+</html>
