@@ -137,15 +137,15 @@ def bdmarcas_bulk():
     try:
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('BDMarcas')
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('BDMarcas')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             return jsonify({'error': 'No se encontró la configuración de hoja/rango'}), 404
         hoja_data = hoja_doc.to_dict()
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
         area_data = area_doc.to_dict()
@@ -718,8 +718,8 @@ def stock_bulk():
             print('[STOCK_BULK]', msg, *args)
             sys.stdout.flush()
         log('UID:', uid)
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('Stock')
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('Stock')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             log('No se encontró la configuración de hoja/rango')
@@ -728,7 +728,7 @@ def stock_bulk():
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
         log('Ubicaciones:', ubicaciones)
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             log('No se encontró el área para este usuario')
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
@@ -1066,8 +1066,8 @@ def ventas_bulk():
             print('[VENTAS_BULK]', msg, *args)
             sys.stdout.flush()
         log('UID:', uid)
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('Ventas')
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('Ventas')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             log('No se encontró la configuración de hoja/rango')
@@ -1076,7 +1076,7 @@ def ventas_bulk():
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
         log('Ubicaciones:', ubicaciones)
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             log('No se encontró el área para este usuario')
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
@@ -1341,8 +1341,8 @@ def blacklist_bulk():
             print('[BLACKLIST_BULK]', msg, *args)
             sys.stdout.flush()
         log('UID:', uid)
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('Blacklist')
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('Blacklist')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             log('No se encontró la configuración de hoja/rango')
@@ -1351,7 +1351,7 @@ def blacklist_bulk():
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
         log('Ubicaciones:', ubicaciones)
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             log('No se encontró el área para este usuario')
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
@@ -1472,10 +1472,10 @@ def blacklist_datos():
         uid = decoded_token['uid']
         print('[BLACKLIST_DATOS] UID:', uid)
         
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
+
         
         # Obtener configuración de hoja/rango
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('Blacklist')
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('Blacklist')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             return jsonify({'error': 'No se encontró la configuración de hoja/rango'}), 404
@@ -1486,7 +1486,7 @@ def blacklist_datos():
         print('[BLACKLIST_DATOS] Ubicaciones:', ubicaciones)
         
         # Obtener URL del spreadsheet
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
         
@@ -1590,10 +1590,10 @@ def blacklist_eliminar():
         
         print(f'[BLACKLIST_ELIMINAR] UID: {uid}, Fila a eliminar: {row_index}')
         
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
+
         
         # Obtener configuración de hoja/rango
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('Blacklist')
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('Blacklist')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             return jsonify({'error': 'No se encontró la configuración de hoja/rango'}), 404
@@ -1603,7 +1603,7 @@ def blacklist_eliminar():
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
         
         # Obtener URL del spreadsheet
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
         
@@ -1788,8 +1788,8 @@ def pedidos_calendario_bulk():
             print('[PEDIDOS_CALENDARIO_BULK]', msg, *args)
             sys.stdout.flush()
         log('UID:', uid)
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('CALENDARIO')
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('CALENDARIO')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             log('No se encontró la configuración de hoja/rango')
@@ -1798,7 +1798,7 @@ def pedidos_calendario_bulk():
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
         log('Ubicaciones:', ubicaciones)
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             log('No se encontró el área para este usuario')
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
@@ -2092,11 +2092,8 @@ def pedidos_bd_registro():
         hoja_data = hoja_doc.to_dict()
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         fecha = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -2131,15 +2128,15 @@ def pedidos_bd_bulk():
     try:
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('BDsi')
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('BDsi')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             return jsonify({'error': 'No se encontró la configuración de hoja/rango'}), 404
         hoja_data = hoja_doc.to_dict()
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
         area_data = area_doc.to_dict()
@@ -2220,11 +2217,8 @@ def pedidos_bd_bulk():
         else:
             return jsonify({'error': 'Solo se permiten archivos CSV o XLSX'}), 400
         rows_preview = rows[:100]
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         for campo, rango in ubicaciones.items():
@@ -2256,8 +2250,7 @@ def pedidos_bdqty_campos():
         id_token = auth_header.split('Bearer ')[1]
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('BDQTY')
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('BDQTY')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             return jsonify({'error': 'No se encontró la configuración de hoja/rango'}), 404
@@ -2265,6 +2258,7 @@ def pedidos_bdqty_campos():
         campos = [k for k in hoja_data.keys() if k != 'Hoja']
         return jsonify({'campos': campos})
     except Exception as e:
+        import traceback
         print('[PEDIDOS_BDQTY_CAMPOS] Error:', str(e))
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
@@ -2298,11 +2292,8 @@ def pedidos_bdqty_registro():
         hoja_data = hoja_doc.to_dict()
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         fecha = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -2336,15 +2327,15 @@ def pedidos_bdqty_bulk():
         id_token = auth_header.split('Bearer ')[1]
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
-        db2 = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-        hoja_ref = db2.collection('Areas').document(uid).collection('Hojas').document('BDQTY')
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('BDQTY')
         hoja_doc = hoja_ref.get()
         if not hoja_doc.exists:
             return jsonify({'error': 'No se encontró la configuración de hoja/rango'}), 404
         hoja_data = hoja_doc.to_dict()
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
-        area_doc = db2.collection('Areas').document(uid).get()
+        area_doc = db.collection('Areas').document(uid).get()
         if not area_doc.exists:
             return jsonify({'error': 'No se encontró el área para este usuario'}), 404
         area_data = area_doc.to_dict()
@@ -2425,11 +2416,8 @@ def pedidos_bdqty_bulk():
         else:
             return jsonify({'error': 'Solo se permiten archivos CSV o XLSX'}), 400
         rows_preview = rows[:100]
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         for campo, rango in ubicaciones.items():
