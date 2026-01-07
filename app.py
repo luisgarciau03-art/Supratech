@@ -29,6 +29,21 @@ else:
 
 app = Flask(__name__)
 
+# Función auxiliar para obtener credenciales de Google API
+def get_google_credentials():
+    """Retorna credenciales de Google API desde variable de entorno o archivo local"""
+    from google.oauth2 import service_account
+    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+    if os.environ.get('FIREBASE_CREDENTIALS'):
+        # En producción: usar credenciales desde variable de entorno
+        firebase_creds = json.loads(os.environ.get('FIREBASE_CREDENTIALS'))
+        return service_account.Credentials.from_service_account_info(firebase_creds, scopes=SCOPES)
+    else:
+        # En desarrollo: usar archivo local
+        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
+        return service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
 # --- ENDPOINTS PARA BDMARCAS ---
 @app.route('/api/bdmarcas_campos', methods=['GET'])
 def bdmarcas_campos():
@@ -78,12 +93,8 @@ def bdmarcas_registro():
         hoja_data = hoja_doc.to_dict()
         nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         for campo, rango in ubicaciones.items():
@@ -173,12 +184,8 @@ def bdmarcas_bulk():
         else:
             return jsonify({'error': 'Solo se permiten archivos CSV o XLSX'}), 400
         rows_preview = rows[:100]
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         for campo, rango in ubicaciones.items():
@@ -1129,12 +1136,8 @@ def ventas_bulk():
             log('Formato de archivo no permitido:', filename)
             return jsonify({'error': 'Solo se permiten archivos CSV o XLSX'}), 400
         rows_preview = rows[:100]
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         # Limpiar todos los rangos configurados antes de registrar y escribir SIEMPRE en la fila 2
@@ -1408,12 +1411,8 @@ def blacklist_bulk():
             log('Formato de archivo no permitido:', filename)
             return jsonify({'error': 'Solo se permiten archivos CSV o XLSX'}), 400
         rows_preview = rows[:100]
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         import re
@@ -1502,13 +1501,8 @@ def blacklist_datos():
             return jsonify({'error': 'URL de spreadsheet inválida'}), 400
         spreadsheet_id = match.group(1)
         
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         
@@ -1624,13 +1618,8 @@ def blacklist_eliminar():
             return jsonify({'error': 'URL de spreadsheet inválida'}), 400
         spreadsheet_id = match.group(1)
         
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         
         # Obtener el sheetId del spreadsheet
@@ -1869,12 +1858,8 @@ def pedidos_calendario_bulk():
             log('Formato de archivo no permitido:', filename)
             return jsonify({'error': 'Solo se permiten archivos CSV o XLSX'}), 400
         rows_preview = rows[:100]
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         import re
@@ -1950,13 +1935,8 @@ def pedidos_calendario_datos():
             hoja_data = hoja_doc.to_dict()
             nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
 
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
 
@@ -2041,13 +2021,8 @@ def pedidos_calendario_guardar():
             hoja_data = hoja_doc.to_dict()
             nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
 
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
-
-        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json'
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
 
