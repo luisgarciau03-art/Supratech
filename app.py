@@ -5,14 +5,27 @@ from flask import Flask, request, jsonify, redirect, render_template
 import firebase_admin
 from firebase_admin import credentials, auth
 from google.cloud import firestore
+import os
+import json
 
 print('Iniciando Flask...')
 
-# Usar el nombre real del archivo de credenciales subido como Secret File en Render
-cred = credentials.Certificate('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
-db = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
+# Inicializar Firebase con credenciales desde variable de entorno o archivo local
+if os.environ.get('FIREBASE_CREDENTIALS'):
+    # En producción (Railway): leer desde variable de entorno
+    print('Usando credenciales de Firebase desde variable de entorno')
+    firebase_creds = json.loads(os.environ.get('FIREBASE_CREDENTIALS'))
+    cred = credentials.Certificate(firebase_creds)
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
+    db = firestore.Client.from_service_account_info(firebase_creds)
+else:
+    # En desarrollo local: leer desde archivo
+    print('Usando credenciales de Firebase desde archivo local')
+    cred = credentials.Certificate('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
+    db = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
 
 app = Flask(__name__)
 
