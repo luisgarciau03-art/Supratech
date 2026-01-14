@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Firebase Modular SDK (v9+) -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+        authDomain: "supratechweb.firebaseapp.com",
+        projectId: "supratechweb",
+        storageBucket: "supratechweb.firebasestorage.app",
+        messagingSenderId: "828253545658",
+        appId: "1:828253545658:web:daa886d1de6c9c796a8e83",
+        measurementId: "G-JC8Y89CPQH"
+      };
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
+  <title>Login</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 8px 32px #0050d822;
+      max-width: 370px;
+      width: 98vw;
+      margin: 0 auto;
+      padding: 38px 40px 28px 40px;
+      transition: box-shadow 0.3s;
+      animation: fadeInCard 1.1s cubic-bezier(.68,-0.55,.27,1.55) 1;
+    }
+    @keyframes fadeInCard {
+      0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+      60% { opacity: 1; transform: translateY(-8px) scale(1.03); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .logo-container {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .logo-container img {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 18px;
+      box-shadow: 0 4px 18px #0050d855;
+      border: 3px solid #fff;
+      background: #eaf0fa;
+      transition: transform 0.3s, box-shadow 0.3s;
+      animation: logoPop 1.2s cubic-bezier(.68,-0.55,.27,1.55) 1;
+    }
+    .logo-container img:hover {
+      transform: scale(1.08) rotate(-2deg);
+      box-shadow: 0 8px 32px #0050d8aa;
+    }
+    @keyframes logoPop {
+      0% { transform: scale(0.7); opacity: 0; }
+      60% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    h2 {
+      text-align: center;
+      color: #0050d8;
+      font-size: 2em;
+      font-weight: 700;
+      margin-bottom: 22px;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #0050d822;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    label {
+      font-weight: 600;
+      color: #0050d8;
+      font-size: 1.08em;
+      margin-bottom: 2px;
+    }
+    input[type="email"], input[type="password"] {
+      border: 2px solid #b3c6e6;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 1.08em;
+      outline: none;
+      transition: border 0.2s, background 0.2s;
+      background: #f7faff;
+    }
+    input[type="email"]:focus, input[type="password"]:focus {
+      border-color: #0050d8;
+      background: #eaf0fa;
+    }
+    button {
+      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 0;
+      font-size: 1.08em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0050d822;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+      margin-top: 8px;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #0077ff 60%, #0050d8 100%);
+      box-shadow: 0 6px 24px #0050d822;
+      transform: scale(1.07);
+    }
+    .error {
+      color: #d80032;
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.08em;
+    }
+    @media (max-width: 500px) {
+      .login-card {
+        padding: 18px 6px 12px 6px;
+        max-width: 98vw;
+      }
+      h2 { font-size: 1.3em; }
+      .logo-container img { width: 60px; height: 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo-container">
+      <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Logo Supratech">
+    </div>
+    <h2>Iniciar sesión</h2>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" required autocomplete="username">
+      <label for="password">Contraseña</label>
+      <input type="password" name="password" id="password" required autocomplete="current-password">
+      <button type="submit">Ingresar</button>
+    </form>
+    <div id="firebase-error" class="error" style="display:none;"></div>
+  </div>
+<!-- Firebase App (core) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+    authDomain: "supratechweb.firebaseapp.com",
+    projectId: "supratechweb",
+    storageBucket: "supratechweb.firebasestorage.app",
+    messagingSenderId: "828253545658",
+    appId: "1:828253545658:web:daa886d1de6c9c796a8e83",
+    measurementId: "G-JC8Y89CPQH"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  document.querySelector('form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('firebase-error');
+    errorDiv.style.display = 'none';
+    try {
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const idToken = await userCredential.user.getIdToken();
+      // Envía el idToken al backend en el cuerpo (no solo en el header)
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ idToken })
+      });
+      if (response.ok) {
+        window.location.href = '/panel';
+      } else {
+        const data = await response.json();
+        errorDiv.textContent = data.error || 'Error de autenticación en backend';
+        errorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      // Si el error es de credenciales inválidas, mostrar mensaje personalizado
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        errorDiv.textContent = 'Contraseña o correo incorrecto';
+      } else {
+        errorDiv.textContent = 'Error de login: ' + error.message;
+      }
+      errorDiv.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>
