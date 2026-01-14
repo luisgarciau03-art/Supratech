@@ -1,52 +1,9 @@
-# Python
+# Ignorar credenciales de Firebase
+supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json
+
+# Ignorar archivos de Python y entorno
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
+*.pyc
 venv/
-ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Flask
-instance/
-.webassets-cache
-
-# Environment variables
+env/
 .env
-.env.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Firebase credentials (NEVER commit these)
-*firebase*.json
-*adminsdk*.json
-serviceAccountKey.json
-credentials.json

@@ -2446,40 +2446,13 @@ def compras():
 
 @app.route('/cotizaciones')
 def cotizaciones():
-    """Redirige a la hoja de cálculo de cotizaciones generada ese día"""
-    try:
-        # Obtener spreadsheet ID desde Firebase usando el string COTIZACIONES
-        doc_ref = db.collection('configuracion').document('COTIZACIONES')
-        doc = doc_ref.get()
-
-        if doc.exists:
-            spreadsheet_url = doc.to_dict().get('url', '')
-            if spreadsheet_url:
-                return redirect(spreadsheet_url)
-
-        return jsonify({'error': 'No se encontró la configuración de COTIZACIONES'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    """Muestra la página de visualización de Cotizaciones"""
+    return render_template('Cotizaciones.html')
 
 @app.route('/pedidos_anteriores')
 def pedidos_anteriores():
-    """Muestra la información de pedidos anteriores"""
-    try:
-        # Redirigir directamente a la hoja de cálculo de pedidos anteriores
-        pedidos_url = 'https://docs.google.com/spreadsheets/d/1LLksaPv6x_7YS3XmeY9S2j1I0sIDNRKBpShtfqe3_MA/edit?gid=0#gid=0'
-
-        # Opcionalmente, puedes obtener la URL desde Firebase
-        doc_ref = db.collection('configuracion').document('PEDIDOSANT')
-        doc = doc_ref.get()
-
-        if doc.exists:
-            spreadsheet_url = doc.to_dict().get('url', '')
-            if spreadsheet_url:
-                pedidos_url = spreadsheet_url
-
-        return redirect(pedidos_url)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    """Muestra la página de visualización de Pedidos Anteriores"""
+    return render_template('PedidosAnteriores.html')
 
 @app.route('/indicadores')
 def indicadores():
@@ -2499,14 +2472,8 @@ def get_indicadores_data(section):
         # ID de la hoja de cálculo de indicadores
         spreadsheet_id = '1w8OOsQ-N9XkxD84xYIN6XJtjKvgvFBNjIm1U21-ksJk'
 
-        # Opcionalmente, obtener desde Firebase
-        doc_ref = db.collection('configuracion').document('INDICADORES')
-        doc = doc_ref.get()
-
-        if doc.exists:
-            config_data = doc.to_dict()
-            if 'spreadsheet_id' in config_data:
-                spreadsheet_id = config_data['spreadsheet_id']
+        # Intentar obtener ID desde Firebase si es necesario, por ahora usamos el hardcoded
+        # que coincide con el log de error proporcionado.
 
         # Leer todos los datos de la hoja
         result = service.spreadsheets().values().get(
@@ -2520,7 +2487,8 @@ def get_indicadores_data(section):
             return jsonify({'error': 'No se encontraron datos'}), 404
 
         # Buscar las palabras clave en la primera columna
-        cotizados_start = -1
+        # Cotizados empieza en fila 4 (índice 3) según requerimiento
+        cotizados_start = 3 
         surtido_start = -1
         procesado_start = -1
         mesas_start = -1
@@ -2528,9 +2496,7 @@ def get_indicadores_data(section):
         for i, row in enumerate(values):
             if row and len(row) > 0:
                 cell_value = str(row[0]).upper().strip()
-                if 'COTIZADOS' in cell_value or cell_value == 'COTIZADOS':
-                    cotizados_start = i
-                elif 'SURTIDO' in cell_value or cell_value == 'SURTIDO':
+                if 'SURTIDO' in cell_value or cell_value == 'SURTIDO':
                     surtido_start = i
                 elif 'PROCESADO' in cell_value or cell_value == 'PROCESADO':
                     procesado_start = i
@@ -2539,11 +2505,11 @@ def get_indicadores_data(section):
 
         # Determinar qué sección devolver
         if section == 'cotizados':
-            if cotizados_start == -1:
-                return jsonify({'error': 'No se encontró la sección COTIZADOS'}), 404
-
+            # Desde fila 4 hasta SURTIDO
             end_index = surtido_start - 1 if surtido_start > cotizados_start else len(values)
-            section_data = values[cotizados_start + 1:end_index]
+            # Incluimos la fila de encabezados si existe, o tomamos desde cotizados_start
+            # Asumiendo que los datos empiezan en cotizados_start
+            section_data = values[cotizados_start:end_index]
 
         elif section == 'surtido':
             if surtido_start == -1:
@@ -2561,12 +2527,21 @@ def get_indicadores_data(section):
         else:
             return jsonify({'error': 'Sección no válida'}), 400
 
-        # Filtrar filas vacías
-        section_data = [row for row in section_data if any(cell.strip() for cell in row if cell)]
+        # Filtrar filas donde la columna B (índice 1) esté vacía
+        # Y asegurar que la fila no esté totalmente vacía
+        filtered_data = []
+        for row in section_data:
+            # Verificar si existe columna B y tiene valor
+            if len(row) > 1 and row[1].strip() != '':
+                filtered_data.append(row)
 
         # Separar encabezados de datos
-        headers = section_data[0] if section_data else []
-        rows = section_data[1:] if len(section_data) > 1 else []
+        # Asumimos que la primera fila del rango seleccionado NO son encabezados para Cotizados
+        # según la descripción "empiezan desde la fila 4". 
+        # Si se requieren encabezados fijos, se pueden hardcodear o tomar de la fila 3.
+        # Para mantener consistencia con el frontend existente:
+        headers = [] 
+        rows = filtered_data
 
         return jsonify({
             'headers': headers,
@@ -2578,6 +2553,90 @@ def get_indicadores_data(section):
         print('[INDICADORES] Error:', str(e))
         import traceback
         print(traceback.format_exc())
+        if '403' in str(e):
+            return jsonify({'error': 'Permiso denegado (403). Por favor comparte la hoja de cálculo con el email de la cuenta de servicio.'}), 403
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/cotizaciones_datos', methods=['GET'])
+def cotizaciones_datos():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        
+        # Obtener URL desde Areas/{uid}
+        area_doc = db.collection('Areas').document(uid).get()
+        if not area_doc.exists:
+            return jsonify({'error': 'No se encontró el área para este usuario'}), 404
+        
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('COTIZACIONES')
+        if not spreadsheet_url:
+            return jsonify({'error': 'No se encontró la URL de COTIZACIONES'}), 404
+            
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet inválida'}), 400
+        spreadsheet_id = match.group(1)
+        
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        
+        # Leer datos (Asumiendo Sheet1 o la primera hoja)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='A1:Z1000' 
+        ).execute()
+        
+        values = result.get('values', [])
+        return jsonify({'datos': values})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/pedidos_anteriores_datos', methods=['GET'])
+def pedidos_anteriores_datos():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        
+        area_doc = db.collection('Areas').document(uid).get()
+        if not area_doc.exists:
+            return jsonify({'error': 'No se encontró el área para este usuario'}), 404
+        
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('PEDIDOSANT')
+        if not spreadsheet_url:
+            return jsonify({'error': 'No se encontró la URL de PEDIDOSANT'}), 404
+            
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet inválida'}), 400
+        spreadsheet_id = match.group(1)
+        
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='A1:Z1000'
+        ).execute()
+        
+        values = result.get('values', [])
+        return jsonify({'datos': values})
+        
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
