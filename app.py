@@ -30,10 +30,13 @@ else:
 app = Flask(__name__)
 
 # Función auxiliar para obtener credenciales de Google API
-def get_google_credentials():
+def get_google_credentials(scopes=None):
     """Retorna credenciales de Google API desde variable de entorno o archivo local"""
     from google.oauth2 import service_account
-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+    if scopes is None:
+        SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+    else:
+        SCOPES = scopes
 
     if os.environ.get('FIREBASE_CREDENTIALS'):
         # En producción: usar credenciales desde variable de entorno
@@ -2477,6 +2480,10 @@ def get_indicadores_data(section):
         # ID de la hoja de cálculo de indicadores
         spreadsheet_id = '1w8OOsQ-N9XkxD84xYIN6XJtjKvgvFBNjIm1U21-ksJk'
 
+        # Obtener ID de la hoja (sheetId) real para operaciones de batchUpdate
+        spreadsheet_meta = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        sheet_id = spreadsheet_meta['sheets'][0]['properties']['sheetId']
+
         # Intentar obtener ID desde Firebase si es necesario, por ahora usamos el hardcoded
         # que coincide con el log de error proporcionado.
 
@@ -2582,6 +2589,10 @@ def mover_pedido_indicadores():
 
         spreadsheet_id = '1w8OOsQ-N9XkxD84xYIN6XJtjKvgvFBNjIm1U21-ksJk'
 
+        # Obtener ID de la hoja (sheetId) real para operaciones de batchUpdate
+        spreadsheet_meta = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        sheet_id = spreadsheet_meta['sheets'][0]['properties']['sheetId']
+
         # Leer todos los datos de la hoja
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
@@ -2641,7 +2652,7 @@ def mover_pedido_indicadores():
                 'requests': [{
                     'deleteDimension': {
                         'range': {
-                            'sheetId': 0,  # Primera hoja
+                            'sheetId': sheet_id,
                             'dimension': 'ROWS',
                             'startIndex': actual_row_index,
                             'endIndex': actual_row_index + 1
@@ -2668,7 +2679,7 @@ def mover_pedido_indicadores():
                 'requests': [{
                     'insertDimension': {
                         'range': {
-                            'sheetId': 0,
+                            'sheetId': sheet_id,
                             'dimension': 'ROWS',
                             'startIndex': insert_row,
                             'endIndex': insert_row + 1
@@ -2697,7 +2708,7 @@ def mover_pedido_indicadores():
                 'requests': [{
                     'deleteDimension': {
                         'range': {
-                            'sheetId': 0,
+                            'sheetId': sheet_id,
                             'dimension': 'ROWS',
                             'startIndex': delete_index,
                             'endIndex': delete_index + 1
@@ -2748,18 +2759,32 @@ def cotizaciones_datos():
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         
-        # Leer datos de la hoja "Semana" en el rango B2:O22
+        # Obtener metadatos para encontrar el nombre correcto de la hoja "Semana"
+        spreadsheet_meta = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        sheets = spreadsheet_meta.get('sheets', [])
+        sheet_name = 'Semana' # Default
+        
+        # Buscar hoja que contenga "Semana" (case-insensitive) o usar la primera
+        for s in sheets:
+            if 'semana' in s['properties']['title'].lower():
+                sheet_name = s['properties']['title']
+                break
+        else:
+            if sheets:
+                sheet_name = sheets[0]['properties']['title']
+
+        # Leer datos usando el nombre de hoja correcto
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='Semana!B2:O22'
+            range=f"'{sheet_name}'!B2:O22"
         ).execute()
 
         values = result.get('values', [])
 
-        # Obtener también los datos completos de la hoja Semana para identificar marcas por día (fila 5 en adelante)
+        # Obtener también los datos completos
         result_full = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='Semana!A1:O100'
+            range=f"'{sheet_name}'!A1:O100"
         ).execute()
         full_values = result_full.get('values', [])
 
@@ -2952,20 +2977,13 @@ def ejecutar_appscript():
         scripts = scripts_map[tipo]
 
         # Obtener credenciales para la API de Apps Script
-        creds = get_google_credentials()
-
-        # Asegurarse de que las credenciales tienen el scope de Apps Script
-        if not creds.has_scopes(['https://www.googleapis.com/auth/script.projects']):
-            # Crear nuevas credenciales con el scope correcto
-            creds = service_account.Credentials.from_service_account_file(
-                'serviceAccountKey.json',
-                scopes=[
-                    'https://www.googleapis.com/auth/spreadsheets',
-                    'https://www.googleapis.com/auth/drive',
-                    'https://www.googleapis.com/auth/script.projects',
-                    'https://www.googleapis.com/auth/script.external_request'
-                ]
-            )
+        scopes = [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive',
+            'https://www.googleapis.com/auth/script.projects',
+            'https://www.googleapis.com/auth/script.external_request'
+        ]
+        creds = get_google_credentials(scopes=scopes)
 
         # Ejecutar cada script
         resultados = []
@@ -3046,6 +3064,45 @@ def ejecutar_appscript():
         print('[EJECUTAR_APPSCRIPT] Error:', str(e))
         import traceback
         print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/proxy_spreadsheet_data', methods=['POST'])
+def proxy_spreadsheet_data():
+    """Endpoint para obtener datos de una hoja externa dado su URL (para visualización en HTML)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        url = data.get('url')
+        if not url:
+             return jsonify({'error': 'URL required'}), 400
+             
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", url)
+        if not match:
+            return jsonify({'error': 'Invalid URL'}), 400
+        spreadsheet_id = match.group(1)
+        
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        
+        # Obtener la primera hoja
+        spreadsheet = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        if not spreadsheet.get('sheets'):
+             return jsonify({'error': 'No sheets found'}), 404
+        sheet_name = spreadsheet['sheets'][0]['properties']['title']
+        
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f"'{sheet_name}'!A1:Z1000"
+        ).execute()
+        
+        return jsonify({'values': result.get('values', []), 'sheetName': sheet_name})
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
