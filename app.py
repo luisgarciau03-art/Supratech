@@ -3103,15 +3103,31 @@ def proxy_spreadsheet_data():
             return jsonify({'error': 'Invalid URL'}), 400
         spreadsheet_id = match.group(1)
         
+        # Intentar extraer el gid de la URL
+        gid_match = re.search(r"[#&]gid=([0-9]+)", url)
+        target_gid = int(gid_match.group(1)) if gid_match else None
+        
         from googleapiclient.discovery import build
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         
-        # Obtener la primera hoja
+        # Obtener metadatos del spreadsheet
         spreadsheet = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
-        if not spreadsheet.get('sheets'):
+        sheets = spreadsheet.get('sheets', [])
+        if not sheets:
              return jsonify({'error': 'No sheets found'}), 404
-        sheet_name = spreadsheet['sheets'][0]['properties']['title']
+        
+        sheet_name = None
+        # Buscar la hoja por gid si existe
+        if target_gid is not None:
+            for s in sheets:
+                if s['properties']['sheetId'] == target_gid:
+                    sheet_name = s['properties']['title']
+                    break
+        
+        # Si no se encontró por gid o no había gid, usar la primera
+        if not sheet_name:
+            sheet_name = sheets[0]['properties']['title']
         
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
