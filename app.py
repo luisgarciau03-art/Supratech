@@ -2810,7 +2810,8 @@ def cotizaciones_datos():
         return jsonify({
             'datos': values,
             'marcas_por_dia': marcas_por_dia,
-            'spreadsheet_id': spreadsheet_id
+            'spreadsheet_id': spreadsheet_id,
+            'sheet_name': sheet_name
         })
         
     except Exception as e:
@@ -2847,8 +2848,13 @@ def cotizacion_detalle(marca, semana):
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
 
-        # Construir el nombre de la hoja: "Marca W#" o "Marca W# 2", etc.
-        sheet_name = f"{marca} {semana}"
+        # Obtener índice de ocurrencia (para duplicados: Marca W3, Marca W3 2, etc.)
+        indice = request.args.get('indice', '1')
+        
+        if int(indice) > 1:
+            sheet_name = f"{marca} {semana} {indice}"
+        else:
+            sheet_name = f"{marca} {semana}"
 
         # Leer todos los datos de la hoja específica
         result = service.spreadsheets().values().get(

@@ -1,73 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Detalle de Cotización</title>
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <title>Detalle Cotización</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700&display=swap" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
-      font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
+      background: #f4f7f6;
+      font-family: 'Montserrat', sans-serif;
       padding: 20px;
-      color: #222;
-      min-height: 100vh;
     }
-    .container { max-width: 1400px; margin: 0 auto; }
-    .panel-card {
-      background: #fff;
-      border-radius: 22px;
-      box-shadow: 0 8px 32px #0050d822;
-      padding: 28px 32px;
-      animation: fadeInCard 0.6s ease;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     }
-    @keyframes fadeInCard { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    h2 { color: #0050d8; font-size: 1.8em; font-weight: 700; margin-bottom: 18px; }
-    .back-link { display: inline-block; margin-bottom: 12px; color: #0050d8; text-decoration: underline; font-weight: 600; cursor: pointer; }
+    h2 {
+      color: #0050d8;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 15px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #666;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .back-link:hover { color: #0050d8; }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
-      font-size: 0.85em;
-      background: #fff;
-      box-shadow: 0 2px 12px #0050d822;
-      border-radius: 10px;
-      overflow: hidden;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
     }
     th {
-      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      background-color: #0050d8;
       color: white;
-      padding: 12px 8px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 0.9em;
     }
-    td {
-      border: 1px solid #ddd;
-      padding: 10px 8px;
-      text-align: center;
-    }
-    tr:nth-child(even) { background: #f7faff; }
-    tr:hover { background: #e8f2ff; }
-    .loading { text-align: center; color: #0050d8; font-weight: 600; padding: 20px; }
-    .error { color: #d80032; font-weight: 600; text-align: center; }
-    .table-container { overflow-x: auto; }
-    .info-box {
-      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .info-box h3 { margin: 0; font-size: 1.3em; }
-    .info-box .badge {
-      background: rgba(255,255,255,0.2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
+    tr:nth-child(even) { background-color: #f9f9f9; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -78,112 +55,63 @@
       projectId: "supratechweb",
       storageBucket: "supratechweb.firebasestorage.app",
       messagingSenderId: "828253545658",
-      appId: "1:828253545658:web:daa886d1de6c9c796a8e83",
-      measurementId: "G-JC8Y89CPQH"
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
     };
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   </script>
 </head>
 <body>
   <div class="container">
-    <a class="back-link" onclick="window.close()">&larr; Cerrar</a>
-    <div class="panel-card">
-      <div id="info-container"></div>
-      <div id="loading" class="loading">Cargando datos...</div>
-      <div id="error" class="error" style="display:none;"></div>
-      <div class="table-container">
-        <table id="data-table" style="display:none;">
-          <thead id="table-head"></thead>
-          <tbody id="table-body"></tbody>
-        </table>
-      </div>
+    <a href="/cotizaciones" class="back-link">&larr; Volver a Cotizaciones</a>
+    <h2 id="titulo">Cargando detalle...</h2>
+    <div style="overflow-x:auto;">
+      <table id="detalle-table"></table>
     </div>
   </div>
+
   <script>
-    firebase.auth().onAuthStateChanged(async function(user) {
+    firebase.auth().onAuthStateChanged(async user => {
       if (user) {
-        try {
-          const idToken = await user.getIdToken();
-          cargarDatos(idToken);
-        } catch (e) {
-          mostrarError('Error de autenticación');
-        }
+        const token = await user.getIdToken();
+        const params = new URLSearchParams(window.location.search);
+        const marca = params.get('marca');
+        const semana = params.get('semana');
+        const indice = params.get('indice') || '1';
+        
+        cargarDetalle(token, marca, semana, indice);
       } else {
         window.location.href = '/';
       }
     });
 
-    async function cargarDatos(token) {
+    async function cargarDetalle(token, marca, semana, indice) {
       try {
-        // Obtener parámetros de URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const marca = urlParams.get('marca');
-        const semana = urlParams.get('semana');
-
-        if (!marca || !semana) {
-          mostrarError('Parámetros incompletos');
-          return;
-        }
-
-        const res = await fetch(`/api/cotizacion_detalle/${encodeURIComponent(marca)}/${encodeURIComponent(semana)}`, {
+        // Llamada a la API con el parámetro indice
+        const res = await fetch(`/api/cotizacion_detalle/${marca}/${semana}?indice=${indice}`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         const data = await res.json();
+        
+        if (data.error) {
+            document.getElementById('titulo').textContent = 'Error: ' + data.error;
+            return;
+        }
 
-        if (!res.ok) throw new Error(data.error || 'Error al cargar datos');
-
-        renderizarDetalle(data);
-      } catch (error) {
-        mostrarError(error.message);
+        document.getElementById('titulo').textContent = `Detalle: ${data.sheet_name}`;
+        
+        const table = document.getElementById('detalle-table');
+        data.datos.forEach(row => {
+          const tr = document.createElement('tr');
+          row.forEach(cell => {
+            const td = document.createElement('td');
+            td.textContent = cell;
+            tr.appendChild(td);
+          });
+          table.appendChild(tr);
+        });
+      } catch (e) {
+        document.getElementById('titulo').textContent = 'Error de conexión';
       }
-    }
-
-    function renderizarDetalle(data) {
-      const loading = document.getElementById('loading');
-      const table = document.getElementById('data-table');
-      const thead = document.getElementById('table-head');
-      const tbody = document.getElementById('table-body');
-      const infoContainer = document.getElementById('info-container');
-
-      loading.style.display = 'none';
-
-      const filas = data.datos;
-
-      if (!filas || filas.length === 0) {
-        mostrarError('No hay datos disponibles para esta hoja');
-        return;
-      }
-
-      // Mostrar información de la marca y semana
-      infoContainer.innerHTML = `
-        <div class="info-box">
-          <h3>📋 ${data.marca}</h3>
-          <div class="badge">${data.semana}</div>
-        </div>
-      `;
-
-      // Primera fila como headers
-      const headers = filas[0];
-      let headHtml = '<tr>';
-      headers.forEach(h => headHtml += `<th>${h || ''}</th>`);
-      headHtml += '</tr>';
-      thead.innerHTML = headHtml;
-
-      let bodyHtml = '';
-      for (let i = 1; i < filas.length; i++) {
-        bodyHtml += '<tr>';
-        filas[i].forEach(c => bodyHtml += `<td>${c || ''}</td>`);
-        bodyHtml += '</tr>';
-      }
-      tbody.innerHTML = bodyHtml;
-      table.style.display = 'table';
-    }
-
-    function mostrarError(msg) {
-      document.getElementById('loading').style.display = 'none';
-      const errDiv = document.getElementById('error');
-      errDiv.textContent = msg;
-      errDiv.style.display = 'block';
     }
   </script>
 </body>

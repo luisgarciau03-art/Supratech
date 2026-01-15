@@ -5,51 +5,61 @@
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
-      font-family: 'Montserrat', Arial, sans-serif;
+      font-family: 'Montserrat', sans-serif;
+      background: #f0f2f5;
       margin: 0;
       padding: 20px;
-      color: #222;
-      min-height: 100vh;
     }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .panel-card {
-      background: #fff;
-      border-radius: 22px;
-      box-shadow: 0 8px 32px #0050d822;
-      padding: 28px 32px;
-      animation: fadeInCard 0.6s ease;
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    @keyframes fadeInCard { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    h2 { color: #0050d8; font-size: 1.8em; font-weight: 700; margin-bottom: 18px; }
-    .back-link { display: inline-block; margin-bottom: 12px; color: #0050d8; text-decoration: underline; font-weight: 600; cursor: pointer; }
+    /* PUNTO 3: Texto principal centrado */
+    h1 {
+      text-align: center;
+      color: #0050d8;
+      margin-bottom: 30px;
+      font-size: 2.2em;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background: #0050d8;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
-      font-size: 0.85em;
-      background: #fff;
-      box-shadow: 0 2px 12px #0050d822;
-      border-radius: 10px;
-      overflow: hidden;
+      min-width: 1000px;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
     }
     th {
-      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      background-color: #0050d8;
       color: white;
-      padding: 12px 8px;
-      text-align: center;
-      font-weight: 700;
+      position: sticky;
+      top: 0;
     }
-    td {
-      border: 1px solid #ddd;
-      padding: 10px 8px;
-      text-align: center;
-    }
-    tr:nth-child(even) { background: #f7faff; }
-    tr:hover { background: #e8f2ff; }
-    .loading { text-align: center; color: #0050d8; font-weight: 600; padding: 20px; }
-    .error { color: #d80032; font-weight: 600; text-align: center; }
-    .table-container { overflow-x: auto; }
+    tr:hover { background-color: #f5f5f5; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -60,92 +70,34 @@
       projectId: "supratechweb",
       storageBucket: "supratechweb.firebasestorage.app",
       messagingSenderId: "828253545658",
-      appId: "1:828253545658:web:daa886d1de6c9c796a8e83",
-      measurementId: "G-JC8Y89CPQH"
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
     };
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   </script>
 </head>
 <body>
   <div class="container">
-    <a class="back-link" href="/compras">&larr; Volver</a>
-    <div class="panel-card">
-      <h2>📦 Pedidos Anteriores</h2>
-      <div id="loading" class="loading">Cargando datos...</div>
-      <div id="error" class="error" style="display:none;"></div>
-      <div class="table-container">
-        <table id="data-table" style="display:none;">
-          <thead id="table-head"></thead>
-          <tbody id="table-body"></tbody>
-        </table>
-      </div>
+    <a href="/panel" class="back-btn">&larr; Volver</a>
+    <h1>Historial de Pedidos Anteriores</h1>
+    <div class="table-container">
+      <table id="pedidos-table">
+        <!-- Datos cargados vía JS -->
+      </table>
     </div>
   </div>
   <script>
-    firebase.auth().onAuthStateChanged(async function(user) {
-      if (user) {
-        try {
-          const idToken = await user.getIdToken();
-          cargarDatos(idToken);
-        } catch (e) {
-          mostrarError('Error de autenticación');
-        }
-      } else {
-        window.location.href = '/';
-      }
-    });
-
-    async function cargarDatos(token) {
-      try {
+    firebase.auth().onAuthStateChanged(async user => {
+      if(user) {
+        const token = await user.getIdToken();
         const res = await fetch('/api/pedidos_anteriores_datos', {
-          headers: { 'Authorization': 'Bearer ' + token }
+          headers: {'Authorization': 'Bearer ' + token}
         });
         const data = await res.json();
-        
-        if (!res.ok) throw new Error(data.error || 'Error al cargar datos');
-        
-        renderizarTabla(data.datos);
-      } catch (error) {
-        mostrarError(error.message);
+        const table = document.getElementById('pedidos-table');
+        // Lógica simple de renderizado (similar a las otras tablas)
+        data.datos.forEach(row => { const tr = document.createElement('tr'); row.forEach(c => { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); }); table.appendChild(tr); });
       }
-    }
-
-    function renderizarTabla(filas) {
-      const loading = document.getElementById('loading');
-      const table = document.getElementById('data-table');
-      const thead = document.getElementById('table-head');
-      const tbody = document.getElementById('table-body');
-      
-      loading.style.display = 'none';
-      
-      if (!filas || filas.length === 0) {
-        mostrarError('No hay datos disponibles');
-        return;
-      }
-
-      // Asumimos primera fila como headers
-      const headers = filas[0];
-      let headHtml = '<tr>';
-      headers.forEach(h => headHtml += `<th>${h}</th>`);
-      headHtml += '</tr>';
-      thead.innerHTML = headHtml;
-
-      let bodyHtml = '';
-      for (let i = 1; i < filas.length; i++) {
-        bodyHtml += '<tr>';
-        filas[i].forEach(c => bodyHtml += `<td>${c}</td>`);
-        bodyHtml += '</tr>';
-      }
-      tbody.innerHTML = bodyHtml;
-      table.style.display = 'table';
-    }
-
-    function mostrarError(msg) {
-      document.getElementById('loading').style.display = 'none';
-      const errDiv = document.getElementById('error');
-      errDiv.textContent = msg;
-      errDiv.style.display = 'block';
-    }
+    });
   </script>
 </body>
 </html>
