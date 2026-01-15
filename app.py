@@ -2449,6 +2449,11 @@ def cotizaciones():
     """Muestra la página de visualización de Cotizaciones"""
     return render_template('Cotizaciones.html')
 
+@app.route('/cotizacion_detalle')
+def cotizacion_detalle_page():
+    """Muestra la página de detalle de una cotización específica"""
+    return render_template('CotizacionDetalle.html')
+
 @app.route('/pedidos_anteriores')
 def pedidos_anteriores():
     """Muestra la página de visualización de Pedidos Anteriores"""
@@ -2557,6 +2562,162 @@ def get_indicadores_data(section):
             return jsonify({'error': 'Permiso denegado (403). Por favor comparte la hoja de cálculo con el email de la cuenta de servicio.'}), 403
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/indicadores/mover_pedido', methods=['POST'])
+def mover_pedido_indicadores():
+    """Mueve un pedido de una sección a otra en la hoja de indicadores"""
+    try:
+        from googleapiclient.discovery import build
+
+        data = request.get_json()
+        seccion_actual = data.get('seccionActual')
+        seccion_destino = data.get('seccionDestino')
+        row_data = data.get('rowData')
+        row_index = data.get('rowIndex')
+
+        if not all([seccion_actual, seccion_destino, row_data]):
+            return jsonify({'error': 'Datos incompletos'}), 400
+
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        spreadsheet_id = '1w8OOsQ-N9XkxD84xYIN6XJtjKvgvFBNjIm1U21-ksJk'
+
+        # Leer todos los datos de la hoja
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='A:Z'
+        ).execute()
+
+        values = result.get('values', [])
+
+        # Buscar secciones
+        cotizados_start = 3
+        surtido_start = -1
+        procesado_start = -1
+        mesas_start = -1
+
+        for i, row in enumerate(values):
+            if row and len(row) > 0:
+                cell_value = str(row[0]).upper().strip()
+                if 'SURTIDO' in cell_value:
+                    surtido_start = i
+                elif 'PROCESADO' in cell_value:
+                    procesado_start = i
+                elif 'MESAS' in cell_value:
+                    mesas_start = i
+
+        # Determinar las filas de inicio y fin de cada sección
+        sections_map = {
+            'cotizados': (cotizados_start, surtido_start - 1 if surtido_start > 0 else len(values)),
+            'surtido': (surtido_start + 1 if surtido_start > 0 else -1, procesado_start - 1 if procesado_start > surtido_start else len(values)),
+            'procesado': (procesado_start + 1 if procesado_start > 0 else -1, mesas_start - 1 if mesas_start > procesado_start else len(values))
+        }
+
+        if seccion_actual not in sections_map:
+            return jsonify({'error': 'Sección actual no válida'}), 400
+
+        start_row, end_row = sections_map[seccion_actual]
+        if start_row == -1:
+            return jsonify({'error': f'No se encontró la sección {seccion_actual}'}), 404
+
+        # Encontrar la fila exacta en la hoja
+        # Necesitamos buscar la fila que coincida con row_data
+        actual_row_index = -1
+        filtered_index = 0
+        for i in range(start_row, end_row):
+            if i < len(values) and len(values[i]) > 1 and values[i][1].strip():
+                if filtered_index == row_index:
+                    actual_row_index = i
+                    break
+                filtered_index += 1
+
+        if actual_row_index == -1:
+            return jsonify({'error': 'No se encontró la fila especificada'}), 404
+
+        # Si el destino es "completado", solo eliminar la fila de la sección actual
+        if seccion_destino == 'completado':
+            # Borrar la fila
+            delete_request = {
+                'requests': [{
+                    'deleteDimension': {
+                        'range': {
+                            'sheetId': 0,  # Primera hoja
+                            'dimension': 'ROWS',
+                            'startIndex': actual_row_index,
+                            'endIndex': actual_row_index + 1
+                        }
+                    }
+                }]
+            }
+            service.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body=delete_request
+            ).execute()
+
+        else:
+            # Mover a la nueva sección
+            dest_start, _ = sections_map[seccion_destino]
+            if dest_start == -1:
+                return jsonify({'error': f'No se encontró la sección {seccion_destino}'}), 404
+
+            # Insertar en la nueva sección (después del encabezado)
+            insert_row = dest_start + 1
+
+            # Primero insertar una fila vacía en el destino
+            insert_request = {
+                'requests': [{
+                    'insertDimension': {
+                        'range': {
+                            'sheetId': 0,
+                            'dimension': 'ROWS',
+                            'startIndex': insert_row,
+                            'endIndex': insert_row + 1
+                        }
+                    }
+                }]
+            }
+            service.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body=insert_request
+            ).execute()
+
+            # Escribir los datos en la nueva fila
+            service.spreadsheets().values().update(
+                spreadsheetId=spreadsheet_id,
+                range=f'A{insert_row + 1}',  # +1 porque las filas en Sheets empiezan en 1
+                valueInputOption='RAW',
+                body={'values': [row_data]}
+            ).execute()
+
+            # Eliminar la fila original (el índice cambió debido a la inserción)
+            # Si la fila original está después de la inserción, sumar 1 al índice
+            delete_index = actual_row_index if actual_row_index < insert_row else actual_row_index + 1
+
+            delete_request = {
+                'requests': [{
+                    'deleteDimension': {
+                        'range': {
+                            'sheetId': 0,
+                            'dimension': 'ROWS',
+                            'startIndex': delete_index,
+                            'endIndex': delete_index + 1
+                        }
+                    }
+                }]
+            }
+            service.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body=delete_request
+            ).execute()
+
+        return jsonify({'success': True, 'message': 'Pedido movido exitosamente'})
+
+    except Exception as e:
+        print('[MOVER_PEDIDO] Error:', str(e))
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/cotizaciones_datos', methods=['GET'])
 def cotizaciones_datos():
     auth_header = request.headers.get('Authorization')
@@ -2587,15 +2748,98 @@ def cotizaciones_datos():
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         
-        # Leer datos (Asumiendo Sheet1 o la primera hoja)
+        # Leer datos de la hoja "Semana" en el rango B2:O22
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='A1:Z1000' 
+            range='Semana!B2:O22'
         ).execute()
-        
+
         values = result.get('values', [])
-        return jsonify({'datos': values})
+
+        # Obtener también los datos completos de la hoja Semana para identificar marcas por día (fila 5 en adelante)
+        result_full = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='Semana!A1:O100'
+        ).execute()
+        full_values = result_full.get('values', [])
+
+        # Extraer nombres de días (fila 1: LUNES, MARTES, etc.) y marcas (fila 5 en adelante)
+        dias = full_values[0] if len(full_values) > 0 else []
+        marcas_por_dia = {}
+
+        # Procesar desde la fila 5 (índice 4) donde empiezan las marcas
+        if len(full_values) >= 5:
+            for row_idx in range(4, len(full_values)):
+                row = full_values[row_idx]
+                for col_idx, cell in enumerate(row):
+                    if cell and cell.strip():  # Si hay un nombre de marca
+                        dia = dias[col_idx] if col_idx < len(dias) else f"Col{col_idx}"
+                        if dia not in marcas_por_dia:
+                            marcas_por_dia[dia] = []
+                        marcas_por_dia[dia].append({
+                            'nombre': cell.strip(),
+                            'fila': row_idx + 1,
+                            'columna': col_idx
+                        })
+
+        return jsonify({
+            'datos': values,
+            'marcas_por_dia': marcas_por_dia,
+            'spreadsheet_id': spreadsheet_id
+        })
         
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/cotizacion_detalle/<marca>/<semana>', methods=['GET'])
+def cotizacion_detalle(marca, semana):
+    """Obtiene los detalles de una hoja específica de marca y semana"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        # Obtener URL desde Areas/{uid}
+        area_doc = db.collection('Areas').document(uid).get()
+        if not area_doc.exists:
+            return jsonify({'error': 'No se encontró el área para este usuario'}), 404
+
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('COTIZACIONES')
+        if not spreadsheet_url:
+            return jsonify({'error': 'No se encontró la URL de COTIZACIONES'}), 404
+
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet inválida'}), 400
+        spreadsheet_id = match.group(1)
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Construir el nombre de la hoja: "Marca W#" o "Marca W# 2", etc.
+        sheet_name = f"{marca} {semana}"
+
+        # Leer todos los datos de la hoja específica
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f"'{sheet_name}'!A1:Z1000"
+        ).execute()
+
+        values = result.get('values', [])
+
+        return jsonify({
+            'datos': values,
+            'sheet_name': sheet_name,
+            'marca': marca,
+            'semana': semana
+        })
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -2637,6 +2881,171 @@ def pedidos_anteriores_datos():
         return jsonify({'datos': values})
         
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ejecutar_appscript', methods=['POST'])
+def ejecutar_appscript():
+    """Ejecuta un AppScript específico según el tipo solicitado"""
+    try:
+        import requests
+        from google.oauth2 import service_account
+        from google.auth.transport.requests import Request as GoogleRequest
+
+        data = request.get_json()
+        tipo = data.get('tipo')
+
+        if not tipo:
+            return jsonify({'error': 'Tipo de script no especificado'}), 400
+
+        # Mapeo de tipos a los scripts y funciones correspondientes
+        scripts_map = {
+            'pedidos_anteriores': [
+                {
+                    'script_id': '1krRl3CLWRbdOmeZ6FsM9PlooEI2mQ81IKD7ls1h4r31TBtpICJC0SWDF',
+                    'function': 'extraeryGuardarDatos',
+                    'name': 'ExtraergC'
+                },
+                {
+                    'script_id': '1SCrY5XN5vOlmma60_anfISR9zWDuHoS1OpyJdJEBQ75liyT47a0wF4rk',
+                    'function': 'extraeryGuardarDatos',
+                    'name': 'ExtraergS'
+                },
+                {
+                    'script_id': '1b1y4lFlBR3CorrrcsOFweF24tUf8iykn0YIYAAXI5a1qFNUL-G0u3Jjl',
+                    'function': 'extraeryGuardarDatos',
+                    'name': 'ExtraergSP'
+                }
+            ],
+            'calculadora': [
+                {
+                    'script_id': '1zlFF7gH_T2zeVZmK109K6JZV3Km3yZLWSZuWr0aqFlxJFgpBKw-ffwaK',
+                    'function': 'generarPedidoFinal',
+                    'name': 'generarPedidoFinal'
+                }
+            ],
+            'resultados': [
+                {
+                    'script_id': '19j9NFFrRRX7qGNaM_yHMcuW6U8_Iqo4nEwQ9sB95CvIx7G3V6nBDZq-V',
+                    'function': 'DupeProXd',
+                    'name': 'DupeProXd'
+                }
+            ],
+            'creacion_envio': [
+                {
+                    'script_id': '1hTdKzHBQxLPwMwDyqtZv3B5tyKuokGkKFdW5NOVblONCv_nl1IPmutAa',
+                    'function': 'procesoCompleto',
+                    'name': 'procesoCompleto'
+                }
+            ],
+            'indicadores_update': [
+                {
+                    'script_id': '1BRtqJOrUwl1QyPnU_PySkFimsKoXgloI7mRbkWG3IpzQ9Y9h4-41TNsk',
+                    'function': 'actualizarHoja18DesdeBD',
+                    'name': 'actualizarHoja18DesdeBD'
+                }
+            ]
+        }
+
+        if tipo not in scripts_map:
+            return jsonify({'error': 'Tipo de script no válido'}), 400
+
+        scripts = scripts_map[tipo]
+
+        # Obtener credenciales para la API de Apps Script
+        creds = get_google_credentials()
+
+        # Asegurarse de que las credenciales tienen el scope de Apps Script
+        if not creds.has_scopes(['https://www.googleapis.com/auth/script.projects']):
+            # Crear nuevas credenciales con el scope correcto
+            creds = service_account.Credentials.from_service_account_file(
+                'serviceAccountKey.json',
+                scopes=[
+                    'https://www.googleapis.com/auth/spreadsheets',
+                    'https://www.googleapis.com/auth/drive',
+                    'https://www.googleapis.com/auth/script.projects',
+                    'https://www.googleapis.com/auth/script.external_request'
+                ]
+            )
+
+        # Ejecutar cada script
+        resultados = []
+        for script_info in scripts:
+            script_id = script_info['script_id']
+            function_name = script_info['function']
+            name = script_info['name']
+
+            print(f'[APPSCRIPT] Ejecutando {name} (función: {function_name})...')
+
+            # Construir la URL de la API de Apps Script
+            url = f'https://script.googleapis.com/v1/scripts/{script_id}:run'
+
+            # Obtener token de acceso
+            if not creds.valid:
+                creds.refresh(GoogleRequest())
+
+            access_token = creds.token
+
+            # Construir el body de la petición
+            payload = {
+                'function': function_name,
+                'devMode': False
+            }
+
+            # Headers
+            headers = {
+                'Authorization': f'Bearer {access_token}',
+                'Content-Type': 'application/json'
+            }
+
+            # Ejecutar el script
+            response = requests.post(url, json=payload, headers=headers, timeout=600)
+
+            if response.status_code == 200:
+                result_data = response.json()
+                if 'error' in result_data:
+                    error_msg = result_data['error'].get('message', 'Error desconocido')
+                    resultados.append({
+                        'script': name,
+                        'success': False,
+                        'error': error_msg
+                    })
+                    print(f'[APPSCRIPT] Error en {name}: {error_msg}')
+                else:
+                    resultados.append({
+                        'script': name,
+                        'success': True,
+                        'result': result_data.get('response', {})
+                    })
+                    print(f'[APPSCRIPT] {name} ejecutado exitosamente')
+            else:
+                error_msg = f'HTTP {response.status_code}: {response.text}'
+                resultados.append({
+                    'script': name,
+                    'success': False,
+                    'error': error_msg
+                })
+                print(f'[APPSCRIPT] Error en {name}: {error_msg}')
+
+        # Verificar si todos fueron exitosos
+        todos_exitosos = all(r['success'] for r in resultados)
+
+        if todos_exitosos:
+            return jsonify({
+                'success': True,
+                'message': f'Todos los scripts de {tipo} ejecutados exitosamente',
+                'resultados': resultados
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': f'Algunos scripts de {tipo} fallaron',
+                'resultados': resultados
+            }), 500
+
+    except Exception as e:
+        print('[EJECUTAR_APPSCRIPT] Error:', str(e))
+        import traceback
+        print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

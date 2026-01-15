@@ -69,6 +69,71 @@
       box-shadow: 0 6px 24px #0050d822;
       transform: scale(1.07);
     }
+    .panel-link.big-btn {
+      background: linear-gradient(90deg, #28a745 60%, #20c997 100%);
+      font-size: 1.3em;
+      padding: 20px 40px;
+      max-width: 400px;
+    }
+    .panel-link.big-btn:hover {
+      background: linear-gradient(90deg, #20c997 60%, #28a745 100%);
+    }
+    .automation-section {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px solid #eee;
+    }
+    .automation-section h3 {
+      color: #0050d8;
+      font-size: 1.3em;
+      margin-bottom: 15px;
+    }
+    .status-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+      text-align: center;
+      font-weight: 600;
+    }
+    .status-message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      display: block;
+    }
+    .status-message.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+    .status-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 25px;
+      background: #eee;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 15px;
+      display: none;
+    }
+    .progress-bar.active {
+      display: block;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
     @media (max-width: 500px) {
       .panel-card {
         padding: 18px 6px 18px 6px;
@@ -82,14 +147,163 @@
 <body>
   <div class="panel-card">
     <h2>Panel de Compras</h2>
+
     <div class="panel-links">
       <a class="panel-link" href="/cotizaciones">COTIZACIONES</a>
       <a class="panel-link" href="/pedidos_anteriores">PEDIDOS ANTERIORES</a>
       <a class="panel-link" href="/indicadores">INDICADORES</a>
     </div>
-    <div style="margin-top: 32px;">
-      <a class="panel-link" href="/panel" style="background:linear-gradient(90deg,#0050d8 60%,#0077ff 100%);color:#fff;font-weight:700;box-shadow:0 2px 12px #0050d822;">Volver</a>
+
+    <div class="automation-section">
+      <h3>⚙️ Automatización</h3>
+      <div class="panel-links">
+        <button class="panel-link big-btn" onclick="ejecutarActualizarTodo()">🔄 ACTUALIZAR TODO</button>
+        <button class="panel-link" onclick="ejecutarScript('pedidos_anteriores')">📦 PEDIDOS ANTERIORES</button>
+        <button class="panel-link" onclick="ejecutarScript('calculadora')">🧮 CALCULADORA</button>
+        <button class="panel-link" onclick="ejecutarScript('resultados')">📊 RESULTADOS</button>
+        <button class="panel-link" onclick="ejecutarScript('creacion_envio')">📮 CREACION DE ENVIO</button>
+        <button class="panel-link" onclick="ejecutarScript('indicadores_update')">📈 INDICADORES</button>
+      </div>
+
+      <div id="status-message" class="status-message"></div>
+      <div id="progress-bar" class="progress-bar">
+        <div id="progress-fill" class="progress-fill">0%</div>
+      </div>
+    </div>
+
+    <div class="automation-section">
+      <a class="panel-link" href="/panel">Volver</a>
     </div>
   </div>
+
+  <script>
+    let ejecutando = false;
+
+    async function ejecutarScript(tipo) {
+      if (ejecutando) {
+        alert('Ya hay un proceso en ejecución. Por favor espera.');
+        return;
+      }
+
+      ejecutando = true;
+      mostrarEstado('info', `Ejecutando ${tipo.toUpperCase().replace('_', ' ')}...`);
+
+      try {
+        const response = await fetch('/api/ejecutar_appscript', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ tipo: tipo })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Error al ejecutar el script');
+        }
+
+        mostrarEstado('success', result.message || 'Script ejecutado exitosamente');
+      } catch (error) {
+        mostrarEstado('error', 'Error: ' + error.message);
+      } finally {
+        ejecutando = false;
+      }
+    }
+
+    async function ejecutarActualizarTodo() {
+      if (ejecutando) {
+        alert('Ya hay un proceso en ejecución. Por favor espera.');
+        return;
+      }
+
+      if (!confirm('¿Deseas ejecutar ACTUALIZAR TODO? Esto ejecutará todos los procesos de automatización secuencialmente y puede tomar varios minutos.')) {
+        return;
+      }
+
+      ejecutando = true;
+      const scripts = [
+        { tipo: 'pedidos_anteriores', nombre: 'PEDIDOS ANTERIORES' },
+        { tipo: 'calculadora', nombre: 'CALCULADORA' },
+        { tipo: 'resultados', nombre: 'RESULTADOS' },
+        { tipo: 'creacion_envio', nombre: 'CREACION DE ENVIO' },
+        { tipo: 'indicadores_update', nombre: 'INDICADORES' }
+      ];
+
+      const progressBar = document.getElementById('progress-bar');
+      const progressFill = document.getElementById('progress-fill');
+      progressBar.classList.add('active');
+
+      try {
+        for (let i = 0; i < scripts.length; i++) {
+          const script = scripts[i];
+          const progreso = Math.round(((i) / scripts.length) * 100);
+
+          progressFill.style.width = progreso + '%';
+          progressFill.textContent = progreso + '%';
+          mostrarEstado('info', `Ejecutando ${script.nombre}... (${i + 1}/${scripts.length})`);
+
+          const response = await fetch('/api/ejecutar_appscript', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tipo: script.tipo })
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(`Error en ${script.nombre}: ${result.error || 'Error desconocido'}`);
+          }
+
+          // Esperar 10 minutos entre scripts (600000 ms)
+          if (i < scripts.length - 1) {
+            mostrarEstado('info', `${script.nombre} completado. Esperando 10 minutos antes de continuar...`);
+            await esperarMinutos(10);
+          }
+        }
+
+        progressFill.style.width = '100%';
+        progressFill.textContent = '100%';
+        mostrarEstado('success', '¡Todos los procesos se completaron exitosamente!');
+
+        setTimeout(() => {
+          progressBar.classList.remove('active');
+        }, 3000);
+
+      } catch (error) {
+        mostrarEstado('error', error.message);
+        progressBar.classList.remove('active');
+      } finally {
+        ejecutando = false;
+      }
+    }
+
+    function esperarMinutos(minutos) {
+      return new Promise(resolve => {
+        const ms = minutos * 60 * 1000;
+        let tiempoRestante = ms;
+
+        const intervalo = setInterval(() => {
+          tiempoRestante -= 1000;
+          const minutosRestantes = Math.floor(tiempoRestante / 60000);
+          const segundosRestantes = Math.floor((tiempoRestante % 60000) / 1000);
+          mostrarEstado('info', `Esperando ${minutosRestantes}:${segundosRestantes.toString().padStart(2, '0')} antes del siguiente proceso...`);
+
+          if (tiempoRestante <= 0) {
+            clearInterval(intervalo);
+            resolve();
+          }
+        }, 1000);
+      });
+    }
+
+    function mostrarEstado(tipo, mensaje) {
+      const statusDiv = document.getElementById('status-message');
+      statusDiv.className = 'status-message ' + tipo;
+      statusDiv.textContent = mensaje;
+    }
+  </script>
 </body>
 </html>

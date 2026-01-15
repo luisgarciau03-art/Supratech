@@ -87,20 +87,55 @@
       box-shadow: 0 2px 12px #0050d822;
       border-radius: 10px;
       overflow: hidden;
+      font-size: 0.85em;
     }
     th {
       background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
       color: #fff;
-      padding: 12px;
-      text-align: left;
+      padding: 12px 8px;
+      text-align: center;
       font-weight: 700;
     }
     td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #eee;
+      padding: 10px 8px;
+      border: 1px solid #ddd;
+      text-align: center;
     }
     tr:hover {
+      background: #e8f2ff;
+    }
+    tr:nth-child(even) {
       background: #f7faff;
+    }
+    .action-btn {
+      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85em;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      background: linear-gradient(90deg, #0077ff 60%, #0050d8 100%);
+      transform: scale(1.05);
+    }
+    .action-btn.completado {
+      background: linear-gradient(90deg, #28a745 60%, #20c997 100%);
+    }
+    .action-btn.completado:hover {
+      background: linear-gradient(90deg, #20c997 60%, #28a745 100%);
+    }
+    .marca-link {
+      color: #0050d8;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .marca-link:hover {
+      color: #0077ff;
     }
     .loading {
       text-align: center;
@@ -204,33 +239,109 @@
         return;
       }
 
+      // Nombres personalizados para las columnas
+      const customHeaders = [
+        'Recibido', 'Bodega', 'Estatus', 'MARCA', 'CLASIFICACION', 'IS', 'QTY',
+        'ESTATUS', 'LINK', 'NOMBRE HOJA', 'UNIFICAR', 'FECHA DE COTIZACION', '$ COTIZACION'
+      ];
+
       let html = '<table><thead><tr>';
 
-      // Crear encabezados
-      if (data.headers && data.headers.length > 0) {
-        data.headers.forEach(header => {
-          html += '<th>' + (header || '') + '</th>';
-        });
-      } else if (data.rows.length > 0) {
-        // Si no hay encabezados, usar la primera fila
-        data.rows[0].forEach((_, index) => {
-          html += '<th>Columna ' + (index + 1) + '</th>';
-        });
-      }
+      // Crear encabezados personalizados (excluyendo columnas 14-17)
+      customHeaders.forEach((header, idx) => {
+        html += '<th>' + header + '</th>';
+      });
 
+      // Agregar columna de acciones
+      html += '<th>Acciones</th>';
       html += '</tr></thead><tbody>';
 
-      // Crear filas
-      data.rows.forEach(row => {
-        html += '<tr>';
-        row.forEach(cell => {
-          html += '<td>' + (cell || '') + '</td>';
-        });
+      // Crear filas (excluyendo columnas 14-17, índices 13-16)
+      data.rows.forEach((row, rowIdx) => {
+        html += '<tr data-row-index="' + rowIdx + '">';
+
+        // Procesar solo las primeras 13 columnas (índices 0-12)
+        for (let i = 0; i < 13; i++) {
+          const cell = row[i] || '';
+
+          // Columna 4 (índice 3): MARCA - unificar con LINK (columna 9, índice 8)
+          if (i === 3) {
+            const link = row[8] || ''; // Columna 9 (LINK)
+            if (link && link.trim()) {
+              html += '<td><a href="' + link + '" target="_blank" class="marca-link">' + cell + '</a></td>';
+            } else {
+              html += '<td>' + cell + '</td>';
+            }
+          }
+          // Columna 9 (índice 8): LINK - omitir ya que se unificó con MARCA
+          else if (i === 8) {
+            // No mostrar esta columna
+            continue;
+          }
+          else {
+            html += '<td>' + cell + '</td>';
+          }
+        }
+
+        // Agregar botón de acción según la sección
+        html += '<td>';
+        if (section === 'cotizados') {
+          html += '<button class="action-btn" onclick="moverPedido(\'' + section + '\', ' + rowIdx + ', \'surtido\')">→ Surtido</button>';
+        } else if (section === 'surtido') {
+          html += '<button class="action-btn" onclick="moverPedido(\'' + section + '\', ' + rowIdx + ', \'procesado\')">→ Procesado</button>';
+        } else if (section === 'procesado') {
+          html += '<button class="action-btn completado" onclick="moverPedido(\'' + section + '\', ' + rowIdx + ', \'completado\')">✓ Completado</button>';
+        }
+        html += '</td>';
+
         html += '</tr>';
       });
 
       html += '</tbody></table>';
       container.innerHTML = html;
+    }
+
+    async function moverPedido(seccionActual, rowIndex, seccionDestino) {
+      try {
+        if (!confirm(`¿Mover este pedido a ${seccionDestino.toUpperCase()}?`)) {
+          return;
+        }
+
+        const row = dataCache[seccionActual].rows[rowIndex];
+
+        const response = await fetch('/api/indicadores/mover_pedido', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            seccionActual: seccionActual,
+            seccionDestino: seccionDestino,
+            rowData: row,
+            rowIndex: rowIndex
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Error al mover el pedido');
+        }
+
+        alert('Pedido movido exitosamente');
+
+        // Limpiar caché y recargar datos
+        dataCache[seccionActual] = null;
+        if (seccionDestino !== 'completado') {
+          dataCache[seccionDestino] = null;
+        }
+
+        // Recargar la sección actual
+        loadData(seccionActual);
+
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
     }
   </script>
 </body>
