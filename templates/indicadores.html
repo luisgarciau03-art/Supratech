@@ -39,6 +39,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      cursor: pointer; /* Para colapsar */
+      user-select: none;
+    }
+    .section-title:hover {
+        background-color: #f9f9f9;
     }
     /* PUNTO 4: Ajuste de dimensiones para visualización completa */
     .table-wrapper {
@@ -46,6 +51,7 @@
       overflow-x: auto; /* Permite scroll horizontal si es estrictamente necesario */
       border: 1px solid #eee;
       border-radius: 8px;
+      display: block; /* Visible por defecto */
     }
     table {
       width: 100%; /* Fuerza a usar todo el ancho disponible */
@@ -67,12 +73,15 @@
       background: #28a745;
       color: white;
       border: none;
-      padding: 5px 10px;
+      padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
       font-size: 0.8em;
+      margin-left: 5px;
     }
     .btn-action:hover { background: #218838; }
+    .btn-delete { background: #dc3545; }
+    .btn-delete:hover { background: #c82333; }
     .back-btn {
         display: inline-block;
         margin-bottom: 20px;
@@ -81,6 +90,38 @@
         color: white;
         text-decoration: none;
         border-radius: 5px;
+    }
+    /* Modal Styles */
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0; top: 0; width: 100%; height: 100%; 
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      height: 80%;
+      overflow: auto;
+      border-radius: 10px;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover { color: black; }
+    .link-cell {
+        color: #0050d8;
+        text-decoration: underline;
+        cursor: pointer;
+        font-weight: bold;
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -105,7 +146,7 @@
     <div class="sections-grid">
       <!-- Cotizados -->
       <div class="section-card">
-        <div class="section-title">Cotizados</div>
+        <div class="section-title" onclick="toggleSection('table-cotizados')">Cotizados <span>▼</span></div>
         <div class="table-wrapper">
           <table id="table-cotizados"></table>
         </div>
@@ -113,7 +154,7 @@
 
       <!-- Surtido -->
       <div class="section-card">
-        <div class="section-title">Surtido</div>
+        <div class="section-title" onclick="toggleSection('table-surtido')">Surtido <span>▼</span></div>
         <div class="table-wrapper">
           <table id="table-surtido"></table>
         </div>
@@ -121,11 +162,20 @@
 
       <!-- Procesado -->
       <div class="section-card">
-        <div class="section-title">Procesado</div>
+        <div class="section-title" onclick="toggleSection('table-procesado')">Procesado <span>▼</span></div>
         <div class="table-wrapper">
           <table id="table-procesado"></table>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver contenido del link -->
+  <div id="linkModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2 id="modalTitle">Detalle</h2>
+      <div id="modalBody">Cargando...</div>
     </div>
   </div>
 
@@ -138,6 +188,12 @@
         loadSection('procesado', token);
       }
     });
+
+    function toggleSection(tableId) {
+        const wrapper = document.getElementById(tableId).parentElement;
+        if (wrapper.style.display === 'none') wrapper.style.display = 'block';
+        else wrapper.style.display = 'none';
+    }
 
     async function loadSection(section, token) {
       const res = await fetch(`/api/indicadores/${section}`, {

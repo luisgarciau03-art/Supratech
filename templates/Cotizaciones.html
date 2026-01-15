@@ -13,7 +13,8 @@
       color: #333;
     }
     .container {
-      max-width: 1400px;
+      width: 95%; /* Ancho completo */
+      max-width: none;
       margin: 0 auto;
       background: #fff;
       border-radius: 20px;
@@ -22,7 +23,7 @@
       overflow: hidden;
     }
     h1 {
-      color: #0050d8;
+      color: #001f3f; /* Azul marino */
       text-align: center;
       margin-bottom: 10px;
       font-weight: 700;
@@ -45,11 +46,11 @@
     }
     .week-input-group label {
       font-weight: 600;
-      color: #0050d8;
+      color: #001f3f;
     }
     .week-input-group input {
       padding: 8px 12px;
-      border: 2px solid #0050d8;
+      border: 2px solid #001f3f;
       border-radius: 6px;
       font-family: 'Montserrat', sans-serif;
       font-weight: 600;
@@ -57,7 +58,7 @@
       text-align: center;
     }
     .back-btn {
-      background: #0050d8;
+      background: #001f3f;
       color: white;
       text-decoration: none;
       padding: 10px 20px;
@@ -66,7 +67,7 @@
       transition: background 0.3s;
     }
     .back-btn:hover {
-      background: #003cb3;
+      background: #003366;
     }
     .table-responsive {
       width: 100%;
@@ -86,7 +87,7 @@
       border-right: 1px solid #eee;
     }
     th {
-      background: #0050d8;
+      background: #001f3f; /* Azul marino */
       color: white;
       font-weight: 600;
       text-transform: uppercase;
@@ -105,7 +106,7 @@
     }
     /* Estilos para las celdas de marca (interactivas) */
     .brand-cell {
-      color: #0050d8;
+      color: #001f3f;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
@@ -114,7 +115,7 @@
     }
     .brand-cell:hover {
       background-color: #dbeafe;
-      text-decoration-color: #0050d8;
+      text-decoration-color: #001f3f;
       transform: scale(1.05);
     }
     .loading {
@@ -145,11 +146,11 @@
       <div class="week-input-group">
         <label for="week-identifier">Identificador Semana:</label>
         <!-- Valor por defecto W3, el usuario puede cambiarlo -->
-        <input type="text" id="week-identifier" value="W3" placeholder="Ej: W3">
+        <input type="text" id="week-identifier" value="W3" placeholder="Ej: W3" oninput="updateTitle()">
       </div>
     </div>
 
-    <h1>Programación Semanal</h1>
+    <h1 id="page-title">Programación Semanal W3</h1>
     
     <div id="loading" class="loading">Cargando datos...</div>
     
@@ -169,6 +170,11 @@
         window.location.href = '/';
       }
     });
+
+    function updateTitle() {
+        const week = document.getElementById('week-identifier').value;
+        document.getElementById('page-title').textContent = 'Programación Semanal ' + week;
+    }
 
     async function cargarDatos(token) {
       try {
@@ -190,8 +196,44 @@
       const table = document.getElementById('cotizaciones-table');
       table.innerHTML = '';
 
-      // Contador global de ocurrencias de marcas para manejar duplicados (W3, W3 2, etc.)
+      // Lógica de conteo global para marcas (Consecutivos)
       const brandOccurrences = {};
+      
+      // Palabras a ignorar (según requerimiento 1)
+      const ignoredKeywords = [
+          'PRESUPUESTO APROBADO', 
+          'MONTO MINIMO', 
+          'NO APROBADO', 
+          'PEDIDO PASA'
+      ];
+
+      // Pre-procesar para contar ocurrencias en orden cronológico (Columnas Lunes a Domingo)
+      // Asumimos estructura: Header en row 0. Datos desde row 3 (fila 5 real).
+      // Columnas de días suelen ser índices 1 a 7 (B a H aprox).
+      // Para simplificar, iteramos toda la tabla celda por celda y asignamos el índice al vuelo.
+      // Pero el requerimiento dice: "Si aparece en lunes y martes...".
+      // Lo mejor es asignar el índice al momento de renderizar, ya que renderizamos fila por fila (Lunes está antes que Martes en columnas?).
+      // Si la tabla está transpuesta (Días en columnas), leemos fila por fila.
+      // Si la tabla tiene Días en Fila 1 y Marcas abajo:
+      // Iteramos por columnas (Días) para asignar los índices correctos cronológicamente.
+      
+      // Mapa para guardar el índice asignado a cada celda específica (fila, col)
+      const cellIndices = {}; 
+      
+      if (rows.length > 0) {
+          const numCols = rows[0].length;
+          // Iterar por columnas (asumiendo que el tiempo avanza por columnas)
+          for (let c = 0; c < numCols; c++) {
+              for (let r = 3; r < rows.length; r++) { // Empezar desde fila de datos
+                  const cellText = rows[r][c] ? rows[r][c].toString().trim() : '';
+                  if (cellText && !ignoredKeywords.some(k => cellText.toUpperCase().includes(k))) {
+                      if (!brandOccurrences[cellText]) brandOccurrences[cellText] = 0;
+                      brandOccurrences[cellText]++;
+                      cellIndices[`${r}-${c}`] = brandOccurrences[cellText];
+                  }
+              }
+          }
+      }
 
       rows.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
@@ -201,28 +243,25 @@
           const cellText = cell ? cell.toString().trim() : '';
           el.textContent = cellText;
 
-          // Lógica: Si es fila > 4 (índice 3 en array 0-based, pero los datos vienen desde B2, 
-          // así que ajustamos según lo que devuelve la API).
-          // La API devuelve B2:O22. La fila 1 de la hoja es headers.
-          // Asumimos que la API devuelve headers en row[0].
-          // Las marcas empiezan "a partir de la fila 5" (en la hoja real).
-          // En el array 'rows', si row[0] es header (fila 2 real), row[1] es fila 3, row[2] es fila 4, row[3] es fila 5.
-          // Entonces aplicamos lógica a partir de rowIndex >= 3.
+          // Aplicar estilo azul marino a la primera fila (headers)
+          if (rowIndex === 0) {
+              el.style.backgroundColor = "#001f3f";
+          }
           
           if (rowIndex >= 3 && cellText !== '') {
-            // Es una marca
-            if (!brandOccurrences[cellText]) brandOccurrences[cellText] = 0;
-            brandOccurrences[cellText]++;
+            // Verificar si es una palabra ignorada
+            const isIgnored = ignoredKeywords.some(k => cellText.toUpperCase().includes(k));
             
-            const currentCount = brandOccurrences[cellText];
-            el.classList.add('brand-cell');
-            el.title = `Ver detalle de ${cellText} (Ocurrencia ${currentCount})`;
-            
-            el.onclick = () => {
-              const weekId = document.getElementById('week-identifier').value;
-              // Navegar al detalle pasando marca, semana e índice
-              window.location.href = `/cotizacion_detalle?marca=${encodeURIComponent(cellText)}&semana=${encodeURIComponent(weekId)}&indice=${currentCount}`;
-            };
+            if (!isIgnored) {
+                const currentCount = cellIndices[`${rowIndex}-${colIndex}`] || 1;
+                el.classList.add('brand-cell');
+                el.title = `Ver detalle de ${cellText} (Consecutivo: ${currentCount})`;
+                
+                el.onclick = () => {
+                  const weekId = document.getElementById('week-identifier').value;
+                  window.location.href = `/cotizacion_detalle?marca=${encodeURIComponent(cellText)}&semana=${encodeURIComponent(weekId)}&indice=${currentCount}`;
+                };
+            }
           }
 
           tr.appendChild(el);

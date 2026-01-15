@@ -2645,7 +2645,7 @@ def mover_pedido_indicadores():
         if actual_row_index == -1:
             return jsonify({'error': 'No se encontró la fila especificada'}), 404
 
-        # Si el destino es "completado", solo eliminar la fila de la sección actual
+        # CASO 1: Si el destino es "completado", solo eliminar la fila de la sección actual
         if seccion_destino == 'completado':
             # Borrar la fila
             delete_request = {
@@ -2665,7 +2665,7 @@ def mover_pedido_indicadores():
                 body=delete_request
             ).execute()
 
-        else:
+        else: # CASO 2: Mover a otra sección (Insertar en destino + Borrar de origen)
             # Mover a la nueva sección
             dest_start, _ = sections_map[seccion_destino]
             if dest_start == -1:
@@ -2701,8 +2701,9 @@ def mover_pedido_indicadores():
             ).execute()
 
             # Eliminar la fila original (el índice cambió debido a la inserción)
-            # Si la fila original está después de la inserción, sumar 1 al índice
-            delete_index = actual_row_index if actual_row_index < insert_row else actual_row_index + 1
+            # Si insertamos ANTES de la fila original (índice menor), la fila original baja 1 posición.
+            # Si insertamos DESPUÉS (índice mayor), la fila original mantiene su índice.
+            delete_index = actual_row_index + 1 if insert_row <= actual_row_index else actual_row_index
 
             delete_request = {
                 'requests': [{
@@ -2863,6 +2864,9 @@ def cotizacion_detalle(marca, semana):
         ).execute()
 
         values = result.get('values', [])
+        
+        if not values:
+             return jsonify({'error': 'HOJA NO EXISTENTE FAVOR DE VERIFICAR MARCA O SEMANA'}), 404
 
         return jsonify({
             'datos': values,
@@ -2872,6 +2876,10 @@ def cotizacion_detalle(marca, semana):
         })
 
     except Exception as e:
+        error_str = str(e)
+        # Capturar error específico de rango no encontrado o hoja no existente
+        if "Unable to parse range" in error_str or "Not Found" in error_str or "400" in error_str:
+             return jsonify({'error': 'HOJA NO EXISTENTE FAVOR DE VERIFICAR MARCA O SEMANA'}), 400
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/pedidos_anteriores_datos', methods=['GET'])
