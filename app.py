@@ -2579,7 +2579,7 @@ def mover_pedido_indicadores():
         seccion_actual = data.get('seccionActual')
         seccion_destino = data.get('seccionDestino')
         row_data = data.get('rowData')
-        row_index = data.get('rowIndex')
+        row_index = int(data.get('rowIndex')) # Asegurar que sea entero
 
         if not all([seccion_actual, seccion_destino, row_data]):
             return jsonify({'error': 'Datos incompletos'}), 400
@@ -3051,6 +3051,9 @@ def ejecutar_appscript():
                     print(f'[APPSCRIPT] {name} ejecutado exitosamente')
             else:
                 error_msg = f'HTTP {response.status_code}: {response.text}'
+                if response.status_code == 404:
+                    error_msg += " (Verifique que el ID del Script sea correcto y que esté compartido con la cuenta de servicio)"
+                
                 resultados.append({
                     'script': name,
                     'success': False,

@@ -16,7 +16,7 @@
     }
     h1 {
       text-align: center;
-      color: #0050d8;
+      color: #001f3f; /* Azul Marino */
       margin-bottom: 30px;
     }
     .sections-grid {
@@ -34,7 +34,7 @@
       font-size: 1.5em;
       color: #333;
       margin-bottom: 15px;
-      border-left: 5px solid #0050d8;
+      border-left: 5px solid #001f3f;
       padding-left: 10px;
       display: flex;
       justify-content: space-between;
@@ -65,7 +65,7 @@
       font-size: 0.9em;
     }
     th {
-      background: #0050d8;
+      background: #001f3f; /* Azul Marino */
       color: white;
       white-space: nowrap;
     }
@@ -86,7 +86,7 @@
         display: inline-block;
         margin-bottom: 20px;
         padding: 10px 20px;
-        background: #6c757d;
+        background: #001f3f;
         color: white;
         text-decoration: none;
         border-radius: 5px;
@@ -118,7 +118,7 @@
     }
     .close:hover { color: black; }
     .link-cell {
-        color: #0050d8;
+        color: #001f3f;
         text-decoration: underline;
         cursor: pointer;
         font-weight: bold;
@@ -202,13 +202,130 @@
       const data = await res.json();
       const table = document.getElementById(`table-${section}`);
       
-      // Renderizado básico (se puede mejorar agregando botones de acción según la lógica existente)
+      // Limpiar tabla
+      table.innerHTML = '';
+
       data.rows.forEach((row, idx) => {
         const tr = document.createElement('tr');
-        row.forEach(cell => { const td = document.createElement('td'); td.textContent = cell; tr.appendChild(td); });
-        // Aquí irían los botones de mover (lógica existente en tu app original)
+        
+        // Extraer URL de columna 9 (índice 8) si existe
+        let url = '';
+        if (row.length > 8) url = row[8];
+
+        row.forEach((cell, cellIdx) => { 
+            // Ocultar columna 9 (índice 8) - UNIFICACIÓN
+            if (cellIdx === 8) return;
+
+            const td = document.createElement('td');
+            
+            // Unificar Columna 4 (índice 3) con el link
+            if (cellIdx === 3 && url) {
+                td.textContent = cell;
+                td.classList.add('link-cell');
+                td.onclick = () => openModal(url, token);
+                td.title = "Ver detalle (Click aquí)";
+            } else {
+                td.textContent = cell;
+            }
+            tr.appendChild(td); 
+        });
+
+        // Botones de acción
+        const tdAction = document.createElement('td');
+        if (section === 'cotizados') {
+            const btn = document.createElement('button');
+            btn.className = 'btn-action';
+            btn.textContent = 'A Surtido ➡️';
+            btn.onclick = () => moverPedido(section, 'surtido', row, idx, token);
+            tdAction.appendChild(btn);
+        } else if (section === 'surtido') {
+            const btn = document.createElement('button');
+            btn.className = 'btn-action';
+            btn.textContent = 'A Procesado ➡️';
+            btn.onclick = () => moverPedido(section, 'procesado', row, idx, token);
+            tdAction.appendChild(btn);
+        } else if (section === 'procesado') {
+            const btn = document.createElement('button');
+            btn.className = 'btn-action btn-delete';
+            btn.textContent = 'Completado ✅';
+            btn.onclick = () => moverPedido(section, 'completado', row, idx, token);
+            tdAction.appendChild(btn);
+        }
+        tr.appendChild(tdAction);
+
         table.appendChild(tr);
       });
+    }
+
+    async function moverPedido(origen, destino, rowData, index, token) {
+        if(!confirm(`¿Mover pedido de ${origen} a ${destino}?`)) return;
+
+        try {
+            const res = await fetch('/api/indicadores/mover_pedido', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    seccionActual: origen,
+                    seccionDestino: destino,
+                    rowData: rowData,
+                    rowIndex: index
+                })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert('Movimiento exitoso');
+                location.reload(); // Recargar para ver cambios
+            } else {
+                alert('Error: ' + result.error);
+            }
+        } catch (e) {
+            alert('Error de conexión: ' + e.message);
+        }
+    }
+
+    // Modal Logic
+    async function openModal(url, token) {
+        const modal = document.getElementById('linkModal');
+        const body = document.getElementById('modalBody');
+        modal.style.display = "block";
+        body.innerHTML = '<div style="text-align:center;padding:20px;">Cargando datos de la hoja...</div>';
+        
+        try {
+            const res = await fetch('/api/proxy_spreadsheet_data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ url: url })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            
+            // Renderizar tabla simple en el modal
+            let html = '<table border="1" style="width:100%;border-collapse:collapse;font-size:0.9em;">';
+            data.values.forEach((row, rIdx) => {
+                let bg = rIdx === 0 ? '#001f3f' : 'white';
+                let color = rIdx === 0 ? 'white' : 'black';
+                html += `<tr style="background:${bg};color:${color}">` + row.map(c => `<td style="padding:5px;">${c}</td>`).join('') + '</tr>';
+            });
+            html += '</table>';
+            body.innerHTML = html;
+            document.getElementById('modalTitle').textContent = data.sheetName || 'Detalle';
+        } catch (e) {
+            body.innerHTML = '<p style="color:red;text-align:center;">Error cargando hoja: ' + e.message + '<br><small>Verifique que la hoja sea pública o accesible por el sistema.</small></p>';
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('linkModal').style.display = "none";
+    }
+    
+    window.onclick = function(event) {
+        const modal = document.getElementById('linkModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
     }
   </script>
 </body>
