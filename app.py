@@ -2991,11 +2991,12 @@ def ejecutar_appscript():
         scripts = scripts_map[tipo]
 
         # Obtener credenciales para la API de Apps Script
+        # IMPORTANTE: Para ejecutar scripts se necesita el scope script.projects
         scopes = [
             'https://www.googleapis.com/auth/spreadsheets',
             'https://www.googleapis.com/auth/drive',
             'https://www.googleapis.com/auth/script.projects',
-            'https://www.googleapis.com/auth/script.external_request'
+            'https://www.googleapis.com/auth/script.scriptapp'
         ]
         creds = get_google_credentials(scopes=scopes)
         
@@ -3056,10 +3057,26 @@ def ejecutar_appscript():
             else:
                 error_msg = f'HTTP {response.status_code}: {response.text}'
                 if response.status_code == 404:
-                    error_msg += " (ERROR 404: Script no encontrado. SOLUCIÓN: Verifique que existe una implementación 'Ejecutable de la API' y que el proyecto GCP está vinculado.)"
+                    error_msg += "\n\n💡 SOLUCIÓN PARA ERROR 404:\n"
+                    error_msg += "1. Abra el script en Apps Script\n"
+                    error_msg += "2. Vaya a 'Configuración del proyecto' (icono de engranaje)\n"
+                    error_msg += "3. Marque 'Mostrar archivo de manifiesto appsscript.json'\n"
+                    error_msg += "4. Verifique que el proyecto GCP esté vinculado en la misma configuración\n"
+                    error_msg += "5. En el editor, vaya al menú superior: Implementar > Nueva implementación\n"
+                    error_msg += "6. Seleccione tipo: 'API ejecutable'\n"
+                    error_msg += "7. En 'Quién tiene acceso', seleccione 'Solo yo'\n"
+                    error_msg += f"8. En la página de implementación, agregue como editor a: {creds.service_account_email if hasattr(creds, 'service_account_email') else 'la cuenta de servicio'}\n"
+                    error_msg += "9. Guarde la implementación"
                 elif response.status_code == 403:
-                    error_msg += " (ERROR 403: Permiso denegado. SOLUCIÓN: Vaya a Apps Script > Implementar > Nueva implementación. En 'Quién tiene acceso', seleccione 'Cualquiera' (Anyone).)"
-                
+                    error_msg += "\n\n💡 SOLUCIÓN PARA ERROR 403:\n"
+                    error_msg += "1. Abra el script en Google Apps Script\n"
+                    error_msg += "2. Haga clic en 'Compartir' (botón superior derecho)\n"
+                    error_msg += f"3. Agregue como editor: {creds.service_account_email if hasattr(creds, 'service_account_email') else 'la cuenta de servicio'}\n"
+                    error_msg += "4. Vaya a Implementar > Administrar implementaciones\n"
+                    error_msg += "5. Edite la implementación de 'API ejecutable'\n"
+                    error_msg += "6. Cambie 'Quién tiene acceso' a 'Solo yo'\n"
+                    error_msg += "7. Actualice la implementación"
+
                 resultados.append({
                     'script': name,
                     'success': False,
