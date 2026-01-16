@@ -2938,7 +2938,9 @@ def ejecutar_appscript():
         try:
             web_app_urls_ref = db.reference('appscript_web_urls')
             web_app_urls_firebase = web_app_urls_ref.get() or {}
-        except:
+            print(f'[APPSCRIPT] URLs cargadas desde Firebase: {web_app_urls_firebase}')
+        except Exception as e:
+            print(f'[APPSCRIPT] Error al leer URLs desde Firebase: {str(e)}')
             web_app_urls_firebase = {}
 
         # Mapeo de tipos a las URLs de Web App
@@ -2996,6 +2998,8 @@ def ejecutar_appscript():
         for script_info in scripts:
             web_app_url = script_info['web_app_url']
             name = script_info['name']
+
+            print(f'[APPSCRIPT] Procesando {name} con URL: {web_app_url}')
 
             # Verificar si la URL está configurada
             if web_app_url.startswith('PENDIENTE_CONFIGURAR'):
