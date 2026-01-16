@@ -2924,11 +2924,9 @@ def pedidos_anteriores_datos():
 
 @app.route('/api/ejecutar_appscript', methods=['POST'])
 def ejecutar_appscript():
-    """Ejecuta un AppScript específico según el tipo solicitado"""
+    """Ejecuta un AppScript específico según el tipo solicitado usando Web App URLs"""
     try:
         import requests
-        from google.oauth2 import service_account
-        from google.auth.transport.requests import Request as GoogleRequest
 
         data = request.get_json()
         tipo = data.get('tipo')
@@ -2936,50 +2934,53 @@ def ejecutar_appscript():
         if not tipo:
             return jsonify({'error': 'Tipo de script no especificado'}), 400
 
-        # Mapeo de tipos a los scripts y funciones correspondientes
+        # Intentar obtener URLs desde Firebase primero, si no, usar valores por defecto
+        try:
+            web_app_urls_ref = db.reference('appscript_web_urls')
+            web_app_urls_firebase = web_app_urls_ref.get() or {}
+        except:
+            web_app_urls_firebase = {}
+
+        # Mapeo de tipos a las URLs de Web App
+        # IMPORTANTE: Estas URLs deben ser configuradas en Firebase en la ruta 'appscript_web_urls'
+        # O pueden ser actualizadas directamente aquí
+        # Para obtener la URL: Implementar > Nueva implementación > Aplicación web > Copiar URL
         scripts_map = {
             'pedidos_anteriores': [
                 {
-                    'script_id': '1krRl3CLWRbdOmeZ6FsM9PlooEI2mQ81IKD7ls1h4r31TBtpICJC0SWDF',
-                    'function': 'extraeryGuardarDatos',
+                    'web_app_url': web_app_urls_firebase.get('ExtraergC', 'PENDIENTE_CONFIGURAR_EXTRAERGC'),
                     'name': 'ExtraergC'
                 },
                 {
-                    'script_id': '1SCrY5XN5vOlmma60_anfISR9zWDuHoS1OpyJdJEBQ75liyT47a0wF4rk',
-                    'function': 'extraeryGuardarDatos',
+                    'web_app_url': web_app_urls_firebase.get('ExtraergS', 'PENDIENTE_CONFIGURAR_EXTRAERGS'),
                     'name': 'ExtraergS'
                 },
                 {
-                    'script_id': '1b1y4lFlBR3CorrrcsOFweF24tUf8iykn0YIYAAXI5a1qFNUL-G0u3Jjl',
-                    'function': 'extraeryGuardarDatos',
+                    'web_app_url': web_app_urls_firebase.get('ExtraergSP', 'PENDIENTE_CONFIGURAR_EXTRAERGSP'),
                     'name': 'ExtraergSP'
                 }
             ],
             'calculadora': [
                 {
-                    'script_id': '1zlFF7gH_T2zeVZmK109K6JZV3Km3yZLWSZuWr0aqFlxJFgpBKw-ffwaK',
-                    'function': 'generarPedidoFinal',
+                    'web_app_url': web_app_urls_firebase.get('generarPedidoFinal', 'PENDIENTE_CONFIGURAR_GENERARPEDIDOFINAL'),
                     'name': 'generarPedidoFinal'
                 }
             ],
             'resultados': [
                 {
-                    'script_id': '19j9NFFrRRX7qGNaM_yHMcuW6U8_Iqo4nEwQ9sB95CvIx7G3V6nBDZq-V',
-                    'function': 'DupeProXd',
+                    'web_app_url': web_app_urls_firebase.get('DupeProXd', 'PENDIENTE_CONFIGURAR_DUPEPROXD'),
                     'name': 'DupeProXd'
                 }
             ],
             'creacion_envio': [
                 {
-                    'script_id': '1hTdKzHBQxLPwMwDyqtZv3B5tyKuokGkKFdW5NOVblONCv_nl1IPmutAa',
-                    'function': 'procesoCompleto',
+                    'web_app_url': web_app_urls_firebase.get('procesoCompleto', 'PENDIENTE_CONFIGURAR_PROCESOCOMPLETO'),
                     'name': 'procesoCompleto'
                 }
             ],
             'indicadores_update': [
                 {
-                    'script_id': '1BRtqJOrUwl1QyPnU_PySkFimsKoXgloI7mRbkWG3IpzQ9Y9h4-41TNsk',
-                    'function': 'actualizarHoja18DesdeBD',
+                    'web_app_url': web_app_urls_firebase.get('actualizarHoja18DesdeBD', 'PENDIENTE_CONFIGURAR_ACTUALIZARHOJA18'),
                     'name': 'actualizarHoja18DesdeBD'
                 }
             ]
@@ -2990,93 +2991,88 @@ def ejecutar_appscript():
 
         scripts = scripts_map[tipo]
 
-        # Obtener credenciales para la API de Apps Script
-        # IMPORTANTE: Para ejecutar scripts se necesita el scope script.projects
-        scopes = [
-            'https://www.googleapis.com/auth/spreadsheets',
-            'https://www.googleapis.com/auth/drive',
-            'https://www.googleapis.com/auth/script.projects',
-            'https://www.googleapis.com/auth/script.scriptapp'
-        ]
-        creds = get_google_credentials(scopes=scopes)
-        
-        # Loguear el email de servicio para verificar con quién se debe compartir el script
-        if hasattr(creds, 'service_account_email'):
-            print(f'[APPSCRIPT] Intentando ejecutar con la cuenta de servicio: {creds.service_account_email}')
-
         # Ejecutar cada script
         resultados = []
         for script_info in scripts:
-            script_id = script_info['script_id']
-            function_name = script_info['function']
+            web_app_url = script_info['web_app_url']
             name = script_info['name']
 
-            print(f'[APPSCRIPT] Ejecutando {name} (función: {function_name})...')
+            # Verificar si la URL está configurada
+            if web_app_url.startswith('PENDIENTE_CONFIGURAR'):
+                error_msg = f"URL de Web App no configurada para {name}"
+                error_msg += "\n\n💡 PASOS PARA CONFIGURAR:\n"
+                error_msg += "1. Abra el script en Google Apps Script\n"
+                error_msg += "2. Asegúrese de tener una función doGet() o doPost() en su código\n"
+                error_msg += "3. Vaya a: Implementar > Nueva implementación\n"
+                error_msg += "4. Seleccione tipo: 'Aplicación web'\n"
+                error_msg += "5. Configure:\n"
+                error_msg += "   - Descripción: Nombre descriptivo\n"
+                error_msg += "   - Ejecutar como: Yo\n"
+                error_msg += "   - Quién tiene acceso: Cualquier usuario\n"
+                error_msg += "6. Haga clic en 'Implementar'\n"
+                error_msg += "7. Copie la URL de la aplicación web\n"
+                error_msg += "8. Actualice la configuración en Firebase o en el código Python"
 
-            # Construir la URL de la API de Apps Script
-            url = f'https://script.googleapis.com/v1/scripts/{script_id}:run'
+                resultados.append({
+                    'script': name,
+                    'success': False,
+                    'error': error_msg
+                })
+                print(f'[APPSCRIPT] {error_msg}')
+                continue
 
-            # Obtener token de acceso
-            if not creds.valid:
-                creds.refresh(GoogleRequest())
+            print(f'[APPSCRIPT] Ejecutando {name} via Web App...')
 
-            access_token = creds.token
+            try:
+                # Hacer GET request a la Web App
+                # Si necesitas POST, cambia a requests.post y agrega data
+                response = requests.get(web_app_url, timeout=600)
 
-            # Construir el body de la petición
-            payload = {
-                'function': function_name,
-                'devMode': False
-            }
-
-            # Headers
-            headers = {
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type': 'application/json'
-            }
-
-            # Ejecutar el script
-            response = requests.post(url, json=payload, headers=headers, timeout=600)
-
-            if response.status_code == 200:
-                result_data = response.json()
-                if 'error' in result_data:
-                    error_msg = result_data['error'].get('message', 'Error desconocido')
+                if response.status_code == 200:
+                    # Intentar parsear como JSON
+                    try:
+                        result_data = response.json()
+                        if isinstance(result_data, dict) and 'error' in result_data:
+                            resultados.append({
+                                'script': name,
+                                'success': False,
+                                'error': result_data.get('error', 'Error desconocido')
+                            })
+                            print(f'[APPSCRIPT] Error en {name}: {result_data.get("error")}')
+                        else:
+                            resultados.append({
+                                'script': name,
+                                'success': True,
+                                'result': result_data
+                            })
+                            print(f'[APPSCRIPT] {name} ejecutado exitosamente')
+                    except:
+                        # Si no es JSON, asumir que es texto plano exitoso
+                        resultados.append({
+                            'script': name,
+                            'success': True,
+                            'result': response.text
+                        })
+                        print(f'[APPSCRIPT] {name} ejecutado exitosamente')
+                else:
+                    error_msg = f'HTTP {response.status_code}: {response.text}'
                     resultados.append({
                         'script': name,
                         'success': False,
                         'error': error_msg
                     })
                     print(f'[APPSCRIPT] Error en {name}: {error_msg}')
-                else:
-                    resultados.append({
-                        'script': name,
-                        'success': True,
-                        'result': result_data.get('response', {})
-                    })
-                    print(f'[APPSCRIPT] {name} ejecutado exitosamente')
-            else:
-                error_msg = f'HTTP {response.status_code}: {response.text}'
-                if response.status_code == 404:
-                    error_msg += "\n\n💡 SOLUCIÓN PARA ERROR 404:\n"
-                    error_msg += "1. Abra el script en Apps Script\n"
-                    error_msg += "2. Vaya a 'Configuración del proyecto' (icono de engranaje)\n"
-                    error_msg += "3. Marque 'Mostrar archivo de manifiesto appsscript.json'\n"
-                    error_msg += "4. Verifique que el proyecto GCP esté vinculado en la misma configuración\n"
-                    error_msg += "5. En el editor, vaya al menú superior: Implementar > Nueva implementación\n"
-                    error_msg += "6. Seleccione tipo: 'API ejecutable'\n"
-                    error_msg += "7. En 'Quién tiene acceso', seleccione 'Solo yo'\n"
-                    error_msg += f"8. En la página de implementación, agregue como editor a: {creds.service_account_email if hasattr(creds, 'service_account_email') else 'la cuenta de servicio'}\n"
-                    error_msg += "9. Guarde la implementación"
-                elif response.status_code == 403:
-                    error_msg += "\n\n💡 SOLUCIÓN PARA ERROR 403:\n"
-                    error_msg += "1. Abra el script en Google Apps Script\n"
-                    error_msg += "2. Haga clic en 'Compartir' (botón superior derecho)\n"
-                    error_msg += f"3. Agregue como editor: {creds.service_account_email if hasattr(creds, 'service_account_email') else 'la cuenta de servicio'}\n"
-                    error_msg += "4. Vaya a Implementar > Administrar implementaciones\n"
-                    error_msg += "5. Edite la implementación de 'API ejecutable'\n"
-                    error_msg += "6. Cambie 'Quién tiene acceso' a 'Solo yo'\n"
-                    error_msg += "7. Actualice la implementación"
 
+            except requests.exceptions.Timeout:
+                error_msg = 'La ejecución del script superó el tiempo límite (10 minutos)'
+                resultados.append({
+                    'script': name,
+                    'success': False,
+                    'error': error_msg
+                })
+                print(f'[APPSCRIPT] Error en {name}: {error_msg}')
+            except Exception as script_error:
+                error_msg = f'Error al ejecutar: {str(script_error)}'
                 resultados.append({
                     'script': name,
                     'success': False,
