@@ -2955,39 +2955,46 @@ def ejecutar_appscript():
             'pedidos_anteriores': [
                 {
                     'web_app_url': web_app_urls_firebase.get('ExtraergC', 'PENDIENTE_CONFIGURAR_EXTRAERGC'),
-                    'name': 'ExtraergC'
+                    'name': 'ExtraergC',
+                    'function': 'extraerYGuardarDatos'
                 },
                 {
                     'web_app_url': web_app_urls_firebase.get('ExtraergS', 'PENDIENTE_CONFIGURAR_EXTRAERGS'),
-                    'name': 'ExtraergS'
+                    'name': 'ExtraergS',
+                    'function': 'extraerYGuardarDatos'
                 },
                 {
                     'web_app_url': web_app_urls_firebase.get('ExtraergSP', 'PENDIENTE_CONFIGURAR_EXTRAERGSP'),
-                    'name': 'ExtraergSP'
+                    'name': 'ExtraergSP',
+                    'function': 'extraerYGuardarDatos'
                 }
             ],
             'calculadora': [
                 {
                     'web_app_url': web_app_urls_firebase.get('generarPedidoFinal', 'PENDIENTE_CONFIGURAR_GENERARPEDIDOFINAL'),
-                    'name': 'generarPedidoFinal'
+                    'name': 'generarPedidoFinal',
+                    'function': 'generarPedidoFinal'
                 }
             ],
             'resultados': [
                 {
                     'web_app_url': web_app_urls_firebase.get('DupeProXd', 'PENDIENTE_CONFIGURAR_DUPEPROXD'),
-                    'name': 'DupeProXd'
+                    'name': 'DupeProXd',
+                    'function': 'DupeProXd'
                 }
             ],
             'creacion_envio': [
                 {
                     'web_app_url': web_app_urls_firebase.get('procesoCompleto', 'PENDIENTE_CONFIGURAR_PROCESOCOMPLETO'),
-                    'name': 'procesoCompleto'
+                    'name': 'procesoCompleto',
+                    'function': 'procesoCompleto'
                 }
             ],
             'indicadores_update': [
                 {
                     'web_app_url': web_app_urls_firebase.get('actualizarHoja18DesdeBD', 'PENDIENTE_CONFIGURAR_ACTUALIZARHOJA18'),
-                    'name': 'actualizarHoja18DesdeBD'
+                    'name': 'actualizarHoja18DesdeBD',
+                    'function': 'actualizarHoja18DesdeBD'
                 }
             ]
         }
@@ -3002,8 +3009,10 @@ def ejecutar_appscript():
         for script_info in scripts:
             web_app_url = script_info['web_app_url']
             name = script_info['name']
+            function_name = script_info.get('function', name)
 
             print(f'[APPSCRIPT] Procesando {name} con URL: {web_app_url}')
+            print(f'[APPSCRIPT] Función a ejecutar: {function_name}')
 
             # Verificar si la URL está configurada
             if web_app_url.startswith('PENDIENTE_CONFIGURAR'):
@@ -3032,9 +3041,9 @@ def ejecutar_appscript():
             print(f'[APPSCRIPT] Ejecutando {name} via Web App...')
 
             try:
-                # Hacer GET request a la Web App
-                # Si necesitas POST, cambia a requests.post y agrega data
-                response = requests.get(web_app_url, timeout=600)
+                # Hacer GET request a la Web App con el nombre de la función como parámetro
+                params = {'func': function_name}
+                response = requests.get(web_app_url, params=params, timeout=600)
 
                 if response.status_code == 200:
                     # Intentar parsear como JSON
