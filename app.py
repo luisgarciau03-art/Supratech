@@ -3069,15 +3069,28 @@ def ejecutar_appscript():
                             if isinstance(result_data, dict) and 'data' in result_data:
                                 print(f'[APPSCRIPT] Detalles: {result_data["data"]}')
                     except Exception as parse_error:
-                        # Si no es JSON, asumir que es texto plano exitoso
+                        # Si no es JSON, puede ser un error HTML
                         print(f'[APPSCRIPT] No se pudo parsear JSON: {parse_error}')
-                        print(f'[APPSCRIPT] Respuesta texto: {response.text[:500]}')
-                        resultados.append({
-                            'script': name,
-                            'success': True,
-                            'result': response.text
-                        })
-                        print(f'[APPSCRIPT] {name} ejecutado exitosamente')
+
+                        # Si es HTML de error, extraer el mensaje
+                        if '<html>' in response.text.lower() or '<!doctype html>' in response.text.lower():
+                            print(f'[APPSCRIPT] ERROR: Respuesta HTML recibida (Apps Script devolvió error)')
+                            print(f'[APPSCRIPT] HTML completo: {response.text[:1500]}')
+
+                            resultados.append({
+                                'script': name,
+                                'success': False,
+                                'error': 'Apps Script devolvió una página HTML de error en lugar de JSON. Revisa los permisos del script y verifica que la función se ejecute correctamente.',
+                                'html_snippet': response.text[:500]
+                            })
+                        else:
+                            print(f'[APPSCRIPT] Respuesta texto: {response.text[:500]}')
+                            resultados.append({
+                                'script': name,
+                                'success': True,
+                                'result': response.text
+                            })
+                            print(f'[APPSCRIPT] {name} ejecutado exitosamente')
                 else:
                     error_msg = f'HTTP {response.status_code}: {response.text}'
                     resultados.append({
