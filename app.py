@@ -2998,6 +2998,10 @@ def ejecutar_appscript():
             'https://www.googleapis.com/auth/script.external_request'
         ]
         creds = get_google_credentials(scopes=scopes)
+        
+        # Loguear el email de servicio para verificar con quién se debe compartir el script
+        if hasattr(creds, 'service_account_email'):
+            print(f'[APPSCRIPT] Intentando ejecutar con la cuenta de servicio: {creds.service_account_email}')
 
         # Ejecutar cada script
         resultados = []
@@ -3052,7 +3056,7 @@ def ejecutar_appscript():
             else:
                 error_msg = f'HTTP {response.status_code}: {response.text}'
                 if response.status_code == 404:
-                    error_msg += " (Verifique que el ID del Script sea correcto y que esté compartido con la cuenta de servicio)"
+                    error_msg += " (ERROR 404: El script no es accesible. Verifique: 1. Que esté vinculado a un Proyecto GCP Standard. 2. Desplegado como 'Ejecutable de la API'. 3. Compartido con la cuenta de servicio)"
                 
                 resultados.append({
                     'script': name,
@@ -3104,7 +3108,7 @@ def proxy_spreadsheet_data():
         spreadsheet_id = match.group(1)
         
         # Intentar extraer el gid de la URL
-        gid_match = re.search(r"[#&]gid=([0-9]+)", url)
+        gid_match = re.search(r"[#&?]gid=([0-9]+)", url)
         target_gid = int(gid_match.group(1)) if gid_match else None
         
         from googleapiclient.discovery import build
