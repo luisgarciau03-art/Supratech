@@ -3,7 +3,7 @@
 
 from flask import Flask, request, jsonify, redirect, render_template
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, db as firebase_db
 from google.cloud import firestore
 import os
 import json
@@ -17,14 +17,18 @@ if os.environ.get('FIREBASE_CREDENTIALS'):
     firebase_creds = json.loads(os.environ.get('FIREBASE_CREDENTIALS'))
     cred = credentials.Certificate(firebase_creds)
     if not firebase_admin._apps:
-        firebase_admin.initialize_app(cred)
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://supratechweb-default-rtdb.firebaseio.com/'
+        })
     db = firestore.Client.from_service_account_info(firebase_creds)
 else:
     # En desarrollo local: leer desde archivo
     print('Usando credenciales de Firebase desde archivo local')
     cred = credentials.Certificate('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
     if not firebase_admin._apps:
-        firebase_admin.initialize_app(cred)
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://supratechweb-default-rtdb.firebaseio.com/'
+        })
     db = firestore.Client.from_service_account_json('supratechweb-firebase-adminsdk-fbsvc-8d4aa68a75.json')
 
 app = Flask(__name__)
@@ -2934,11 +2938,11 @@ def ejecutar_appscript():
         if not tipo:
             return jsonify({'error': 'Tipo de script no especificado'}), 400
 
-        # Intentar obtener URLs desde Firebase primero, si no, usar valores por defecto
+        # Intentar obtener URLs desde Firebase Realtime Database
         try:
-            web_app_urls_ref = db.reference('appscript_web_urls')
+            web_app_urls_ref = firebase_db.reference('appscript_web_urls')
             web_app_urls_firebase = web_app_urls_ref.get() or {}
-            print(f'[APPSCRIPT] URLs cargadas desde Firebase: {web_app_urls_firebase}')
+            print(f'[APPSCRIPT] URLs cargadas desde Firebase Realtime Database: {web_app_urls_firebase}')
         except Exception as e:
             print(f'[APPSCRIPT] Error al leer URLs desde Firebase: {str(e)}')
             web_app_urls_firebase = {}
