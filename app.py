@@ -3049,11 +3049,14 @@ def ejecutar_appscript():
                     # Intentar parsear como JSON
                     try:
                         result_data = response.json()
+                        print(f'[APPSCRIPT] Respuesta de {name}: {result_data}')
+
                         if isinstance(result_data, dict) and 'error' in result_data:
                             resultados.append({
                                 'script': name,
                                 'success': False,
-                                'error': result_data.get('error', 'Error desconocido')
+                                'error': result_data.get('error', 'Error desconocido'),
+                                'details': result_data
                             })
                             print(f'[APPSCRIPT] Error en {name}: {result_data.get("error")}')
                         else:
@@ -3063,8 +3066,12 @@ def ejecutar_appscript():
                                 'result': result_data
                             })
                             print(f'[APPSCRIPT] {name} ejecutado exitosamente')
-                    except:
+                            if isinstance(result_data, dict) and 'data' in result_data:
+                                print(f'[APPSCRIPT] Detalles: {result_data["data"]}')
+                    except Exception as parse_error:
                         # Si no es JSON, asumir que es texto plano exitoso
+                        print(f'[APPSCRIPT] No se pudo parsear JSON: {parse_error}')
+                        print(f'[APPSCRIPT] Respuesta texto: {response.text[:500]}')
                         resultados.append({
                             'script': name,
                             'success': True,
