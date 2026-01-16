@@ -3024,7 +3024,7 @@ def ejecutar_appscript():
             # Construir el body de la petición
             payload = {
                 'function': function_name,
-                'devMode': False
+                'devMode': True
             }
 
             # Headers
@@ -3056,7 +3056,7 @@ def ejecutar_appscript():
             else:
                 error_msg = f'HTTP {response.status_code}: {response.text}'
                 if response.status_code == 404:
-                    error_msg += " (ERROR 404: El script no es accesible. Verifique: 1. Que esté vinculado a un Proyecto GCP Standard. 2. Desplegado como 'Ejecutable de la API'. 3. Compartido con la cuenta de servicio)"
+                    error_msg += " (ERROR 404: Script no accesible. SOLUCIÓN: 1. Asegúrese de que la cuenta de servicio sea EDITOR del script (necesario para devMode). 2. Habilite 'Google Apps Script API' en GCP. 3. Verifique que el Script ID sea correcto.)"
                 
                 resultados.append({
                     'script': name,
