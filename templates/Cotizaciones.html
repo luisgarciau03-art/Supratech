@@ -2,127 +2,240 @@
 <html>
 <head>
   <title>Cotizaciones - Semana</title>
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
     body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      font-family: 'Montserrat', sans-serif;
+      background-color: #f0f2f5;
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 40px 20px;
       min-height: 100vh;
-      color: #333;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
     }
+
     .container {
-      width: 95%; /* Ancho completo */
-      max-width: none;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      padding: 30px;
-      overflow: hidden;
+      width: 100%;
+      max-width: 1600px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
     }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     h1 {
-      color: #001f3f; /* Azul marino */
       text-align: center;
-      margin-bottom: 10px;
+      color: #1a1a1a;
+      margin-bottom: 35px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-size: 2.5em;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
+
     .controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      background: #f0f4f8;
-      padding: 15px;
-      border-radius: 12px;
+      margin-bottom: 30px;
+      background: rgba(255,255,255,0.5);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,0.05);
+      flex-wrap: wrap;
+      gap: 20px;
     }
+
     .week-input-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 15px;
     }
+
     .week-input-group label {
       font-weight: 600;
-      color: #001f3f;
+      color: var(--text-dark);
+      font-size: 1.1em;
     }
+
     .week-input-group input {
-      padding: 8px 12px;
-      border: 2px solid #001f3f;
-      border-radius: 6px;
-      font-family: 'Montserrat', sans-serif;
+      padding: 10px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
       font-weight: 600;
-      width: 80px;
+      width: 100px;
       text-align: center;
+      font-size: 1.1em;
+      color: var(--primary-color);
+      transition: all 0.3s ease;
+      background: white;
     }
+
+    .week-input-group input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+      outline: none;
+    }
+
     .back-btn {
-      background: #001f3f;
-      color: white;
+      background: white;
+      color: var(--primary-color);
       text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 12px 28px;
+      border-radius: 12px;
       font-weight: 600;
-      transition: background 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.15);
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.95em;
+      border: 1px solid rgba(67, 97, 238, 0.2);
     }
+
     .back-btn:hover {
-      background: #003366;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
     }
+
     .table-responsive {
       width: 100%;
       overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid #e0e0e0;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
     }
+
+    /* Custom Scrollbar */
+    .table-responsive::-webkit-scrollbar {
+      height: 8px;
+    }
+    .table-responsive::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .table-responsive::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
     table {
       width: 100%;
-      border-collapse: collapse;
-      min-width: 1000px; /* Asegura que no se comprima demasiado */
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 1000px;
     }
+
     th, td {
-      padding: 12px 15px;
+      padding: 16px 20px;
       text-align: center;
-      border-bottom: 1px solid #eee;
-      border-right: 1px solid #eee;
+      border-bottom: 1px solid #f0f0f0;
     }
+
     th {
-      background: #001f3f; /* Azul marino */
-      color: white;
+      background: #f8f9fa;
+      color: #6c757d;
       font-weight: 600;
       text-transform: uppercase;
-      font-size: 0.9em;
+      font-size: 0.75em;
+      letter-spacing: 1px;
+      white-space: nowrap;
       position: sticky;
       top: 0;
+      z-index: 10;
+      border-bottom: 2px solid #e9ecef;
     }
+
+    td {
+      color: #495057;
+      font-size: 0.9em;
+      font-weight: 500;
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.2s;
+    }
+
     tr:last-child td {
       border-bottom: none;
     }
-    tr:nth-child(even) {
-      background-color: #f8fbff;
+
+    tr:hover td {
+      background-color: #f8faff;
+      color: var(--primary-color);
     }
-    tr:hover {
-      background-color: #eef5ff;
-    }
+
     /* Estilos para las celdas de marca (interactivas) */
     .brand-cell {
-      color: #001f3f;
-      font-weight: 700;
+      color: var(--primary-color);
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      text-decoration: underline;
-      text-decoration-color: transparent;
+      text-decoration: none;
+      background-color: rgba(67, 97, 238, 0.05);
+      border-radius: 6px;
     }
+
     .brand-cell:hover {
-      background-color: #dbeafe;
-      text-decoration-color: #001f3f;
-      transform: scale(1.05);
+      background-color: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
     }
+
     .loading {
       text-align: center;
-      padding: 40px;
-      font-size: 1.2em;
-      color: #666;
+      padding: 80px 20px;
+      color: var(--text-light);
+    }
+    
+    /* Spinner for loading */
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(67, 97, 238, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -152,7 +265,10 @@
 
     <h1 id="page-title">Programación Semanal W3</h1>
     
-    <div id="loading" class="loading">Cargando datos...</div>
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando datos...</p>
+    </div>
     
     <div class="table-responsive">
       <table id="cotizaciones-table">
@@ -243,11 +359,6 @@
           const cellText = cell ? cell.toString().trim() : '';
           el.textContent = cellText;
 
-          // Aplicar estilo azul marino a la primera fila (headers)
-          if (rowIndex === 0) {
-              el.style.backgroundColor = "#001f3f";
-          }
-          
           if (rowIndex >= 3 && cellText !== '') {
             // Verificar si es una palabra ignorada
             const isIgnored = ignoredKeywords.some(k => cellText.toUpperCase().includes(k));
