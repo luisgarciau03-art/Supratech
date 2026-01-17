@@ -3042,8 +3042,11 @@ def ejecutar_appscript():
 
             try:
                 # Hacer GET request a la Web App con el nombre de la función como parámetro
+                # Timeout de 600 segundos (10 minutos) para scripts largos
                 params = {'func': function_name}
+                print(f'[APPSCRIPT] Esperando respuesta (timeout: 600s)...')
                 response = requests.get(web_app_url, params=params, timeout=600)
+                print(f'[APPSCRIPT] Respuesta recibida con código: {response.status_code}')
 
                 if response.status_code == 200:
                     # Intentar parsear como JSON

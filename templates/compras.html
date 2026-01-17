@@ -186,16 +186,23 @@
       }
 
       ejecutando = true;
-      mostrarEstado('info', `Ejecutando ${tipo.toUpperCase().replace('_', ' ')}...`);
+      mostrarEstado('info', `Ejecutando ${tipo.toUpperCase().replace('_', ' ')}... Esto puede tomar varios minutos.`);
 
       try {
+        // Timeout de 10 minutos (600000 ms) para scripts largos
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 600000);
+
         const response = await fetch('/api/ejecutar_appscript', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ tipo: tipo })
+          body: JSON.stringify({ tipo: tipo }),
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         const result = await response.json();
 
@@ -205,7 +212,11 @@
 
         mostrarEstado('success', result.message || 'Script ejecutado exitosamente');
       } catch (error) {
-        mostrarEstado('error', 'Error: ' + error.message);
+        if (error.name === 'AbortError') {
+          mostrarEstado('error', 'Error: El script tardó más de 10 minutos en ejecutarse. Verifica la hoja de cálculo para ver si completó.');
+        } else {
+          mostrarEstado('error', 'Error: ' + error.message);
+        }
       } finally {
         ejecutando = false;
       }
@@ -241,15 +252,22 @@
 
           progressFill.style.width = progreso + '%';
           progressFill.textContent = progreso + '%';
-          mostrarEstado('info', `Ejecutando ${script.nombre}... (${i + 1}/${scripts.length})`);
+          mostrarEstado('info', `Ejecutando ${script.nombre}... (${i + 1}/${scripts.length}) - Esto puede tomar varios minutos.`);
+
+          // Timeout de 10 minutos (600000 ms) para scripts largos
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 600000);
 
           const response = await fetch('/api/ejecutar_appscript', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ tipo: script.tipo })
+            body: JSON.stringify({ tipo: script.tipo }),
+            signal: controller.signal
           });
+
+          clearTimeout(timeoutId);
 
           const result = await response.json();
 
