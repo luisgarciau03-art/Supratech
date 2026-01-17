@@ -2,121 +2,210 @@
 <html>
 <head>
   <title>Detalle Cotización</title>
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
     body {
-      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
-      font-family: 'Montserrat', sans-serif;
+      background-color: #f0f2f5;
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 40px 20px;
       min-height: 100vh;
-      color: #333;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
     }
+
     .container {
+      width: 100%;
       max-width: 1400px;
-      margin: 0 auto;
-      background: white;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       padding: 40px;
-      border-radius: 22px;
-      box-shadow: 0 10px 30px rgba(0, 80, 216, 0.08);
-      animation: fadeIn 0.6s ease-out;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     .header-section {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
-      border-bottom: 2px solid #f0f4f8;
+      margin-bottom: 35px;
       padding-bottom: 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 20px;
     }
+
     h2 {
-      color: #001f3f;
-      font-size: 1.8em;
+      color: #1a1a1a;
+      font-size: 2.2em;
       margin: 0;
       font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       letter-spacing: -0.5px;
     }
+
     .back-btn {
-      background: linear-gradient(90deg, #0050d8 0%, #0077ff 100%);
-      color: white;
+      background: white;
+      color: var(--primary-color);
       text-decoration: none;
-      padding: 10px 24px;
-      border-radius: 10px;
+      padding: 12px 28px;
+      border-radius: 12px;
       font-weight: 600;
-      transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(0, 80, 216, 0.2);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.15);
       display: inline-flex;
       align-items: center;
       font-size: 0.95em;
+      border: 1px solid rgba(67, 97, 238, 0.2);
     }
+
     .back-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(0, 80, 216, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
     }
+
     .table-wrapper {
       overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid #eef2f7;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
     }
+
+    /* Custom Scrollbar */
+    .table-wrapper::-webkit-scrollbar {
+      height: 8px;
+    }
+    .table-wrapper::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       min-width: 800px;
     }
+
     th, td {
-      padding: 16px 20px;
+      padding: 18px 24px;
       text-align: left;
-      border-bottom: 1px solid #f0f4f8;
+      border-bottom: 1px solid #f0f0f0;
     }
+
     th {
-      background-color: #001f3f;
-      color: white;
+      background: #f8f9fa;
+      color: #6c757d;
       font-weight: 600;
       text-transform: uppercase;
-      font-size: 0.85em;
-      letter-spacing: 0.5px;
+      font-size: 0.75em;
+      letter-spacing: 1px;
       white-space: nowrap;
       position: sticky;
       top: 0;
+      z-index: 10;
+      border-bottom: 2px solid #e9ecef;
     }
-    tr:nth-child(even) { background-color: #f8fbff; }
-    tr:hover { background-color: #eef5ff; transition: background-color 0.2s; }
+
     td {
-      color: #444;
+      color: #495057;
       font-size: 0.95em;
+      font-weight: 500;
+      /* Esconde lo que descuadre la tabla */
+      white-space: nowrap;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.2s;
     }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #f8faff;
+      color: var(--primary-color);
+    }
+
     /* Loading state */
     .loading-container {
       text-align: center;
-      padding: 60px 20px;
-      color: #0050d8;
+      padding: 80px 20px;
+      color: var(--text-light);
     }
+
     .spinner {
-      border: 4px solid rgba(0, 80, 216, 0.1);
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(67, 97, 238, 0.1);
       border-radius: 50%;
-      border-left-color: #0050d8;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+      margin: 0 auto 20px;
     }
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      to { transform: rotate(360deg); }
     }
+
     .error-msg {
-      color: #d80032;
+      color: #ef233c;
       text-align: center;
       padding: 20px;
       background: #fff5f5;
-      border-radius: 8px;
+      border-radius: 12px;
       border: 1px solid #ffebeb;
+      font-weight: 500;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        padding: 25px;
+      }
+      h2 {
+        font-size: 1.6em;
+      }
+      th, td {
+        padding: 14px 16px;
+      }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -192,6 +281,7 @@
           row.forEach(cell => {
             const td = document.createElement('td');
             td.textContent = cell;
+            td.title = cell; // Tooltip para ver contenido completo si está cortado
             tr.appendChild(td);
           });
           table.appendChild(tr);

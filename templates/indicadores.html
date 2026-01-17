@@ -2,25 +2,41 @@
 <html>
 <head>
   <title>Indicadores</title>
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #4361ee;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
     body {
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f2f5;
+      background-image: 
+        radial-gradient(at 0% 100%, hsla(214,40%,20%,1) 0, transparent 50%), 
+        radial-gradient(at 80% 0%, hsla(28,100%,74%,1) 0, transparent 50%), 
+        radial-gradient(at 90% 90%, hsla(340,100%,76%,1) 0, transparent 50%);
+      background-attachment: fixed;
       margin: 0;
       padding: 20px;
       color: #333;
     }
     .container {
-      max-width: 1600px;
+      max-width: 1800px;
       margin: 0 auto;
     }
     h1 {
       text-align: center;
-      color: #001f3f; /* Azul Marino */
+      color: #1a1a1a;
       margin-bottom: 30px;
       font-weight: 700;
       letter-spacing: -0.5px;
+      font-size: 2.5em;
+      background: linear-gradient(45deg, #1a1a1a, var(--primary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .sections-grid {
       display: grid;
@@ -28,74 +44,87 @@
       gap: 30px;
     }
     .section-card {
-      background: white;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
       border-radius: 20px;
       padding: 25px;
-      box-shadow: 0 10px 30px rgba(0, 80, 216, 0.08);
-      transition: transform 0.2s;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.6);
     }
     .section-title {
       font-size: 1.5em;
-      color: #001f3f;
+      color: #2b2d42;
       font-weight: 700;
       margin-bottom: 15px;
-      border-bottom: 2px solid #f0f4f8;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
       padding-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer; /* Para colapsar */
       user-select: none;
+      transition: color 0.2s;
     }
     .section-title:hover {
-        color: #0050d8;
+        color: var(--primary-color);
     }
     /* PUNTO 4: Ajuste de dimensiones para visualización completa */
     .table-wrapper {
       width: 100%;
       overflow-x: auto; /* Permite scroll horizontal si es estrictamente necesario */
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-      border: 1px solid #f0f4f8;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.05);
       display: block; /* Visible por defecto */
     }
     table {
       width: 100%; /* Fuerza a usar todo el ancho disponible */
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       min-width: 800px; /* Mínimo para mantener legibilidad */
     }
     th, td {
       padding: 14px 18px;
-      text-align: left;
+      text-align: center; /* Centrar todos los datos */
       border-bottom: 1px solid #f0f4f8;
-      font-size: 0.95em;
-      color: #444;
+      font-size: 0.9em;
+      color: #495057;
+      font-weight: 500;
+      /* Ocultar lo que no este alineado */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
     }
     th {
-      background: #001f3f; /* Azul Marino */
+      background: #f8f9fa;
       color: white;
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color, #3f37c9));
       white-space: nowrap;
       font-weight: 600;
       letter-spacing: 0.5px;
+      font-size: 0.8em;
+      text-transform: uppercase;
     }
-    tr:hover {
-      background-color: #f8fbff;
-    }
+    tr:hover td { background-color: #f8faff; color: var(--primary-color); }
     .btn-action {
-      background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+      background: linear-gradient(45deg, var(--success-color), #20c997);
       color: white;
       border: none;
       padding: 8px 16px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 0.85em;
+      font-size: 0.8em;
       font-weight: 600;
       margin-left: 5px;
-      box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
-      transition: transform 0.2s;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
     }
-    .btn-action:hover { transform: translateY(-2px); }
-    .btn-delete { background: linear-gradient(90deg, #dc3545 0%, #ff4d5a 100%); box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2); }
+    .btn-action:hover { transform: translateY(-3px); box-shadow: 0 7px 20px rgba(40, 167, 69, 0.3); }
+    .btn-delete { background: linear-gradient(45deg, var(--danger-color), #ff4d5a); box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2); }
+    .btn-delete:hover { box-shadow: 0 7px 20px rgba(220, 53, 69, 0.3); }
     .back-btn {
         display: inline-block;
         margin-bottom: 20px;
@@ -104,8 +133,8 @@
         color: white;
         text-decoration: none;
         border-radius: 10px;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0, 31, 63, 0.2);
+        font-weight: 700;
+        box-shadow: 0 4px 15px rgba(0, 31, 63, 0.2);
     }
     /* Modal Styles */
     .modal {
@@ -119,13 +148,14 @@
     .modal-content {
       background-color: #fff;
       margin: 5% auto;
-      padding: 30px;
+      padding: 40px;
       border: none;
       width: 90%;
       height: 80%;
       overflow: auto;
       border-radius: 20px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .close {
       color: #999;
@@ -136,11 +166,15 @@
       transition: color 0.2s;
     }
     .close:hover { color: #001f3f; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     .link-cell {
-        color: #0050d8;
+        color: var(--primary-color);
         text-decoration: underline;
         cursor: pointer;
-        font-weight: bold;
+        font-weight: 600;
     }
     
     /* Estilos para la tabla de detalle en el modal */
@@ -154,11 +188,12 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
     .detail-table thead th {
-        background-color: #001f3f;
+        background: linear-gradient(45deg, #2b2d42, #8d99ae);
         color: white;
         padding: 15px;
         text-align: left;
         font-weight: 600;
+        font-size: 0.85em;
         position: sticky;
         top: 0;
     }
@@ -279,12 +314,14 @@
             if (cellIdx === 3 && url) {
                 td.textContent = cell;
                 td.classList.add('link-cell');
-                td.onclick = () => openModal(url, token);
-                td.title = "Ver detalle (Click aquí)";
+                td.onclick = () => openModal(url, token, cell);
+                td.title = `Ver detalle de "${cell}" (Click aquí)`;
             } else {
                 td.textContent = cell;
             }
-            tr.appendChild(td); 
+            // Añadir tooltip para ver contenido completo
+            td.title = cell;
+            tr.appendChild(td);
         });
 
         // Botones de acción
@@ -344,8 +381,9 @@
     }
 
     // Modal Logic
-    async function openModal(url, token) {
+    async function openModal(url, token, title) {
         const modal = document.getElementById('linkModal');
+        const modalTitle = document.getElementById('modalTitle');
         const body = document.getElementById('modalBody');
         modal.style.display = "block";
         body.innerHTML = '<div style="text-align:center;padding:20px;">Cargando datos de la hoja...</div>';
@@ -371,7 +409,7 @@
             });
             html += '</tbody></table></div>';
             body.innerHTML = html;
-            document.getElementById('modalTitle').textContent = data.sheetName || 'Detalle';
+            modalTitle.textContent = title || data.sheetName || 'Detalle';
         } catch (e) {
             body.innerHTML = '<p style="color:red;text-align:center;">Error cargando hoja: ' + e.message + '<br><small>Verifique que la hoja sea pública o accesible por el sistema.</small></p>';
         }
