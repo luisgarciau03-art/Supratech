@@ -297,6 +297,21 @@
       // Limpiar tabla
       table.innerHTML = '';
 
+      // Identificar columnas a ocultar (las que contienen "FALSE" o índices fijos)
+      const hiddenIndices = new Set([0, 8, 12, 13]);
+      
+      if (data.rows && data.rows.length > 0) {
+          const numCols = data.rows.reduce((max, row) => Math.max(max, row.length), 0);
+          for (let col = 0; col < numCols; col++) {
+              const containsFalse = data.rows.some(row => 
+                  row[col] && row[col].toString().toUpperCase() === 'FALSE'
+              );
+              if (containsFalse) {
+                  hiddenIndices.add(col);
+              }
+          }
+      }
+
       data.rows.forEach((row, idx) => {
         const tr = document.createElement('tr');
         
@@ -305,8 +320,8 @@
         if (row.length > 8) url = row[8];
 
         row.forEach((cell, cellIdx) => { 
-            // Ocultar columnas 1, 9, 13 y 14 (Indices 0, 8, 12, 13)
-            if ([0, 8, 12, 13].includes(cellIdx)) return;
+            // Ocultar columnas según el Set calculado
+            if (hiddenIndices.has(cellIdx)) return;
 
             const td = document.createElement('td');
             

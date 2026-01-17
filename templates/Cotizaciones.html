@@ -323,29 +323,24 @@
           'PEDIDO PASA'
       ];
 
-      // Pre-procesar para contar ocurrencias en orden cronológico (Columnas Lunes a Domingo)
-      // Asumimos estructura: Header en row 0. Datos desde row 3 (fila 5 real).
-      // Columnas de días suelen ser índices 1 a 7 (B a H aprox).
-      // Para simplificar, iteramos toda la tabla celda por celda y asignamos el índice al vuelo.
-      // Pero el requerimiento dice: "Si aparece en lunes y martes...".
-      // Lo mejor es asignar el índice al momento de renderizar, ya que renderizamos fila por fila (Lunes está antes que Martes en columnas?).
-      // Si la tabla está transpuesta (Días en columnas), leemos fila por fila.
-      // Si la tabla tiene Días en Fila 1 y Marcas abajo:
-      // Iteramos por columnas (Días) para asignar los índices correctos cronológicamente.
-      
       // Mapa para guardar el índice asignado a cada celda específica (fila, col)
       const cellIndices = {}; 
       
       if (rows.length > 0) {
-          const numCols = rows[0].length;
+          // Determinar el número máximo de columnas para iterar correctamente
+          let maxCols = 0;
+          rows.forEach(r => { if (r.length > maxCols) maxCols = r.length; });
+
           // Iterar por columnas (asumiendo que el tiempo avanza por columnas)
-          for (let c = 0; c < numCols; c++) {
+          for (let c = 0; c < maxCols; c++) {
               for (let r = 3; r < rows.length; r++) { // Empezar desde fila de datos
-                  const cellText = rows[r][c] ? rows[r][c].toString().trim() : '';
-                  if (cellText && !ignoredKeywords.some(k => cellText.toUpperCase().includes(k))) {
-                      if (!brandOccurrences[cellText]) brandOccurrences[cellText] = 0;
-                      brandOccurrences[cellText]++;
-                      cellIndices[`${r}-${c}`] = brandOccurrences[cellText];
+                  if (rows[r] && c < rows[r].length) {
+                      const cellText = rows[r][c] ? rows[r][c].toString().trim() : '';
+                      if (cellText && !ignoredKeywords.some(k => cellText.toUpperCase().includes(k))) {
+                          if (!brandOccurrences[cellText]) brandOccurrences[cellText] = 0;
+                          brandOccurrences[cellText]++;
+                          cellIndices[`${r}-${c}`] = brandOccurrences[cellText];
+                      }
                   }
               }
           }
@@ -366,7 +361,7 @@
             if (!isIgnored) {
                 const currentCount = cellIndices[`${rowIndex}-${colIndex}`] || 1;
                 el.classList.add('brand-cell');
-                el.title = `Ver detalle de ${cellText} (Consecutivo: ${currentCount})`;
+                el.title = `Ver detalle de ${cellText} ${currentCount > 1 ? '(' + currentCount + ')' : ''}`;
                 
                 el.onclick = () => {
                   const weekId = document.getElementById('week-identifier').value;
