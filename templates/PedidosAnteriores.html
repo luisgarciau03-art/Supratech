@@ -2,68 +2,178 @@
 <html>
 <head>
   <title>Pedidos Anteriores</title>
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
     body {
-      font-family: 'Montserrat', sans-serif;
-      background: #f0f2f5;
+      background-color: #f0f2f5;
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
     }
+
     .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 1600px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
     }
-    /* PUNTO 3: Texto principal centrado */
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     h1 {
       text-align: center;
-      color: #001f3f; /* Azul marino */
-      margin-bottom: 30px;
-      font-size: 2.2em;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      color: #1a1a1a;
+      margin-bottom: 35px;
+      font-weight: 700;
+      font-size: 2.5em;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
+
     .back-btn {
-      display: inline-block;
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      background: #001f3f;
-      color: white;
+      background: white;
+      color: var(--primary-color);
       text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.15);
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.95em;
+      border: 1px solid rgba(67, 97, 238, 0.2);
+      margin-bottom: 30px;
     }
-    .table-container {
-      width: 100%;
+
+    .back-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .table-wrapper {
       overflow-x: auto;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
     }
+
+    /* Custom Scrollbar */
+    .table-wrapper::-webkit-scrollbar {
+      height: 8px;
+    }
+    .table-wrapper::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       min-width: 1000px;
     }
+
     th, td {
-      padding: 12px 15px;
-      text-align: center; /* Centrar información */
-      border-bottom: 1px solid #eee;
+      padding: 16px 20px;
+      text-align: center;
+      border-bottom: 1px solid #f0f0f0;
     }
+
     th {
-      background-color: #001f3f; /* Azul marino */
-      color: white;
+      background: #f8f9fa;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75em;
+      letter-spacing: 1px;
+      white-space: nowrap;
       position: sticky;
       top: 0;
-      text-transform: uppercase;
-      font-size: 0.9em;
+      z-index: 10;
+      border-bottom: 2px solid #e9ecef;
     }
-    tr:nth-child(even) { background-color: #f8fbff; }
-    tr:hover { background-color: #eef5ff; }
+
+    td {
+      color: #495057;
+      font-size: 0.9em;
+      font-weight: 500;
+      white-space: nowrap;
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.2s;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #f8faff;
+      color: var(--primary-color);
+    }
+
+    /* Loading state */
+    .loading-container {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-light);
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(67, 97, 238, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -83,7 +193,13 @@
   <div class="container">
     <a href="/panel" class="back-btn">&larr; Volver</a>
     <h1>Historial de Pedidos Anteriores</h1>
-    <div class="table-container">
+    
+    <div id="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando historial...</p>
+    </div>
+
+    <div id="content-area" class="table-wrapper" style="display:none;">
       <table id="pedidos-table">
         <!-- Datos cargados vía JS -->
       </table>
@@ -93,13 +209,28 @@
     firebase.auth().onAuthStateChanged(async user => {
       if(user) {
         const token = await user.getIdToken();
+        const loadingEl = document.getElementById('loading');
+        const contentEl = document.getElementById('content-area');
+
         const res = await fetch('/api/pedidos_anteriores_datos', {
           headers: {'Authorization': 'Bearer ' + token}
         });
         const data = await res.json();
         const table = document.getElementById('pedidos-table');
-        // Lógica simple de renderizado (similar a las otras tablas)
-        data.datos.forEach(row => { const tr = document.createElement('tr'); row.forEach(c => { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); }); table.appendChild(tr); });
+        
+        data.datos.forEach((row, rowIndex) => { 
+            const tr = document.createElement('tr'); 
+            row.forEach(c => { 
+                const el = rowIndex === 0 ? document.createElement('th') : document.createElement('td'); 
+                el.textContent = c; 
+                el.title = c; // Tooltip
+                tr.appendChild(el); 
+            }); 
+            table.appendChild(tr); 
+        });
+
+        loadingEl.style.display = 'none';
+        contentEl.style.display = 'block';
       }
     });
   </script>
