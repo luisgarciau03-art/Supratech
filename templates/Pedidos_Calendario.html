@@ -174,27 +174,30 @@
 </head>
 <body>
   <div class="container">
-    <a class="back-link" href="/pedidos">&larr; Volver</a>
+    <a href="/pedidos" class="back-link">&larr; Volver</a>
+    <h2>📅 Calendario - Pedidos 9.0</h2>
+    
+    <button id="save-btn" type="button" class="action-btn">💾 Guardar Cambios</button>
+    
+    <div id="success" class="success"></div>
+    <div id="error" class="error"></div>
+    
+    <div id="loading" class="loading-container" style="display:none;">
+      <div class="spinner"></div>
+      <p>Cargando datos...</p>
+    </div>
 
-    <div class="panel-card">
-      <h2>📅 CALENDARIO - Pedidos 9.0</h2>
-      <button id="save-btn" type="button">💾 Guardar Cambios</button>
-      <div id="success" class="success"></div>
-      <div id="error" class="error"></div>
-      <div id="loading" class="loading" style="display:none;">Cargando datos...</div>
-
-      <div class="table-container">
-        <table id="calendar-table">
-          <thead>
-            <tr id="header-row">
-              <!-- Headers dinámicos -->
-            </tr>
-          </thead>
-          <tbody id="table-body">
-            <!-- Filas dinámicas -->
-          </tbody>
-        </table>
-      </div>
+    <div class="table-wrapper">
+      <table id="calendar-table">
+        <thead>
+          <tr id="header-row">
+            <!-- Headers dinámicos -->
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Filas dinámicas -->
+        </tbody>
+      </table>
     </div>
   </div>
 </body>

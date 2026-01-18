@@ -2,216 +2,382 @@
 <html>
 <head>
   <title>BLACKLIST</title>
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: linear-gradient(135deg, #eaf0fa 0%, #ffffff 100%);
-      font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      color: #222;
-      min-height: 100vh;
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
     }
+
+    body {
+      background-color: #f0f2f5;
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
     }
+
     .panel-card {
-      background: #fff;
-      border-radius: 22px;
-      box-shadow: 0 8px 32px #0050d822;
-      margin-bottom: 20px;
-      padding: 28px 32px;
-      animation: fadeInCard 0.6s ease;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+      padding: 40px;
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
     }
-    @keyframes fadeInCard {
-      from { opacity: 0; transform: translateY(20px); }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     h2 {
-      color: #0050d8;
-      font-size: 1.8em;
+      color: #1a1a1a;
+      font-size: 2em;
       font-weight: 700;
-      margin-bottom: 18px;
-      letter-spacing: 0.5px;
+      margin-bottom: 25px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
+
     h3 {
-      color: #0050d8;
+      color: var(--text-dark);
       font-size: 1.3em;
       font-weight: 600;
       margin-bottom: 12px;
     }
+
     .back-link {
-      display: inline-block;
-      margin-bottom: 12px;
-      color: #0050d8;
-      text-decoration: underline;
+      background: white;
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 12px 28px;
+      border-radius: 12px;
       font-weight: 600;
-      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.15);
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.95em;
+      border: 1px solid rgba(67, 97, 238, 0.2);
+      margin-bottom: 30px;
     }
+
+    .back-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
+    }
+
     form {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-width: 500px;
+      gap: 15px;
+      width: 100%;
     }
+
     label {
       font-weight: 600;
-      color: #0050d8;
-      font-size: 1em;
-      margin-bottom: 2px;
+      color: var(--text-dark);
+      font-size: 0.95em;
+      margin-bottom: 5px;
       text-align: left;
+      display: block;
     }
+
     input, select {
-      border: 2px solid #b3c6e6;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 1em;
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.95em;
       outline: none;
-      transition: border 0.2s;
-      background: #f7faff;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.8);
+      font-family: 'Poppins', sans-serif;
     }
+
     input:focus, select:focus {
-      border-color: #0050d8;
-      background: #eaf0fa;
+      border-color: var(--primary-color);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
     }
+
     button {
-      background: linear-gradient(90deg, #0050d8 60%, #0077ff 100%);
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
       color: #fff;
       border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
+      border-radius: 12px;
+      padding: 12px 20px;
       font-size: 1em;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 2px 12px #0050d822;
-      transition: all 0.2s;
-      margin-top: 8px;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.2);
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
     }
+
     button:hover {
-      background: linear-gradient(90deg, #0077ff 60%, #0050d8 100%);
       transform: translateY(-2px);
-      box-shadow: 0 4px 16px #0050d833;
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
     }
-    button:active {
-      transform: translateY(0);
-    }
+
     .btn-delete {
-      background: linear-gradient(90deg, #d80032 60%, #ff0044 100%);
-      padding: 6px 12px;
-      font-size: 0.9em;
+      background: linear-gradient(45deg, #ef233c, #d90429);
+      box-shadow: 0 4px 15px rgba(239, 35, 60, 0.2);
+      padding: 8px 16px;
+      font-size: 0.85em;
     }
+
     .btn-delete:hover {
-      background: linear-gradient(90deg, #ff0044 60%, #d80032 100%);
+      box-shadow: 0 8px 25px rgba(239, 35, 60, 0.3);
     }
+
     .btn-refresh {
-      background: linear-gradient(90deg, #008a2e 60%, #00b33c 100%);
-      display: inline-block;
-      margin-bottom: 12px;
+      background: linear-gradient(45deg, #28a745, #20c997);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+      margin-bottom: 0;
     }
+
     .btn-refresh:hover {
-      background: linear-gradient(90deg, #00b33c 60%, #008a2e 100%);
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
     }
+
     .success {
-      color: #008a2e;
-      margin: 10px 0;
-      font-weight: 600;
-      font-size: 1em;
+      color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid rgba(40, 167, 69, 0.2);
       display: none;
     }
+
     .error {
-      color: #d80032;
-      margin: 10px 0;
-      font-weight: 600;
-      font-size: 1em;
+      color: #ef233c;
+      background: rgba(239, 35, 60, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid rgba(239, 35, 60, 0.2);
       display: none;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-      font-size: 0.95em;
-    }
-    th {
-      background: #0050d8;
-      color: white;
-      padding: 10px 8px;
-      text-align: left;
-      font-weight: 600;
-    }
-    td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    tr:nth-child(even) {
-      background: #f7faff;
-    }
-    tr:hover {
-      background: #eaf0fa;
-    }
+
     .table-container {
       overflow-x: auto;
-      max-height: 500px;
-      overflow-y: auto;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
+      margin-top: 20px;
+      max-height: 600px;
     }
-    .loading {
-      text-align: center;
-      color: #0050d8;
+
+    /* Custom Scrollbar */
+    .table-container::-webkit-scrollbar {
+      height: 8px;
+      width: 8px;
+    }
+    .table-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .table-container::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 800px;
+    }
+
+    th, td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    th {
+      background: #f8f9fa;
+      color: #6c757d;
       font-weight: 600;
-      padding: 20px;
+      text-transform: uppercase;
+      font-size: 0.75em;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 2px solid #e9ecef;
     }
+
+    td {
+      color: #495057;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #f8faff;
+      color: var(--primary-color);
+    }
+
     .pagination {
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 10px;
-      margin-top: 15px;
+      margin-top: 25px;
       flex-wrap: wrap;
     }
+
     .pagination button {
-      padding: 8px 12px;
+      padding: 8px 16px;
       margin: 0;
+      font-size: 0.9em;
+      background: white;
+      color: var(--text-dark);
+      border: 1px solid #e0e0e0;
+      box-shadow: none;
     }
+
+    .pagination button:hover:not(:disabled) {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .pagination span {
-      color: #0050d8;
+      color: var(--text-light);
       font-weight: 600;
+      font-size: 0.9em;
     }
+
     .pagination input {
-      width: 80px;
+      width: 60px;
       text-align: center;
+      padding: 8px;
     }
+
     .info-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 15px;
+      background: rgba(255,255,255,0.5);
+      padding: 15px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,0.05);
     }
+
     .search-box {
-      padding: 8px 12px;
-      border: 2px solid #b3c6e6;
-      border-radius: 8px;
-      width: 250px;
+      padding: 10px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      width: 300px;
+      background: white;
     }
+
     .form-row {
       display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
+      gap: 30px;
+      margin-bottom: 30px;
     }
+
     .form-column {
       flex: 1;
     }
+
     .form-column.small {
-      flex: 0 0 45%;
+      flex: 0 0 40%;
     }
-    @media (max-width: 768px) {
-      .panel-card { padding: 18px; }
-      h2 { font-size: 1.4em; }
-      button { padding: 10px; font-size: 0.95em; }
-      .search-box { width: 100%; }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-light);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(67, 97, 238, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .download-link {
+        display: inline-block;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .download-link:hover {
+        color: var(--secondary-color);
+        text-decoration: underline;
+    }
+
+    @media (max-width: 900px) {
       .form-row { flex-direction: column; }
       .form-column.small { flex: 1; }
+      .info-bar { flex-direction: column; align-items: stretch; }
+      .search-box { width: 100%; }
+      .container { padding: 20px; }
+      .panel-card { padding: 25px; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -251,7 +417,7 @@
       <div class="panel-card form-column">
         <h2>📤 CARGA MASIVA (CSV/XLSX)</h2>
         <div style="margin-bottom:12px;">
-          <a href="/static/plantilla_blacklist.csv" download style="color:#0050d8;font-weight:600;text-decoration:underline;">📥 Descargar plantilla CSV</a>
+          <a href="/static/plantilla_blacklist.csv" download class="download-link">📥 Descargar plantilla CSV</a>
         </div>
         <input type="file" id="bulk-file" accept=".csv,.xlsx" style="margin-bottom:8px;">
         <button id="bulk-upload-btn" type="button">Cargar archivo</button>
@@ -266,11 +432,14 @@
       <div class="info-bar">
         <button id="refresh-btn" class="btn-refresh">🔄 Actualizar Datos</button>
         <input type="text" id="search-box" class="search-box" placeholder="🔍 Buscar en tabla...">
-        <span id="record-count" style="color:#0050d8;font-weight:600;"></span>
+        <span id="record-count" style="color:var(--primary-color);font-weight:600;"></span>
       </div>
       <div id="datos-success" class="success"></div>
       <div id="datos-error" class="error"></div>
-      <div id="loading" class="loading" style="display:none;">Cargando datos...</div>
+      <div id="loading" class="loading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Cargando datos...</p>
+      </div>
       <div class="table-container">
         <table id="datos-table" style="display:none;">
           <thead id="table-header"></thead>
