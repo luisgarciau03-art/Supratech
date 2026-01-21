@@ -3335,9 +3335,716 @@ def bd_descuentos():
 # --- Sub-rutas para BD Descuentos ---
 @app.route('/<page_name>')
 def bd_descuentos_page(page_name):
-    if page_name in ['ventas_semanales', 'para_impulsar', 'para_descartar', 'para_poner_en_venta']:
+    if page_name in ['ventas_semanales', 'para_impulsar', 'para_descartar', 'para_poner_en_venta', 'promocionables', 'errores']:
         return render_template(f'{page_name}.html')
     return "Página no encontrada", 404
+
+# --- API Endpoints para Sistema de Descuentos ---
+
+# VENTAS SEMANALES Endpoints
+@app.route('/api/ventas_semanales/add', methods=['POST'])
+def ventas_semanales_add():
+    """Añade un registro individual a VENTAS SEMANALES"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        sku = data.get('sku', '').strip()
+        unidades = data.get('unidades', '').strip()
+
+        if not sku or not unidades:
+            return jsonify({'error': 'Faltan datos requeridos'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet BDPROMOTE
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
+
+        # Preparar los datos para agregar
+        # SKU va a A (duplicado), D (principal)
+        # Unidades vendidas va a I
+        values = [[sku, '', '', sku, '', '', '', '', unidades]]
+
+        body = {
+            'values': values,
+            'majorDimension': 'ROWS'
+        }
+
+        # Agregar fila a la hoja VENTAS SEMANALES
+        result = service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='VENTAS SEMANALES!A2:I2',
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+
+        return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ventas_semanales/bulk', methods=['POST'])
+def ventas_semanales_bulk():
+    """Añade múltiples registros a VENTAS SEMANALES"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        rows = data.get('rows', [])
+
+        if not rows:
+            return jsonify({'error': 'No hay datos para procesar'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet BDPROMOTE
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
+
+        # Preparar los datos
+        values = []
+        for row in rows:
+            sku = row.get('sku', '').strip()
+            unidades = row.get('unidades', '').strip()
+            if sku and unidades:
+                values.append([sku, '', '', sku, '', '', '', '', unidades])
+
+        if not values:
+            return jsonify({'error': 'No hay datos válidos para procesar'}), 400
+
+        body = {
+            'values': values,
+            'majorDimension': 'ROWS'
+        }
+
+        # Agregar filas a la hoja VENTAS SEMANALES
+        result = service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='VENTAS SEMANALES!A2:I2',
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+
+        return jsonify({'message': f'{len(values)} registros añadidos exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# PARA IMPULSAR Endpoints
+@app.route('/api/para_impulsar/add', methods=['POST'])
+def para_impulsar_add():
+    """Añade un registro individual a PARA IMPULSAR VENTAS"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        sku = data.get('sku', '').strip()
+        unidades_impulsar = data.get('unidades_impulsar', '').strip()
+        ventas_30dias = data.get('ventas_30dias', '').strip()
+
+        if not sku or not unidades_impulsar or not ventas_30dias:
+            return jsonify({'error': 'Faltan datos requeridos'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet BDPROMOTE
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
+
+        # Preparar los datos
+        # SKU va a C, duplicado a D
+        # Unidades impulsar va a L
+        # Ventas 30 días va a I
+        values = [['', '', sku, sku, '', '', '', '', ventas_30dias, '', '', unidades_impulsar]]
+
+        body = {
+            'values': values,
+            'majorDimension': 'ROWS'
+        }
+
+        # Agregar fila a la hoja PARA IMPULSAR VENTAS
+        result = service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='PARA IMPULSAR VENTAS!A2:L2',
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+
+        return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/para_impulsar/bulk', methods=['POST'])
+def para_impulsar_bulk():
+    """Añade múltiples registros a PARA IMPULSAR VENTAS"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        rows = data.get('rows', [])
+
+        if not rows:
+            return jsonify({'error': 'No hay datos para procesar'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet BDPROMOTE
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
+
+        # Preparar los datos
+        values = []
+        for row in rows:
+            sku = row.get('sku', '').strip()
+            unidades_impulsar = row.get('unidades_impulsar', '').strip()
+            ventas_30dias = row.get('ventas_30dias', '').strip()
+            if sku and unidades_impulsar and ventas_30dias:
+                values.append(['', '', sku, sku, '', '', '', '', ventas_30dias, '', '', unidades_impulsar])
+
+        if not values:
+            return jsonify({'error': 'No hay datos válidos para procesar'}), 400
+
+        body = {
+            'values': values,
+            'majorDimension': 'ROWS'
+        }
+
+        # Agregar filas a la hoja PARA IMPULSAR VENTAS
+        result = service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='PARA IMPULSAR VENTAS!A2:L2',
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+
+        return jsonify({'message': f'{len(values)} registros añadidos exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# PARA DESCARTAR Endpoints
+@app.route('/api/para_descartar/add', methods=['POST'])
+def para_descartar_add():
+    """Añade un registro individual a PARA EVITAR DESCARTE"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        sku = data.get('sku', '').strip()
+
+        if not sku:
+            return jsonify({'error': 'Falta el SKU'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet BDPROMOTE
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
+
+        # Preparar los datos
+        # SKU va a C (C3 según instrucciones), duplicado a D (D3)
+        values = [['', '', sku, sku]]
+
+        body = {
+            'values': values,
+            'majorDimension': 'ROWS'
+        }
+
+        # Agregar fila a la hoja PARA EVITAR DESCARTE
+        result = service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='PARA EVITAR DESCARTE!A3:D3',
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+
+        return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/para_descartar/bulk', methods=['POST'])
+def para_descartar_bulk():
+    """Añade múltiples registros a PARA EVITAR DESCARTE"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        rows = data.get('rows', [])
+
+        if not rows:
+            return jsonify({'error': 'No hay datos para procesar'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet BDPROMOTE
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
+
+        # Preparar los datos
+        values = []
+        for row in rows:
+            sku = row.get('sku', '').strip()
+            if sku:
+                values.append(['', '', sku, sku])
+
+        if not values:
+            return jsonify({'error': 'No hay datos válidos para procesar'}), 400
+
+        body = {
+            'values': values,
+            'majorDimension': 'ROWS'
+        }
+
+        # Agregar filas a la hoja PARA EVITAR DESCARTE
+        result = service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='PARA EVITAR DESCARTE!A3:D3',
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+
+        return jsonify({'message': f'{len(values)} registros añadidos exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# PARA PONER EN VENTA Endpoints
+@app.route('/api/para_poner_en_venta/add', methods=['POST'])
+def para_poner_en_venta_add():
+    """Añade un registro individual a PARA PONER EN VENTA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        sku = data.get('sku', '').strip()
+
+        if not sku:
+            return jsonify({'error': 'Falta el SKU'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet BDPROMOTE
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
+
+        # Preparar los datos
+        # SKU va a C, duplicado a D
+        values = [['', '', sku, sku]]
+
+        body = {
+            'values': values,
+            'majorDimension': 'ROWS'
+        }
+
+        # Agregar fila a la hoja PARA PONER EN VENTA
+        result = service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='PARA PONER EN VENTA!A2:D2',
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+
+        return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/para_poner_en_venta/bulk', methods=['POST'])
+def para_poner_en_venta_bulk():
+    """Añade múltiples registros a PARA PONER EN VENTA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        rows = data.get('rows', [])
+
+        if not rows:
+            return jsonify({'error': 'No hay datos para procesar'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet BDPROMOTE
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
+
+        # Preparar los datos
+        values = []
+        for row in rows:
+            sku = row.get('sku', '').strip()
+            if sku:
+                values.append(['', '', sku, sku])
+
+        if not values:
+            return jsonify({'error': 'No hay datos válidos para procesar'}), 400
+
+        body = {
+            'values': values,
+            'majorDimension': 'ROWS'
+        }
+
+        # Agregar filas a la hoja PARA PONER EN VENTA
+        result = service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='PARA PONER EN VENTA!A2:D2',
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
+
+        return jsonify({'message': f'{len(values)} registros añadidos exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# PROMOCIONABLES Endpoints (solo lectura)
+@app.route('/api/promocionables/data', methods=['GET'])
+def promocionables_data():
+    """Obtiene los datos de la tabla PROMOCIONABLES (PROMOTE 5.0)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet PROMOTE5.0
+        spreadsheet_id = '1nOB3Lr07FqOcFKj-1dxNCRnUxGOjUoqAf_WterqH3rg'
+
+        # Leer los datos de PROMOTE 5.0
+        # Columnas: G (% DESCUENTO), A (CATEGORIA), B (ID), C (MARCA), H (PRECIO),
+        #           I (PRECIO OFERTA), L (RANGO), K (UTILIDAD), J (UTILIDAD MONEDA)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='PROMOTE 5.0!A2:L'
+        ).execute()
+
+        values = result.get('values', [])
+
+        # Formatear los datos
+        data = []
+        for row in values:
+            # Asegurar que la fila tenga suficientes columnas
+            while len(row) < 12:
+                row.append('')
+
+            data.append({
+                'categoria': row[0] if len(row) > 0 else '',
+                'id': row[1] if len(row) > 1 else '',
+                'marca': row[2] if len(row) > 2 else '',
+                'descuento': row[6] if len(row) > 6 else '',
+                'precio': row[7] if len(row) > 7 else '',
+                'precio_oferta': row[8] if len(row) > 8 else '',
+                'utilidad_moneda': row[9] if len(row) > 9 else '',
+                'utilidad': row[10] if len(row) > 10 else '',
+                'rango': row[11] if len(row) > 11 else ''
+            })
+
+        return jsonify({'data': data}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# ERRORES Endpoints (solo lectura + plantillas)
+@app.route('/api/errores/data', methods=['GET'])
+def errores_data():
+    """Obtiene los datos de la tabla ERRORES (ID ERROR)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet PROMOTE5.0
+        spreadsheet_id = '1nOB3Lr07FqOcFKj-1dxNCRnUxGOjUoqAf_WterqH3rg'
+
+        # Leer los datos de ID ERROR
+        # Columnas: A (ID), B (COSTO), C (COMISION), D (ENVIO)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='ID ERROR!A2:D'
+        ).execute()
+
+        values = result.get('values', [])
+
+        # Formatear los datos
+        data = []
+        for row in values:
+            # Asegurar que la fila tenga suficientes columnas
+            while len(row) < 4:
+                row.append('')
+
+            data.append({
+                'id': row[0] if len(row) > 0 else '',
+                'costo': row[1] if len(row) > 1 else '',
+                'comision': row[2] if len(row) > 2 else '',
+                'envio': row[3] if len(row) > 3 else ''
+            })
+
+        return jsonify({'data': data}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/errores/plantilla_csv', methods=['GET'])
+def errores_plantilla_csv():
+    """Descarga plantilla CSV con errores marcados"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet PROMOTE5.0
+        spreadsheet_id = '1nOB3Lr07FqOcFKj-1dxNCRnUxGOjUoqAf_WterqH3rg'
+
+        # Leer los datos de ID ERROR
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='ID ERROR!A2:D'
+        ).execute()
+
+        values = result.get('values', [])
+
+        # Crear CSV con marcas de error
+        from flask import Response
+        import io
+
+        output = io.StringIO()
+        output.write('ID,COSTO,COMISION,ENVIO\n')
+
+        for row in values:
+            # Asegurar que la fila tenga 4 columnas
+            while len(row) < 4:
+                row.append('')
+
+            # Marcar errores con "[ERROR]"
+            id_val = row[0] if row[0] and row[0] != 'ERROR' else '[ERROR]'
+            costo_val = row[1] if row[1] and row[1] != 'ERROR' else '[ERROR]'
+            comision_val = row[2] if row[2] and row[2] != 'ERROR' else '[ERROR]'
+            envio_val = row[3] if row[3] and row[3] != 'ERROR' else '[ERROR]'
+
+            output.write(f'{id_val},{costo_val},{comision_val},{envio_val}\n')
+
+        csv_content = output.getvalue()
+        output.close()
+
+        return Response(
+            csv_content,
+            mimetype='text/csv',
+            headers={'Content-Disposition': 'attachment; filename=plantilla_errores.csv'}
+        )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/errores/plantilla_excel', methods=['GET'])
+def errores_plantilla_excel():
+    """Descarga plantilla Excel con celdas rojas para errores"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet PROMOTE5.0
+        spreadsheet_id = '1nOB3Lr07FqOcFKj-1dxNCRnUxGOjUoqAf_WterqH3rg'
+
+        # Leer los datos de ID ERROR
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='ID ERROR!A2:D'
+        ).execute()
+
+        values = result.get('values', [])
+
+        # Crear Excel con formato
+        from openpyxl import Workbook
+        from openpyxl.styles import PatternFill, Font
+        from flask import Response
+        import io
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = 'Errores'
+
+        # Encabezados
+        ws.append(['ID', 'COSTO', 'COMISION', 'ENVIO'])
+
+        # Estilo para errores (fondo rojo)
+        red_fill = PatternFill(start_color='FFFF0000', end_color='FFFF0000', fill_type='solid')
+        white_font = Font(color='FFFFFFFF', bold=True)
+
+        # Agregar datos
+        for row in values:
+            # Asegurar que la fila tenga 4 columnas
+            while len(row) < 4:
+                row.append('')
+
+            ws.append(row)
+            current_row = ws.max_row
+
+            # Marcar celdas con ERROR o vacías en rojo
+            for col_idx, val in enumerate(row, start=1):
+                if not val or val == 'ERROR':
+                    cell = ws.cell(row=current_row, column=col_idx)
+                    cell.fill = red_fill
+                    cell.font = white_font
+                    cell.value = 'ERROR'
+
+        # Guardar en memoria
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        return Response(
+            output.getvalue(),
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={'Content-Disposition': 'attachment; filename=plantilla_errores.xlsx'}
+        )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     import os
