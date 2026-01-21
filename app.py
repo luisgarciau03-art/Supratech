@@ -2734,6 +2734,132 @@ def mover_pedido_indicadores():
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/update_sheet_cell', methods=['POST'])
+def update_sheet_cell():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        
+        data = request.get_json()
+        spreadsheet_id = data.get('spreadsheet_id')
+        sheet_name = data.get('sheet_name')
+        cell_range = data.get('range') # e.g., 'F7'
+        value = data.get('value')
+
+        if not all([spreadsheet_id, sheet_name, cell_range, value is not None]):
+            return jsonify({'error': 'Datos incompletos'}), 400
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        sheet = service.spreadsheets()
+
+        update_range = f"'{sheet_name}'!{cell_range}"
+
+        sheet.values().update(
+            spreadsheetId=spreadsheet_id,
+            range=update_range,
+            valueInputOption='USER_ENTERED',
+            body={'values': [[value]]}
+        ).execute()
+
+        return jsonify({'status': 'ok', 'message': f'Celda {cell_range} actualizada.'})
+
+    except Exception as e:
+        import traceback
+        print(f'[UPDATE_SHEET_CELL] Error: {str(e)}')
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/mark_as_unsortable', methods=['POST'])
+def mark_as_unsortable():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        
+        data = request.get_json()
+        spreadsheet_id = data.get('spreadsheet_id')
+        sheet_name = data.get('sheet_name')
+        row_index = data.get('row_index') # 1-based index
+
+        if not all([spreadsheet_id, sheet_name, row_index]):
+            return jsonify({'error': 'Datos incompletos'}), 400
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        sheet = service.spreadsheets()
+
+        # 1. Get sheetId
+        spreadsheet_meta = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        sheet_id = None
+        for s in spreadsheet_meta.get('sheets', []):
+            if s['properties']['title'] == sheet_name:
+                sheet_id = s['properties']['sheetId']
+                break
+        if sheet_id is None:
+            return jsonify({'error': f'No se encontró la hoja con nombre {sheet_name}'}), 404
+
+        # 2. Get the row data to be moved
+        source_range = f"'{sheet_name}'!A{row_index}:Z{row_index}"
+        result = sheet.values().get(spreadsheetId=spreadsheet_id, range=source_range).execute()
+        row_values = result.get('values', [[]])[0]
+
+        # 3. Modify data: set "cantidad confirmada" (col F, index 5) to 0
+        if len(row_values) > 5:
+            row_values[5] = '0'
+        else:
+            while len(row_values) <= 5:
+                row_values.append('')
+            row_values[5] = '0'
+
+        # 4. Find the next empty row from row 84
+        check_range = f"'{sheet_name}'!A84:A"
+        result = sheet.values().get(spreadsheetId=spreadsheet_id, range=check_range).execute()
+        existing_values_len = len(result.get('values', []))
+        destination_row_index = 84 + existing_values_len
+
+        # 5. Write the modified data to the destination
+        destination_range = f"'{sheet_name}'!A{destination_row_index}"
+        sheet.values().update(
+            spreadsheetId=spreadsheet_id,
+            range=destination_range,
+            valueInputOption='USER_ENTERED',
+            body={'values': [row_values]}
+        ).execute()
+
+        # 6. Delete the original row
+        delete_request = {
+            'requests': [{
+                'deleteDimension': {
+                    'range': {
+                        'sheetId': sheet_id,
+                        'dimension': 'ROWS',
+                        'startIndex': row_index - 1, # 0-indexed
+                        'endIndex': row_index
+                    }
+                }
+            }]
+        }
+        service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=delete_request
+        ).execute()
+
+        return jsonify({'status': 'ok', 'message': f'Fila {row_index} movida a {destination_row_index}.'})
+
+    except Exception as e:
+        import traceback
+        print(f'[MARK_UNSORTABLE] Error: {str(e)}')
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/cotizaciones_datos', methods=['GET'])
 def cotizaciones_datos():
     auth_header = request.headers.get('Authorization')
@@ -3194,6 +3320,87 @@ def proxy_spreadsheet_data():
         ).execute()
         
         return jsonify({'values': result.get('values', []), 'sheetName': sheet_name})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# --- Nuevas rutas para Descuentos ---
+@app.route('/descuentos')
+def descuentos():
+    return render_template('descuentos.html')
+
+@app.route('/bd_descuentos')
+def bd_descuentos():
+    return render_template('bd_descuentos.html')
+
+# --- Sub-rutas para BD Descuentos ---
+@app.route('/<page_name>')
+def bd_descuentos_page(page_name):
+    if page_name in ['ventas_semanales', 'para_impulsar', 'para_descartar', 'para_poner_en_venta']:
+        return render_template(f'{page_name}.html')
+    return "Página no encontrada", 404
+
+if __name__ == '__main__':
+    import os
+    port = int(os.environ.get('PORT', 5001))
+    print(f'Servidor Flask corriendo en puerto {port}...')
+    app.run(host='0.0.0.0', port=port, debug=False)
+
+@app.route('/api/proxy_spreadsheet_data', methods=['POST'])
+def proxy_spreadsheet_data():
+    """Endpoint para obtener datos de una hoja externa dado su URL (para visualización en HTML)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        url = data.get('url')
+        if not url:
+             return jsonify({'error': 'URL required'}), 400
+             
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", url)
+        if not match:
+            return jsonify({'error': 'Invalid URL'}), 400
+        spreadsheet_id = match.group(1)
+        
+        # Intentar extraer el gid de la URL
+        gid_match = re.search(r"[#&?]gid=([0-9]+)", url)
+        target_gid = int(gid_match.group(1)) if gid_match else None
+        
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        
+        # Obtener metadatos del spreadsheet
+        spreadsheet = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        sheets = spreadsheet.get('sheets', [])
+        if not sheets:
+             return jsonify({'error': 'No sheets found'}), 404
+        
+        sheet_name = None
+        # Buscar la hoja por gid si existe
+        if target_gid is not None:
+            for s in sheets:
+                if s['properties']['sheetId'] == target_gid:
+                    sheet_name = s['properties']['title']
+                    break
+        
+        # Si no se encontró por gid o no había gid, usar la primera
+        if not sheet_name:
+            sheet_name = sheets[0]['properties']['title']
+        
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f"'{sheet_name}'!A1:Z1000"
+        ).execute()
+        
+        return jsonify({
+            'values': result.get('values', []), 
+            'sheetName': sheet_name,
+            'spreadsheet_id': spreadsheet_id
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BD Descuentos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .panel-card {
+      width: 100%;
+      max-width: 500px;
+      background: var(--card-bg);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    h2 {
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin-bottom: 35px;
+    }
+    .panel-links {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .panel-link {
+      background: white;
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+      border: 1px solid rgba(67, 97, 238, 0.15);
+    }
+    .panel-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel-card">
+    <a href="/panel" class="back-link">&larr; Volver al Panel</a>
+    <h2>BD Descuentos</h2>
+    <div class="panel-links">
+      <a class="panel-link" href="/ventas_semanales">VENTAS SEMANALES</a>
+      <a class="panel-link" href="/para_impulsar">PARA IMPULSAR</a>
+      <a class="panel-link" href="/para_descartar">PARA DESCARTAR</a>
+      <a class="panel-link" href="/para_poner_en_venta">PARA PONER EN VENTA</a>
+    </div>
+  </div>
+</body>
+</html>

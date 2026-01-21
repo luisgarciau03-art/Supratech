@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PARA DESCARTAR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .panel-card {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    h2 {
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin-bottom: 35px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    label {
+      font-weight: 600;
+      text-align: left;
+    }
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 1em;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+    }
+    button {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .success, .error {
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .success { color: #28a745; background: rgba(40, 167, 69, 0.1); }
+    .error { color: #ef233c; background: rgba(239, 35, 60, 0.1); }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+    .download-link {
+        display: block;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="panel-card">
+    <a href="/bd_descuentos" class="back-link">&larr; Volver</a>
+    <h2>PARA DESCARTAR</h2>
+    <form id="data-form">
+      <!-- Campos dinámicos aquí -->
+    </form>
+    <div style="margin: 18px 0;">
+      <a id="template-link" href="#" download class="download-link">📥 Descargar plantilla CSV</a>
+      <label for="bulk-file">Carga masiva (CSV/XLSX):</label>
+      <input type="file" id="bulk-file" accept=".csv,.xlsx" style="margin-bottom:8px;">
+      <button id="bulk-upload-btn" type="button">Cargar archivo</button>
+    </div>
+    <div id="status-success" class="success"></div>
+    <div id="status-error" class="error"></div>
+    <div id="bulk-preview" style="margin-top:18px;text-align:left;max-height:300px;overflow:auto;"></div>
+  </div>
+
+<script>
+  const pageConfig = {
+      docName: 'PARADESCARTE',
+      apiBase: 'bdpromote'
+  };
+  
+  let idToken = null;
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      main();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  function main() {
+    cargarCamposDinamicos();
+    // setupEventListeners(); // La lógica es idéntica a ventas_semanales.html
+  }
+
+  async function cargarCamposDinamicos() {
+    const res = await fetch(`/api/${pageConfig.apiBase}_campos/${pageConfig.docName}`, {
+      headers: { 'Authorization': 'Bearer ' + idToken }
+    });
+    const data = await res.json();
+    const errorDiv = document.getElementById('status-error');
+    if (!res.ok) {
+      errorDiv.textContent = data.error || 'Error al obtener campos';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    const campos = data.campos;
+    const form = document.getElementById('data-form');
+    form.innerHTML = '';
+    for (const campo of campos) {
+      const label = document.createElement('label');
+      label.textContent = campo.replace(/_/g, ' ').toUpperCase();
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.name = campo;
+      input.required = true;
+      form.appendChild(label);
+      form.appendChild(input);
+    }
+    const btn = document.createElement('button');
+    btn.type = 'submit';
+    btn.textContent = 'Registrar';
+    form.appendChild(btn);
+
+    const templateLink = document.getElementById('template-link');
+    const csvHeader = campos.join(',');
+    const blob = new Blob([csvHeader], { type: 'text/csv;charset=utf-8;' });
+    templateLink.href = URL.createObjectURL(blob);
+    templateLink.download = `plantilla_${pageConfig.docName.toLowerCase()}.csv`;
+  }
+</script>
+</body>
+</html>

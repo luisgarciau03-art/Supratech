@@ -411,22 +411,113 @@
             });
             const data = await res.json();
             if (data.error) throw new Error(data.error);
-            
-            // Renderizar tabla simple en el modal
+
+            const spreadsheetId = data.spreadsheet_id;
+            const sheetName = data.sheet_name;
+
+            let obsRowIndex = -1;
+            if (data.values) {
+                data.values.forEach((row, rIdx) => {
+                    if (row && row[0] && row[0].toString().toUpperCase().includes('OBSERVACIONES')) {
+                        if (obsRowIndex === -1) obsRowIndex = rIdx;
+                    }
+                });
+            }
+
             let html = '<div style="overflow-x:auto;"><table class="detail-table">';
-            data.values.forEach((row, rIdx) => {
-                if (rIdx === 0) {
-                    // Asumimos que la primera fila son encabezados
-                    html += '<thead><tr>' + row.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
-                } else {
-                    html += '<tr>' + row.map(c => `<td>${c}</td>`).join('') + '</tr>';
-                }
-            });
+            if (data.values && data.values.length > 0) {
+                const headerRow = data.values[0] || [];
+                html += '<thead><tr>' + headerRow.map(c => `<th>${c}</th>`).join('') + '<th>Acciones</th></tr></thead><tbody>';
+
+                data.values.forEach((row, rIdx) => {
+                    if (rIdx === 0) return; // Skip header
+
+                    const rowNum = rIdx + 1;
+                    html += '<tr>';
+
+                    for (let cIdx = 0; cIdx < headerRow.length; cIdx++) {
+                        const cellValue = (row && row.length > cIdx) ? row[cIdx] : '';
+                        if (cIdx === 5) { // Columna F para cantidad
+                            html += `<td><input type="number" class="qty-input" value="${cellValue}" data-row="${rowNum}" onchange="updateQuantity(this, '${spreadsheetId}', '${sheetName}', '${token}')" style="width: 80px; text-align: center;"></td>`;
+                        } else {
+                            html += `<td title="${cellValue}">${cellValue}</td>`;
+                        }
+                    }
+
+                    html += '<td>';
+                    if (rowNum >= 7 && (obsRowIndex === -1 || rIdx < obsRowIndex)) {
+                        html += `<button class="btn-action btn-delete" style="font-size: 0.75em; padding: 6px 10px;" onclick="markUnsortable(${rowNum}, '${spreadsheetId}', '${sheetName}', '${token}')">No Surtible</button>`;
+                    }
+                    html += '</td></tr>';
+                });
+            }
             html += '</tbody></table></div>';
             body.innerHTML = html;
             modalTitle.textContent = title || data.sheetName || 'Detalle';
         } catch (e) {
             body.innerHTML = '<p style="color:red;text-align:center;">Error cargando hoja: ' + e.message + '<br><small>Verifique que la hoja sea pública o accesible por el sistema.</small></p>';
+        }
+    }
+
+    async function updateQuantity(inputElement, spreadsheetId, sheetName, token) {
+        const newValue = inputElement.value;
+        const rowNum = inputElement.dataset.row;
+        const range = `F${rowNum}`;
+
+        try {
+            const res = await fetch('/api/update_sheet_cell', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    spreadsheet_id: spreadsheetId,
+                    sheet_name: sheetName,
+                    range: range,
+                    value: newValue
+                })
+            });
+            const result = await res.json();
+            if (result.status === 'ok') {
+                inputElement.style.backgroundColor = '#d4edda'; // Flash verde
+                setTimeout(() => { inputElement.style.backgroundColor = ''; }, 1500);
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (e) {
+            inputElement.style.backgroundColor = '#f8d7da'; // Flash rojo
+            setTimeout(() => { inputElement.style.backgroundColor = ''; }, 1500);
+            alert('Error al actualizar la cantidad: ' + e.message);
+        }
+    }
+
+    async function markUnsortable(rowNum, spreadsheetId, sheetName, token) {
+        if (!confirm(`¿Marcar el producto de la fila ${rowNum} como "No Surtible"?\nEsto pondrá la cantidad en 0 y moverá la fila.`)) return;
+
+        const modalBody = document.getElementById('modalBody');
+        modalBody.innerHTML = '<div style="text-align:center;padding:20px;">Procesando...</div>';
+
+        try {
+            const res = await fetch('/api/mark_as_unsortable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ spreadsheet_id: spreadsheetId, sheet_name: sheetName, row_index: rowNum })
+            });
+            const result = await res.json();
+            if (result.status === 'ok') {
+                alert('Producto movido exitosamente.');
+                const modalTitle = document.getElementById('modalTitle').textContent;
+                const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/`;
+                openModal(url, token, modalTitle); // Recargar modal
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (e) {
+            alert('Error al procesar: ' + e.message);
+            const modalTitle = document.getElementById('modalTitle').textContent;
+            const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/`;
+            openModal(url, token, modalTitle); // Recargar modal en caso de error
         }
     }
 
