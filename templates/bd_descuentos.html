@@ -5,13 +5,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #00b09b;
-      --secondary-color: #96c93d;
-      --card-bg: rgba(255, 255, 255, 0.92);
-      --shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      --primary-color: #1e40af;
+      --secondary-color: #3b82f6;
+      --accent-color: #60a5fa;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 25px 60px rgba(30, 64, 175, 0.25);
     }
     body {
-      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 40px 20px;
@@ -19,57 +20,99 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(96, 165, 250, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
     .panel-card {
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      padding: 50px 40px;
-      border-radius: 30px;
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      padding: 55px 45px;
+      border-radius: 35px;
       box-shadow: var(--shadow);
       text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      border: 2px solid rgba(96, 165, 250, 0.3);
+      position: relative;
+      z-index: 1;
     }
     h2 {
-      color: #1a1a1a;
-      font-size: 2.2em;
-      margin-bottom: 35px;
+      color: #1e40af;
+      font-size: 2.4em;
+      margin-bottom: 40px;
+      font-weight: 700;
+      text-shadow: 0 2px 10px rgba(30, 64, 175, 0.1);
     }
     .panel-links {
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 18px;
     }
     .panel-link {
-      background: white;
-      color: #11998e;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
       text-decoration: none;
-      padding: 18px 32px;
-      border-radius: 15px;
+      padding: 20px 35px;
+      border-radius: 16px;
       font-weight: 600;
-      font-size: 1.1em;
-      transition: all 0.3s ease;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      font-size: 1.15em;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
       border: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+    .panel-link:hover::before {
+      left: 100%;
     }
     .panel-link:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 30px rgba(17, 153, 142, 0.2);
-      background: linear-gradient(to right, #11998e, #38ef7d);
-      color: white;
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(30, 64, 175, 0.4);
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    }
+    .panel-link:active {
+      transform: translateY(-2px) scale(0.98);
     }
     .back-link {
       display: inline-block;
-      margin-bottom: 20px;
-      color: #11998e;
+      margin-bottom: 25px;
+      color: #1e40af;
       text-decoration: none;
       font-weight: 600;
-      transition: transform 0.2s;
+      font-size: 1.05em;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+      border-radius: 10px;
     }
     .back-link:hover {
-      transform: translateX(-5px);
+      transform: translateX(-8px);
+      background: rgba(30, 64, 175, 0.1);
+      color: #1e3a8a;
     }
   </style>
 </head>
