@@ -5,17 +5,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #28a745;
-      --secondary-color: #20c997;
-      --card-bg: rgba(255, 255, 255, 0.85);
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      --primary-color: #00b09b;
+      --secondary-color: #96c93d;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
     }
     body {
-      background-color: #e8f5e9;
-      background-image: 
-        radial-gradient(at 0% 0%, hsla(145, 63%, 42%, 0.15) 0, transparent 50%), 
-        radial-gradient(at 100% 100%, hsla(160, 60%, 50%, 0.15) 0, transparent 50%);
-      background-attachment: fixed;
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 40px 20px;
@@ -28,13 +24,13 @@
       width: 100%;
       max-width: 500px;
       background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       padding: 50px 40px;
-      border-radius: 24px;
+      border-radius: 30px;
       box-shadow: var(--shadow);
       text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.8);
     }
     h2 {
       color: #1a1a1a;
@@ -47,28 +43,33 @@
       gap: 15px;
     }
     .panel-link {
-      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-      color: #1a1a1a;
+      background: white;
+      color: #11998e;
       text-decoration: none;
-      padding: 16px 32px;
-      border-radius: 16px;
-      font-weight: 700;
+      padding: 18px 32px;
+      border-radius: 15px;
+      font-weight: 600;
+      font-size: 1.1em;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.1);
-      border: 1px solid rgba(40, 167, 69, 0.2);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border: none;
     }
     .panel-link:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.25);
-      background: var(--primary-color);
+      box-shadow: 0 15px 30px rgba(17, 153, 142, 0.2);
+      background: linear-gradient(to right, #11998e, #38ef7d);
       color: white;
     }
     .back-link {
       display: inline-block;
       margin-bottom: 20px;
-      color: var(--primary-color);
-      text-decoration: underline;
+      color: #11998e;
+      text-decoration: none;
       font-weight: 600;
+      transition: transform 0.2s;
+    }
+    .back-link:hover {
+      transform: translateX(-5px);
     }
   </style>
 </head>
