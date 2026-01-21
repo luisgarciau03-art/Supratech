@@ -236,7 +236,7 @@
 
     <div class="file-upload-section">
       <h3>📥 Carga Masiva</h3>
-      <a id="template-link" href="#" download class="download-link">Descargar plantilla CSV</a>
+      <a id="template-link" href="javascript:void(0)" class="download-link">Descargar plantilla CSV</a>
       <label for="bulk-file" class="file-upload-label">Selecciona archivo CSV/XLSX:</label>
       <input type="file" id="bulk-file" accept=".csv,.xlsx">
       <button id="bulk-upload-btn" type="button" class="bulk-btn">Cargar archivo</button>
@@ -300,10 +300,20 @@
 
     // Generar plantilla CSV
     const templateLink = document.getElementById('template-link');
-    const csvHeader = campos.join(',');
-    const blob = new Blob([csvHeader], { type: 'text/csv;charset=utf-8;' });
-    templateLink.href = URL.createObjectURL(blob);
-    templateLink.download = `plantilla_${pageConfig.docName.toLowerCase()}.csv`;
+    const csvHeader = campos.join(',') + '\n';
+
+    templateLink.onclick = function(e) {
+      e.preventDefault();
+      const blob = new Blob([csvHeader], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `plantilla_${pageConfig.docName.toLowerCase()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
   }
 
   function setupEventListeners() {
