@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PROMOCIONABLES</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin: 0;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .back-link {
+      display: inline-block;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+    }
+
+    .back-link:hover {
+      color: var(--primary-color);
+    }
+
+    .download-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .download-btn {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+    }
+
+    .download-btn:active {
+      transform: translateY(0);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: white;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.95em;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.9em;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(67, 97, 238, 0.05);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-light);
+      font-size: 1.1em;
+    }
+
+    .error {
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      h2 {
+        font-size: 1.6em;
+      }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <a href="/descuentos" class="back-link">← Volver</a>
+
+    <div class="header">
+      <h2>PROMOCIONABLES</h2>
+      <div class="download-buttons">
+        <button class="download-btn" onclick="descargarCSV()">Descargar CSV</button>
+        <button class="download-btn" onclick="descargarExcel()">Descargar Excel</button>
+      </div>
+    </div>
+
+    <div id="error-container"></div>
+    <div id="loading" class="loading">Cargando datos...</div>
+
+    <div class="table-container" id="table-container" style="display: none;">
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>% DESCUENTO</th>
+            <th>CATEGORIA</th>
+            <th>ID</th>
+            <th>MARCA</th>
+            <th>PRECIO</th>
+            <th>PRECIO OFERTA</th>
+            <th>RANGO</th>
+            <th>UTILIDAD</th>
+            <th>UTILIDAD MONEDA</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+  let tableData = [];
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      cargarDatos();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  async function cargarDatos() {
+    try {
+      const res = await fetch('/api/promocionables/data', {
+        headers: {
+          'Authorization': 'Bearer ' + idToken
+        }
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        tableData = result.data || [];
+        mostrarTabla(tableData);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('table-container').style.display = 'block';
+      } else {
+        mostrarError(result.error || 'Error al cargar datos');
+      }
+    } catch (error) {
+      mostrarError('Error de conexión: ' + error.message);
+    }
+  }
+
+  function mostrarTabla(data) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
+      return;
+    }
+
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.descuento || ''}</td>
+        <td>${row.categoria || ''}</td>
+        <td>${row.id || ''}</td>
+        <td>${row.marca || ''}</td>
+        <td>${row.precio || ''}</td>
+        <td>${row.precio_oferta || ''}</td>
+        <td>${row.rango || ''}</td>
+        <td>${row.utilidad || ''}</td>
+        <td>${row.utilidad_moneda || ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function mostrarError(mensaje) {
+    document.getElementById('loading').style.display = 'none';
+    const errorContainer = document.getElementById('error-container');
+    errorContainer.innerHTML = `<div class="error">${mensaje}</div>`;
+  }
+
+  function descargarCSV() {
+    if (tableData.length === 0) {
+      alert('No hay datos para descargar');
+      return;
+    }
+
+    const headers = ['% DESCUENTO', 'CATEGORIA', 'ID', 'MARCA', 'PRECIO', 'PRECIO OFERTA', 'RANGO', 'UTILIDAD', 'UTILIDAD MONEDA'];
+    let csvContent = headers.join(',') + '\n';
+
+    tableData.forEach(row => {
+      const rowData = [
+        row.descuento || '',
+        row.categoria || '',
+        row.id || '',
+        row.marca || '',
+        row.precio || '',
+        row.precio_oferta || '',
+        row.rango || '',
+        row.utilidad || '',
+        row.utilidad_moneda || ''
+      ];
+      csvContent += rowData.join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'promocionables.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function descargarExcel() {
+    if (tableData.length === 0) {
+      alert('No hay datos para descargar');
+      return;
+    }
+
+    const ws_data = [
+      ['% DESCUENTO', 'CATEGORIA', 'ID', 'MARCA', 'PRECIO', 'PRECIO OFERTA', 'RANGO', 'UTILIDAD', 'UTILIDAD MONEDA']
+    ];
+
+    tableData.forEach(row => {
+      ws_data.push([
+        row.descuento || '',
+        row.categoria || '',
+        row.id || '',
+        row.marca || '',
+        row.precio || '',
+        row.precio_oferta || '',
+        row.rango || '',
+        row.utilidad || '',
+        row.utilidad_moneda || ''
+      ]);
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    XLSX.utils.book_append_sheet(wb, ws, 'Promocionables');
+    XLSX.writeFile(wb, 'promocionables.xlsx');
+  }
+</script>
+</body>
+</html>

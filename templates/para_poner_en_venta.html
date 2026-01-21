@@ -210,6 +210,7 @@
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
@@ -231,100 +232,59 @@
     <div id="status-error" class="error"></div>
 
     <form id="data-form">
-      <!-- Campos dinámicos se generarán aquí -->
+      <label>SKU</label>
+      <input type="text" name="sku" required>
+
+      <button type="submit">AÑADIR</button>
     </form>
 
     <div class="file-upload-section">
       <h3>📥 Carga Masiva</h3>
-      <a id="template-link" href="javascript:void(0)" class="download-link">Descargar plantilla CSV</a>
+      <a id="template-link" class="download-link">Descargar plantilla CSV</a>
       <label for="bulk-file" class="file-upload-label">Selecciona archivo CSV/XLSX:</label>
       <input type="file" id="bulk-file" accept=".csv,.xlsx">
       <button id="bulk-upload-btn" type="button" class="bulk-btn">Cargar archivo</button>
     </div>
-
-    <div id="bulk-preview"></div>
   </div>
 
 <script>
-  const pageConfig = {
-      docName: 'PARAVENTA',
-      apiBase: 'bdpromote'
-  };
-
   let idToken = null;
 
   firebase.auth().onAuthStateChanged(async function(user) {
     if (user) {
       idToken = await user.getIdToken();
-      main();
+      setupEventListeners();
     } else {
       window.location.href = '/';
     }
   });
 
-  function main() {
-    cargarCamposDinamicos();
-    setupEventListeners();
-  }
-
-  async function cargarCamposDinamicos() {
-    const res = await fetch(`/api/${pageConfig.apiBase}_campos/${pageConfig.docName}`, {
-      headers: { 'Authorization': 'Bearer ' + idToken }
-    });
-    const data = await res.json();
-    const errorDiv = document.getElementById('status-error');
-    if (!res.ok) {
-      errorDiv.textContent = data.error || 'Error al obtener campos';
-      errorDiv.style.display = 'block';
-      return;
-    }
-    const campos = data.campos;
-    const form = document.getElementById('data-form');
-    form.innerHTML = '';
-
-    for (const campo of campos) {
-      const label = document.createElement('label');
-      label.textContent = campo.replace(/_/g, ' ').toUpperCase();
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.name = campo;
-      input.required = true;
-      form.appendChild(label);
-      form.appendChild(input);
-    }
-
-    const btn = document.createElement('button');
-    btn.type = 'submit';
-    btn.textContent = 'AÑADIR';
-    form.appendChild(btn);
-
-    // Generar plantilla CSV
-    const templateLink = document.getElementById('template-link');
-    const csvHeader = campos.join(',') + '\n';
-
-    templateLink.onclick = function(e) {
+  function setupEventListeners() {
+    // Descargar plantilla CSV
+    document.getElementById('template-link').onclick = function(e) {
       e.preventDefault();
-      const blob = new Blob([csvHeader], { type: 'text/csv;charset=utf-8;' });
+      const csvContent = 'SKU\\nMLM123456\\n';
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `plantilla_${pageConfig.docName.toLowerCase()}.csv`;
+      a.download = 'plantilla_para_poner_en_venta.csv';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     };
-  }
 
-  function setupEventListeners() {
-    const form = document.getElementById('data-form');
-    form.addEventListener('submit', async (e) => {
+    // Enviar formulario individual
+    document.getElementById('data-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData);
+      const formData = new FormData(e.target);
+      const data = {
+        sku: formData.get('sku')
+      };
 
       try {
-        const res = await fetch(`/api/${pageConfig.apiBase}_registro/${pageConfig.docName}`, {
+        const res = await fetch('/api/para_poner_en_venta/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -337,7 +297,7 @@
 
         if (res.ok) {
           mostrarMensaje('success', result.message || 'Registro añadido exitosamente');
-          form.reset();
+          e.target.reset();
         } else {
           mostrarMensaje('error', result.error || 'Error al añadir registro');
         }
@@ -346,8 +306,8 @@
       }
     });
 
-    const bulkBtn = document.getElementById('bulk-upload-btn');
-    bulkBtn.addEventListener('click', async () => {
+    // Carga masiva
+    document.getElementById('bulk-upload-btn').addEventListener('click', async () => {
       const fileInput = document.getElementById('bulk-file');
       const file = fileInput.files[0];
 
@@ -356,28 +316,62 @@
         return;
       }
 
-      const formData = new FormData();
-      formData.append('file', file);
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          let rows = [];
 
-      try {
-        const res = await fetch(`/api/${pageConfig.apiBase}_bulk/${pageConfig.docName}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + idToken
-          },
-          body: formData
-        });
+          if (file.name.endsWith('.csv')) {
+            const text = e.target.result;
+            const lines = text.split('\\n');
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (line) {
+                rows.push({ sku: line });
+              }
+            }
+          } else {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
-        const result = await res.json();
+            rows = jsonData.map(row => ({
+              sku: row['SKU'] || ''
+            }));
+          }
 
-        if (res.ok) {
-          mostrarMensaje('success', result.message || 'Carga masiva completada');
-          fileInput.value = '';
-        } else {
-          mostrarMensaje('error', result.error || 'Error en carga masiva');
+          if (rows.length === 0) {
+            mostrarMensaje('error', 'No se encontraron datos válidos en el archivo');
+            return;
+          }
+
+          const res = await fetch('/api/para_poner_en_venta/bulk', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + idToken
+            },
+            body: JSON.stringify({ rows })
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            mostrarMensaje('success', `Carga masiva completada: ${rows.length} registros`);
+            fileInput.value = '';
+          } else {
+            mostrarMensaje('error', result.error || 'Error en carga masiva');
+          }
+        } catch (error) {
+          mostrarMensaje('error', 'Error al procesar archivo: ' + error.message);
         }
-      } catch (error) {
-        mostrarMensaje('error', 'Error de conexión: ' + error.message);
+      };
+
+      if (file.name.endsWith('.csv')) {
+        reader.readAsText(file);
+      } else {
+        reader.readAsArrayBuffer(file);
       }
     });
   }
