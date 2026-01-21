@@ -5,111 +5,207 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #11998e;
-      --secondary-color: #38ef7d;
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
       --text-dark: #2b2d42;
       --text-light: #8d99ae;
-      --card-bg: rgba(255, 255, 255, 0.92);
-      --shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
     }
+
     body {
-      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
       display: flex;
       align-items: center;
       justify-content: center;
     }
+
     .panel-card {
       width: 100%;
-      max-width: 540px;
+      max-width: 600px;
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       padding: 50px 40px;
-      border-radius: 30px;
+      border-radius: 24px;
       box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
       text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.8);
     }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     h2 {
       color: #1a1a1a;
       font-size: 2.2em;
       margin-bottom: 35px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
     }
+
     form {
       display: flex;
       flex-direction: column;
       gap: 20px;
-    }
-    label {
-      font-weight: 600;
       text-align: left;
     }
+
+    label {
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 0.95em;
+      margin-bottom: -12px;
+    }
+
     input, select {
       width: 100%;
       box-sizing: border-box;
-      border: 2px solid transparent;
-      border-radius: 15px;
-      padding: 15px 20px;
+      border: 1px solid rgba(67, 97, 238, 0.2);
+      border-radius: 12px;
+      padding: 14px 18px;
       font-size: 1em;
       outline: none;
       transition: all 0.3s ease;
-      background: #f0fdf4;
-      color: #333;
+      background: white;
+      color: var(--text-dark);
+      font-family: 'Poppins', sans-serif;
     }
+
     input:focus, select:focus {
-      border-color: #38ef7d;
-      box-shadow: 0 0 0 4px rgba(56, 239, 125, 0.2);
-      background: #fff;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
     }
+
     button {
-      background: linear-gradient(to right, #11998e, #38ef7d);
-      color: #fff;
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: white;
       border: none;
-      border-radius: 15px;
-      padding: 18px;
+      border-radius: 12px;
+      padding: 16px 24px;
       font-size: 1.1em;
       font-weight: 700;
       cursor: pointer;
       margin-top: 10px;
-      box-shadow: 0 10px 20px rgba(17, 153, 142, 0.3);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
     }
+
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(17, 153, 142, 0.4);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
     }
+
+    button:active {
+      transform: translateY(0);
+    }
+
     .success, .error {
       padding: 15px;
       border-radius: 12px;
       margin-bottom: 20px;
       display: none;
+      font-weight: 500;
+      text-align: center;
     }
-    .success { color: #28a745; background: rgba(40, 167, 69, 0.1); }
-    .error { color: #ef233c; background: rgba(239, 35, 60, 0.1); }
+
+    .success {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+      border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+
+    .error {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
     .back-link {
       display: inline-block;
-      margin-bottom: 20px;
-      color: #11998e;
+      margin-bottom: 25px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: var(--text-light);
       text-decoration: none;
       font-weight: 600;
-      transition: transform 0.2s;
+      transition: all 0.3s ease;
     }
+
     .back-link:hover {
-      transform: translateX(-5px);
+      color: var(--primary-color);
     }
+
     .download-link {
-        display: block;
-        margin-bottom: 15px;
-        color: #11998e;
-        font-weight: 600;
-        text-decoration: none;
-        transition: color 0.2s;
+      display: inline-block;
+      margin: 15px 0;
+      color: var(--primary-color);
+      font-weight: 600;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      background: rgba(67, 97, 238, 0.08);
+      transition: all 0.3s ease;
     }
+
     .download-link:hover {
-        color: #38ef7d;
+      background: rgba(67, 97, 238, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .file-upload-section {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(67, 97, 238, 0.03);
+      border-radius: 12px;
+      border: 1px dashed rgba(67, 97, 238, 0.3);
+    }
+
+    .file-upload-section h3 {
+      font-size: 1.1em;
+      margin-bottom: 15px;
+      color: var(--text-dark);
+    }
+
+    .file-upload-label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    .bulk-btn {
+      margin-top: 15px;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      background: white;
+      cursor: pointer;
+    }
+
+    @media (max-width: 500px) {
+      .panel-card {
+        padding: 30px 20px;
+      }
+      h2 { font-size: 1.8em; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -128,20 +224,25 @@
 </head>
 <body>
   <div class="panel-card">
-    <a href="/bd_descuentos" class="back-link">&larr; Volver</a>
+    <a href="/bd_descuentos" class="back-link">← Volver</a>
     <h2>PARA PONER EN VENTA</h2>
-    <form id="data-form">
-      <!-- Campos dinámicos aquí -->
-    </form>
-    <div style="margin: 18px 0;">
-      <a id="template-link" href="#" download class="download-link">📥 Descargar plantilla CSV</a>
-      <label for="bulk-file">Carga masiva (CSV/XLSX):</label>
-      <input type="file" id="bulk-file" accept=".csv,.xlsx" style="margin-bottom:8px;">
-      <button id="bulk-upload-btn" type="button">Cargar archivo</button>
-    </div>
+
     <div id="status-success" class="success"></div>
     <div id="status-error" class="error"></div>
-    <div id="bulk-preview" style="margin-top:18px;text-align:left;max-height:300px;overflow:auto;"></div>
+
+    <form id="data-form">
+      <!-- Campos dinámicos se generarán aquí -->
+    </form>
+
+    <div class="file-upload-section">
+      <h3>📥 Carga Masiva</h3>
+      <a id="template-link" href="#" download class="download-link">Descargar plantilla CSV</a>
+      <label for="bulk-file" class="file-upload-label">Selecciona archivo CSV/XLSX:</label>
+      <input type="file" id="bulk-file" accept=".csv,.xlsx">
+      <button id="bulk-upload-btn" type="button" class="bulk-btn">Cargar archivo</button>
+    </div>
+
+    <div id="bulk-preview"></div>
   </div>
 
 <script>
@@ -149,7 +250,7 @@
       docName: 'PARAVENTA',
       apiBase: 'bdpromote'
   };
-  
+
   let idToken = null;
 
   firebase.auth().onAuthStateChanged(async function(user) {
@@ -163,7 +264,7 @@
 
   function main() {
     cargarCamposDinamicos();
-    // setupEventListeners(); // La lógica es idéntica a ventas_semanales.html
+    setupEventListeners();
   }
 
   async function cargarCamposDinamicos() {
@@ -180,6 +281,7 @@
     const campos = data.campos;
     const form = document.getElementById('data-form');
     form.innerHTML = '';
+
     for (const campo of campos) {
       const label = document.createElement('label');
       label.textContent = campo.replace(/_/g, ' ').toUpperCase();
@@ -190,16 +292,102 @@
       form.appendChild(label);
       form.appendChild(input);
     }
+
     const btn = document.createElement('button');
     btn.type = 'submit';
-    btn.textContent = 'Registrar';
+    btn.textContent = 'AÑADIR';
     form.appendChild(btn);
 
+    // Generar plantilla CSV
     const templateLink = document.getElementById('template-link');
     const csvHeader = campos.join(',');
     const blob = new Blob([csvHeader], { type: 'text/csv;charset=utf-8;' });
     templateLink.href = URL.createObjectURL(blob);
     templateLink.download = `plantilla_${pageConfig.docName.toLowerCase()}.csv`;
+  }
+
+  function setupEventListeners() {
+    const form = document.getElementById('data-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const res = await fetch(`/api/${pageConfig.apiBase}_registro/${pageConfig.docName}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + idToken
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          mostrarMensaje('success', result.message || 'Registro añadido exitosamente');
+          form.reset();
+        } else {
+          mostrarMensaje('error', result.error || 'Error al añadir registro');
+        }
+      } catch (error) {
+        mostrarMensaje('error', 'Error de conexión: ' + error.message);
+      }
+    });
+
+    const bulkBtn = document.getElementById('bulk-upload-btn');
+    bulkBtn.addEventListener('click', async () => {
+      const fileInput = document.getElementById('bulk-file');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        mostrarMensaje('error', 'Por favor selecciona un archivo');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch(`/api/${pageConfig.apiBase}_bulk/${pageConfig.docName}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + idToken
+          },
+          body: formData
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          mostrarMensaje('success', result.message || 'Carga masiva completada');
+          fileInput.value = '';
+        } else {
+          mostrarMensaje('error', result.error || 'Error en carga masiva');
+        }
+      } catch (error) {
+        mostrarMensaje('error', 'Error de conexión: ' + error.message);
+      }
+    });
+  }
+
+  function mostrarMensaje(tipo, mensaje) {
+    const successDiv = document.getElementById('status-success');
+    const errorDiv = document.getElementById('status-error');
+
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+
+    if (tipo === 'success') {
+      successDiv.textContent = mensaje;
+      successDiv.style.display = 'block';
+      setTimeout(() => successDiv.style.display = 'none', 5000);
+    } else {
+      errorDiv.textContent = mensaje;
+      errorDiv.style.display = 'block';
+      setTimeout(() => errorDiv.style.display = 'none', 5000);
+    }
   }
 </script>
 </body>
