@@ -3126,6 +3126,13 @@ def ejecutar_appscript():
                     'name': 'actualizarHoja18DesdeBD',
                     'function': 'actualizarHoja18DesdeBD'
                 }
+            ],
+            'calcular_descuentos': [
+                {
+                    'web_app_url': web_app_urls_firebase.get('Calculardescuentos', 'PENDIENTE_CONFIGURAR_CALCULARDESCUENTOS'),
+                    'name': 'CalcularDescuentos',
+                    'function': 'ejecutarProceso'
+                }
             ]
         }
 
