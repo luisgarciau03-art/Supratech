@@ -3148,6 +3148,10 @@ def ejecutar_appscript():
             name = script_info['name']
             function_name = script_info.get('function', name)
 
+            # Limpiar comillas extras que puedan venir de Firebase
+            if isinstance(web_app_url, str):
+                web_app_url = web_app_url.strip().strip('"').strip("'")
+
             print(f'[APPSCRIPT] Procesando {name} con URL: {web_app_url}')
             print(f'[APPSCRIPT] Función a ejecutar: {function_name}')
 
