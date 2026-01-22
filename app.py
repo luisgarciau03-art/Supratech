@@ -3934,24 +3934,28 @@ def errores_plantilla_csv():
         values = result.get('values', [])
 
         # Crear CSV con marcas de error
+        # Plantilla debe tener: SKU, MARCA, COSTO, PRECIO, ¿ENVIO?, ENVIO
         from flask import Response
         import io
 
         output = io.StringIO()
-        output.write('ID,COSTO,COMISION,ENVIO\n')
+        output.write('SKU,MARCA,COSTO,PRECIO,¿ENVIO?,ENVIO\n')
 
         for row in values:
             # Asegurar que la fila tenga 4 columnas
             while len(row) < 4:
                 row.append('')
 
-            # Marcar errores con "[ERROR]"
-            id_val = row[0] if row[0] and row[0] != 'ERROR' else '[ERROR]'
+            # SKU = ID (columna A)
+            # COSTO = COSTO (columna B) - marcar si es ERROR
+            sku_val = row[0] if row[0] and row[0] != 'ERROR' else '[ERROR]'
+            marca_val = ''  # La hoja solo tiene ID, COSTO, COMISION, ENVIO
             costo_val = row[1] if row[1] and row[1] != 'ERROR' else '[ERROR]'
-            comision_val = row[2] if row[2] and row[2] != 'ERROR' else '[ERROR]'
+            precio_val = ''  # No está en la hoja ID ERROR
+            tiene_envio_val = ''  # No está en la hoja ID ERROR
             envio_val = row[3] if row[3] and row[3] != 'ERROR' else '[ERROR]'
 
-            output.write(f'{id_val},{costo_val},{comision_val},{envio_val}\n')
+            output.write(f'{sku_val},{marca_val},{costo_val},{precio_val},{tiene_envio_val},{envio_val}\n')
 
         csv_content = output.getvalue()
         output.close()
@@ -3997,6 +4001,7 @@ def errores_plantilla_excel():
         values = result.get('values', [])
 
         # Crear Excel con formato
+        # Plantilla debe tener: SKU, MARCA, COSTO, PRECIO, ¿ENVIO?, ENVIO
         from openpyxl import Workbook
         from openpyxl.styles import PatternFill, Font
         from flask import Response
@@ -4007,7 +4012,7 @@ def errores_plantilla_excel():
         ws.title = 'Errores'
 
         # Encabezados
-        ws.append(['ID', 'COSTO', 'COMISION', 'ENVIO'])
+        ws.append(['SKU', 'MARCA', 'COSTO', 'PRECIO', '¿ENVIO?', 'ENVIO'])
 
         # Estilo para errores (fondo rojo)
         red_fill = PatternFill(start_color='FFFF0000', end_color='FFFF0000', fill_type='solid')
@@ -4019,11 +4024,22 @@ def errores_plantilla_excel():
             while len(row) < 4:
                 row.append('')
 
-            ws.append(row)
+            # SKU = ID (columna A)
+            # COSTO = COSTO (columna B)
+            # ENVIO = ENVIO (columna D)
+            sku_val = row[0] if row[0] and row[0] != 'ERROR' else 'ERROR'
+            marca_val = ''
+            costo_val = row[1] if row[1] and row[1] != 'ERROR' else 'ERROR'
+            precio_val = ''
+            tiene_envio_val = ''
+            envio_val = row[3] if row[3] and row[3] != 'ERROR' else 'ERROR'
+
+            ws.append([sku_val, marca_val, costo_val, precio_val, tiene_envio_val, envio_val])
             current_row = ws.max_row
 
             # Marcar celdas con ERROR o vacías en rojo
-            for col_idx, val in enumerate(row, start=1):
+            row_data = [sku_val, marca_val, costo_val, precio_val, tiene_envio_val, envio_val]
+            for col_idx, val in enumerate(row_data, start=1):
                 if not val or val == 'ERROR':
                     cell = ws.cell(row=current_row, column=col_idx)
                     cell.fill = red_fill
