@@ -3335,7 +3335,7 @@ def bd_descuentos():
 # --- Sub-rutas para BD Descuentos ---
 @app.route('/<page_name>')
 def bd_descuentos_page(page_name):
-    if page_name in ['ventas_semanales', 'para_impulsar', 'para_descartar', 'para_poner_en_venta', 'promocionables', 'errores']:
+    if page_name in ['ventas_semanales', 'para_impulsar', 'para_descartar', 'para_poner_en_venta', 'promocionables', 'errores', 'porcentajes', 'corregir']:
         return render_template(f'{page_name}.html')
     return "Página no encontrada", 404
 
@@ -3527,7 +3527,7 @@ def para_impulsar_add():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Obtener la última fila
+        # Obtener la última fila - empezar desde fila 2
         sheet_name = 'PARA IMPULSAR VENTAS'
         result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
@@ -3535,7 +3535,7 @@ def para_impulsar_add():
         ).execute()
 
         existing_rows = result_range.get('values', [])
-        next_row = len(existing_rows) + 1
+        next_row = max(len(existing_rows) + 1, 2)  # Mínimo fila 2
 
         # SKU va a C y D, Ventas 30 días va a I, Unidades impulsar va a L
         batch_data = [
@@ -3613,7 +3613,7 @@ def para_impulsar_bulk():
         if not valid_rows:
             return jsonify({'error': 'No hay datos válidos para procesar'}), 400
 
-        # Obtener la última fila
+        # Obtener la última fila - empezar desde fila 2
         sheet_name = 'PARA IMPULSAR VENTAS'
         result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
@@ -3621,7 +3621,7 @@ def para_impulsar_bulk():
         ).execute()
 
         existing_rows = result_range.get('values', [])
-        next_row = len(existing_rows) + 1
+        next_row = max(len(existing_rows) + 1, 2)  # Mínimo fila 2
 
         # Preparar batch update
         batch_data = []
@@ -3678,7 +3678,7 @@ def para_descartar_add():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Get last row
+        # Get last row - empezar desde fila 3
         sheet_name = 'PARA EVITAR DESCARTE'
         result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
@@ -3686,7 +3686,7 @@ def para_descartar_add():
         ).execute()
 
         existing_rows = result_range.get('values', [])
-        next_row = len(existing_rows) + 1
+        next_row = max(len(existing_rows) + 1, 3)  # Mínimo fila 3
 
         # Use batchUpdate for specific columns: SKU en C y D
         batch_data = [
@@ -3748,7 +3748,7 @@ def para_descartar_bulk():
         if not valid_rows:
             return jsonify({'error': 'No hay datos válidos para procesar'}), 400
 
-        # Get last row
+        # Get last row - empezar desde fila 3
         sheet_name = 'PARA EVITAR DESCARTE'
         result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
@@ -3756,7 +3756,7 @@ def para_descartar_bulk():
         ).execute()
 
         existing_rows = result_range.get('values', [])
-        next_row = len(existing_rows) + 1
+        next_row = max(len(existing_rows) + 1, 3)  # Mínimo fila 3
 
         # Prepare batch update for all rows
         batch_data = []
@@ -3810,7 +3810,7 @@ def para_poner_en_venta_add():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Get last row
+        # Get last row - empezar desde fila 2
         sheet_name = 'PARA PONER EN VENTA'
         result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
@@ -3818,7 +3818,7 @@ def para_poner_en_venta_add():
         ).execute()
 
         existing_rows = result_range.get('values', [])
-        next_row = len(existing_rows) + 1
+        next_row = max(len(existing_rows) + 1, 2)  # Mínimo fila 2
 
         # Use batchUpdate for specific columns: SKU en C y D
         batch_data = [
@@ -3880,7 +3880,7 @@ def para_poner_en_venta_bulk():
         if not valid_rows:
             return jsonify({'error': 'No hay datos válidos para procesar'}), 400
 
-        # Get last row
+        # Get last row - empezar desde fila 2
         sheet_name = 'PARA PONER EN VENTA'
         result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
@@ -3888,7 +3888,7 @@ def para_poner_en_venta_bulk():
         ).execute()
 
         existing_rows = result_range.get('values', [])
-        next_row = len(existing_rows) + 1
+        next_row = max(len(existing_rows) + 1, 2)  # Mínimo fila 2
 
         # Prepare batch update for all rows
         batch_data = []
@@ -4204,6 +4204,271 @@ def errores_plantilla_excel():
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             headers={'Content-Disposition': 'attachment; filename=plantilla_errores.xlsx'}
         )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# CORREGIR Endpoints
+@app.route('/api/corregir/add', methods=['POST'])
+def corregir_add():
+    """Añade un registro individual a BD PROMOTE"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        sku = data.get('sku', '').strip()
+        marca = data.get('marca', '').strip()
+        costo = data.get('costo', '').strip()
+        precio = data.get('precio', '').strip()
+        tiene_envio = data.get('tiene_envio', '').strip()
+        envio = data.get('envio', '').strip()
+
+        if not sku or not marca or not costo or not precio or not tiene_envio or not envio:
+            return jsonify({'error': 'Faltan datos requeridos'}), 400
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        spreadsheet_id = '1nPFaXwMqBuFKJpSps85rYTu5gQhwB2dAzf_l2bXtEis'
+
+        # Get last row
+        sheet_name = 'BD PROMOTE'
+        result_range = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f'{sheet_name}!A:A'
+        ).execute()
+
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Use batchUpdate for specific columns
+        # A (ID=SKU), B (SKU), C (MARCA), D (COSTO), E (PRECIO), G (¿ENVIO?), H (ENVIO)
+        batch_data = [
+            {'range': f'{sheet_name}!A{next_row}', 'values': [[sku]]},  # ID = SKU
+            {'range': f'{sheet_name}!B{next_row}', 'values': [[sku]]},  # SKU
+            {'range': f'{sheet_name}!C{next_row}', 'values': [[marca]]},
+            {'range': f'{sheet_name}!D{next_row}', 'values': [[costo]]},
+            {'range': f'{sheet_name}!E{next_row}', 'values': [[precio]]},
+            {'range': f'{sheet_name}!G{next_row}', 'values': [[tiene_envio]]},
+            {'range': f'{sheet_name}!H{next_row}', 'values': [[envio]]}
+        ]
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
+        }
+
+        result = service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=batch_body
+        ).execute()
+
+        return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/corregir/bulk', methods=['POST'])
+def corregir_bulk():
+    """Añade múltiples registros a BD PROMOTE"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        rows = data.get('rows', [])
+
+        if not rows:
+            return jsonify({'error': 'No hay datos para procesar'}), 400
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        spreadsheet_id = '1nPFaXwMqBuFKJpSps85rYTu5gQhwB2dAzf_l2bXtEis'
+
+        # Validar datos
+        valid_rows = []
+        for row in rows:
+            sku = row.get('sku', '').strip()
+            marca = row.get('marca', '').strip()
+            costo = row.get('costo', '').strip()
+            precio = row.get('precio', '').strip()
+            tiene_envio = row.get('tiene_envio', '').strip()
+            envio = row.get('envio', '').strip()
+
+            if sku and marca and costo and precio and tiene_envio and envio:
+                valid_rows.append({
+                    'sku': sku,
+                    'marca': marca,
+                    'costo': costo,
+                    'precio': precio,
+                    'tiene_envio': tiene_envio,
+                    'envio': envio
+                })
+
+        if not valid_rows:
+            return jsonify({'error': 'No hay filas válidas para procesar'}), 400
+
+        # Get last row
+        sheet_name = 'BD PROMOTE'
+        result_range = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f'{sheet_name}!A:A'
+        ).execute()
+
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Prepare batch update for all rows
+        batch_data = []
+        for i, row_data in enumerate(valid_rows):
+            current_row = next_row + i
+            batch_data.append({'range': f'{sheet_name}!A{current_row}', 'values': [[row_data['sku']]]})  # ID
+            batch_data.append({'range': f'{sheet_name}!B{current_row}', 'values': [[row_data['sku']]]})  # SKU
+            batch_data.append({'range': f'{sheet_name}!C{current_row}', 'values': [[row_data['marca']]]})
+            batch_data.append({'range': f'{sheet_name}!D{current_row}', 'values': [[row_data['costo']]]})
+            batch_data.append({'range': f'{sheet_name}!E{current_row}', 'values': [[row_data['precio']]]})
+            batch_data.append({'range': f'{sheet_name}!G{current_row}', 'values': [[row_data['tiene_envio']]]})
+            batch_data.append({'range': f'{sheet_name}!H{current_row}', 'values': [[row_data['envio']]]})
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
+        }
+
+        result = service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=batch_body
+        ).execute()
+
+        return jsonify({'message': f'{len(valid_rows)} registros añadidos exitosamente', 'result': result}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# PORCENTAJES Endpoints
+@app.route('/api/porcentajes/data', methods=['GET'])
+def porcentajes_data():
+    """Obtiene los datos de la tabla PORCENTAGE TABLE"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet
+        spreadsheet_id = '1nOB3Lr07FqOcFKj-1dxNCRnUxGOjUoqAf_WterqH3rg'
+
+        # Leer los datos desde A2 (CATEGORIA), B2 (DESCUENTO MAXIMO), C2 (UTILIDAD MINIMA)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='PORCENTAGE TABLE!A2:C'
+        ).execute()
+
+        values = result.get('values', [])
+
+        # Formatear los datos
+        data = []
+        for row in values:
+            # Asegurar que la fila tenga suficientes columnas
+            while len(row) < 3:
+                row.append('')
+
+            data.append({
+                'categoria': row[0] if len(row) > 0 else '',
+                'descuento_maximo': row[1] if len(row) > 1 else '',
+                'utilidad_minima': row[2] if len(row) > 2 else ''
+            })
+
+        return jsonify({'data': data}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/porcentajes/update', methods=['POST'])
+def porcentajes_update():
+    """Actualiza los datos de la tabla PORCENTAGE TABLE (solo columnas B y C)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        data = request.get_json()
+        rows = data.get('data', [])
+
+        if not rows:
+            return jsonify({'error': 'No hay datos para actualizar'}), 400
+
+        # Obtener credenciales y conectar con Google Sheets
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # ID del spreadsheet
+        spreadsheet_id = '1nOB3Lr07FqOcFKj-1dxNCRnUxGOjUoqAf_WterqH3rg'
+
+        # Preparar batch update solo para columnas B y C
+        batch_data = []
+        for i, row_data in enumerate(rows):
+            row_num = i + 2  # Empezar desde fila 2
+            # Solo actualizar columna B (DESCUENTO MAXIMO) y C (UTILIDAD MINIMA)
+            batch_data.append({
+                'range': f'PORCENTAGE TABLE!B{row_num}',
+                'values': [[row_data.get('descuento_maximo', '')]]
+            })
+            batch_data.append({
+                'range': f'PORCENTAGE TABLE!C{row_num}',
+                'values': [[row_data.get('utilidad_minima', '')]]
+            })
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
+        }
+
+        result = service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=batch_body
+        ).execute()
+
+        return jsonify({'message': 'Datos actualizados exitosamente', 'result': result}), 200
 
     except Exception as e:
         import traceback
