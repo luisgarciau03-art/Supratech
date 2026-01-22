@@ -3383,7 +3383,7 @@ def ventas_semanales_add():
         # Agregar fila a la hoja VENTAS SEMANALES
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range='VENTAS SEMANALES!A2:I2',
+            range='VENTAS SEMANALES!A:I',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -3442,7 +3442,7 @@ def ventas_semanales_bulk():
         # Agregar filas a la hoja VENTAS SEMANALES
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range='VENTAS SEMANALES!A2:I2',
+            range='VENTAS SEMANALES!A:I',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -3499,7 +3499,7 @@ def para_impulsar_add():
         # Agregar fila a la hoja PARA IMPULSAR VENTAS
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range='PARA IMPULSAR VENTAS!A2:L2',
+            range='PARA IMPULSAR VENTAS!A:L',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -3559,7 +3559,7 @@ def para_impulsar_bulk():
         # Agregar filas a la hoja PARA IMPULSAR VENTAS
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range='PARA IMPULSAR VENTAS!A2:L2',
+            range='PARA IMPULSAR VENTAS!A:L',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -3612,7 +3612,7 @@ def para_descartar_add():
         # Agregar fila a la hoja PARA EVITAR DESCARTE
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range='PARA EVITAR DESCARTE!A3:D3',
+            range='PARA EVITAR DESCARTE!A:D',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -3670,7 +3670,7 @@ def para_descartar_bulk():
         # Agregar filas a la hoja PARA EVITAR DESCARTE
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range='PARA EVITAR DESCARTE!A3:D3',
+            range='PARA EVITAR DESCARTE!A:D',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -3723,7 +3723,7 @@ def para_poner_en_venta_add():
         # Agregar fila a la hoja PARA PONER EN VENTA
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range='PARA PONER EN VENTA!A2:D2',
+            range='PARA PONER EN VENTA!A:D',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -3781,7 +3781,7 @@ def para_poner_en_venta_bulk():
         # Agregar filas a la hoja PARA PONER EN VENTA
         result = service.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
-            range='PARA PONER EN VENTA!A2:D2',
+            range='PARA PONER EN VENTA!A:D',
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
@@ -3946,14 +3946,16 @@ def errores_plantilla_csv():
             while len(row) < 4:
                 row.append('')
 
+            # Solo marcar ERROR donde realmente dice ERROR en la hoja
             # SKU = ID (columna A)
-            # COSTO = COSTO (columna B) - marcar si es ERROR
-            sku_val = row[0] if row[0] and row[0] != 'ERROR' else '[ERROR]'
-            marca_val = ''  # La hoja solo tiene ID, COSTO, COMISION, ENVIO
-            costo_val = row[1] if row[1] and row[1] != 'ERROR' else '[ERROR]'
+            sku_val = '[ERROR]' if row[0] == 'ERROR' or not row[0] else row[0]
+            marca_val = ''  # No está en la hoja ID ERROR
+            # COSTO = COSTO (columna B)
+            costo_val = '[ERROR]' if row[1] == 'ERROR' or not row[1] else row[1]
             precio_val = ''  # No está en la hoja ID ERROR
             tiene_envio_val = ''  # No está en la hoja ID ERROR
-            envio_val = row[3] if row[3] and row[3] != 'ERROR' else '[ERROR]'
+            # ENVIO = ENVIO (columna D)
+            envio_val = '[ERROR]' if row[3] == 'ERROR' or not row[3] else row[3]
 
             output.write(f'{sku_val},{marca_val},{costo_val},{precio_val},{tiene_envio_val},{envio_val}\n')
 
@@ -4024,27 +4026,53 @@ def errores_plantilla_excel():
             while len(row) < 4:
                 row.append('')
 
+            # Solo marcar ERROR donde realmente dice ERROR en la hoja
             # SKU = ID (columna A)
-            # COSTO = COSTO (columna B)
-            # ENVIO = ENVIO (columna D)
-            sku_val = row[0] if row[0] and row[0] != 'ERROR' else 'ERROR'
+            sku_val = row[0] if row[0] else ''
+            sku_is_error = row[0] == 'ERROR' or not row[0]
+
             marca_val = ''
-            costo_val = row[1] if row[1] and row[1] != 'ERROR' else 'ERROR'
+
+            # COSTO = COSTO (columna B)
+            costo_val = row[1] if row[1] else ''
+            costo_is_error = row[1] == 'ERROR' or not row[1]
+
             precio_val = ''
             tiene_envio_val = ''
-            envio_val = row[3] if row[3] and row[3] != 'ERROR' else 'ERROR'
 
-            ws.append([sku_val, marca_val, costo_val, precio_val, tiene_envio_val, envio_val])
+            # ENVIO = ENVIO (columna D)
+            envio_val = row[3] if row[3] else ''
+            envio_is_error = row[3] == 'ERROR' or not row[3]
+
+            # Agregar fila con valores originales o vacíos
+            ws.append([
+                'ERROR' if sku_is_error else sku_val,
+                marca_val,
+                'ERROR' if costo_is_error else costo_val,
+                precio_val,
+                tiene_envio_val,
+                'ERROR' if envio_is_error else envio_val
+            ])
             current_row = ws.max_row
 
-            # Marcar celdas con ERROR o vacías en rojo
-            row_data = [sku_val, marca_val, costo_val, precio_val, tiene_envio_val, envio_val]
-            for col_idx, val in enumerate(row_data, start=1):
-                if not val or val == 'ERROR':
-                    cell = ws.cell(row=current_row, column=col_idx)
-                    cell.fill = red_fill
-                    cell.font = white_font
-                    cell.value = 'ERROR'
+            # Marcar solo las celdas que tienen ERROR en rojo
+            if sku_is_error:
+                cell = ws.cell(row=current_row, column=1)
+                cell.fill = red_fill
+                cell.font = white_font
+                cell.value = 'ERROR'
+
+            if costo_is_error:
+                cell = ws.cell(row=current_row, column=3)
+                cell.fill = red_fill
+                cell.font = white_font
+                cell.value = 'ERROR'
+
+            if envio_is_error:
+                cell = ws.cell(row=current_row, column=6)
+                cell.fill = red_fill
+                cell.font = white_font
+                cell.value = 'ERROR'
 
         # Guardar en memoria
         output = io.BytesIO()
