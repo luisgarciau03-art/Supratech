@@ -3181,6 +3181,36 @@ def ejecutar_appscript():
 
             print(f'[APPSCRIPT] Ejecutando {name} via Web App...')
 
+            # Para scripts de descuentos, ejecutar en segundo plano y retornar inmediatamente
+            if tipo == 'calcular_descuentos':
+                import threading
+
+                def ejecutar_en_segundo_plano():
+                    try:
+                        params = {'func': function_name}
+                        print(f'[APPSCRIPT ASYNC] Iniciando ejecución de {name}...')
+                        response = requests.get(web_app_url, params=params, timeout=1800)
+                        print(f'[APPSCRIPT ASYNC] {name} completado con código: {response.status_code}')
+                        if response.status_code == 200:
+                            print(f'[APPSCRIPT ASYNC] Respuesta: {response.text[:200]}')
+                    except Exception as e:
+                        print(f'[APPSCRIPT ASYNC] Error en {name}: {str(e)}')
+
+                # Iniciar thread en segundo plano
+                thread = threading.Thread(target=ejecutar_en_segundo_plano)
+                thread.daemon = True
+                thread.start()
+
+                # Retornar inmediatamente al frontend
+                resultados.append({
+                    'script': name,
+                    'success': True,
+                    'result': 'Proceso iniciado en segundo plano. Verifica la hoja de cálculo en 1-2 minutos.',
+                    'async': True
+                })
+                print(f'[APPSCRIPT] {name} iniciado en segundo plano')
+                continue
+
             try:
                 # Hacer GET request a la Web App con el nombre de la función como parámetro
                 # Timeout de 1800 segundos (30 minutos) para scripts largos
