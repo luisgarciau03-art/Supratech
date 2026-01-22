@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Actualizar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .panel-card {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      text-align: center;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin-bottom: 35px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .panel-links {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .panel-link {
+      background: white;
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      font-size: 1.1em;
+      border: 1px solid rgba(67, 97, 238, 0.15);
+      cursor: pointer;
+    }
+
+    .panel-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .panel-link.big-btn {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: white;
+      font-size: 1.2em;
+      padding: 18px;
+      border: none;
+      box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+    }
+
+    .panel-link.big-btn:hover {
+      background: linear-gradient(45deg, #3f37c9, #4361ee);
+      box-shadow: 0 15px 40px rgba(67, 97, 238, 0.4);
+    }
+
+    .automation-section {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .automation-section:first-of-type {
+      margin-top: 20px;
+      border-top: none;
+      padding-top: 10px;
+    }
+
+    .automation-section h3 {
+      color: var(--text-dark);
+      font-size: 1.4em;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .status-message {
+      margin-top: 25px;
+      padding: 15px;
+      border-radius: 12px;
+      display: none;
+      text-align: center;
+      font-weight: 500;
+      font-size: 0.95em;
+    }
+
+    .status-message.info {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary-color);
+      border: 1px solid rgba(67, 97, 238, 0.2);
+    }
+
+    .status-message.success {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+      border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+
+    .status-message.error {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 24px;
+      background: #f1f3f5;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 20px;
+      display: none;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .progress-bar.active {
+      display: block;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.8em;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 25px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 500px) {
+      .panel-card {
+        padding: 30px 20px;
+      }
+      h2 { font-size: 1.8em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel-card">
+    <a href="/panel" class="back-link">← Volver al Panel</a>
+    <h2>Actualizar</h2>
+
+    <!-- Sección COMPRAS -->
+    <div class="automation-section">
+      <h3>📦 Compras</h3>
+      <div class="panel-links">
+        <button class="panel-link big-btn" onclick="ejecutarActualizarTodo()">🔄 ACTUALIZAR TODO</button>
+        <button class="panel-link" onclick="ejecutarScript('pedidos_anteriores')">📦 PEDIDOS ANTERIORES</button>
+        <button class="panel-link" onclick="ejecutarScript('calculadora')">🧮 CALCULADORA</button>
+        <button class="panel-link" onclick="ejecutarScript('resultados')">📊 RESULTADOS</button>
+        <button class="panel-link" onclick="ejecutarScript('creacion_envio')">📮 CREACION DE ENVIO</button>
+        <button class="panel-link" onclick="ejecutarScript('indicadores_update')">📈 INDICADORES</button>
+      </div>
+    </div>
+
+    <!-- Sección DESCUENTOS -->
+    <div class="automation-section">
+      <h3>💰 Descuentos</h3>
+      <div class="panel-links">
+        <button class="panel-link" onclick="ejecutarScript('calcular_descuentos')">🏷️ CALCULAR DESCUENTOS</button>
+      </div>
+    </div>
+
+    <div id="status-message" class="status-message"></div>
+    <div id="progress-bar" class="progress-bar">
+      <div id="progress-fill" class="progress-fill">0%</div>
+    </div>
+  </div>
+
+  <script>
+    let ejecutando = false;
+
+    async function ejecutarScript(tipo) {
+      if (ejecutando) {
+        alert('Ya hay un proceso en ejecución. Por favor espera.');
+        return;
+      }
+
+      ejecutando = true;
+      mostrarEstado('info', `Ejecutando ${tipo.toUpperCase().replace('_', ' ')}... Esto puede tomar varios minutos.`);
+
+      try {
+        // Timeout de 10 minutos (600000 ms) para scripts largos
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 600000);
+
+        const response = await fetch('/api/ejecutar_appscript', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ tipo: tipo }),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Error al ejecutar el script');
+        }
+
+        mostrarEstado('success', result.message || 'Script ejecutado exitosamente');
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          mostrarEstado('error', 'Error: El script tardó más de 10 minutos en ejecutarse. Verifica la hoja de cálculo para ver si completó.');
+        } else {
+          mostrarEstado('error', 'Error: ' + error.message);
+        }
+      } finally {
+        ejecutando = false;
+      }
+    }
+
+    async function ejecutarActualizarTodo() {
+      if (ejecutando) {
+        alert('Ya hay un proceso en ejecución. Por favor espera.');
+        return;
+      }
+
+      if (!confirm('¿Deseas ejecutar ACTUALIZAR TODO? Esto ejecutará todos los procesos de automatización secuencialmente y puede tomar varios minutos.')) {
+        return;
+      }
+
+      ejecutando = true;
+      const scripts = [
+        { tipo: 'pedidos_anteriores', nombre: 'PEDIDOS ANTERIORES' },
+        { tipo: 'calculadora', nombre: 'CALCULADORA' },
+        { tipo: 'resultados', nombre: 'RESULTADOS' },
+        { tipo: 'creacion_envio', nombre: 'CREACION DE ENVIO' },
+        { tipo: 'indicadores_update', nombre: 'INDICADORES' }
+      ];
+
+      const progressBar = document.getElementById('progress-bar');
+      const progressFill = document.getElementById('progress-fill');
+      progressBar.classList.add('active');
+
+      try {
+        for (let i = 0; i < scripts.length; i++) {
+          const script = scripts[i];
+          const progreso = Math.round(((i) / scripts.length) * 100);
+
+          progressFill.style.width = progreso + '%';
+          progressFill.textContent = progreso + '%';
+          mostrarEstado('info', `Ejecutando ${script.nombre}... (${i + 1}/${scripts.length}) - Esto puede tomar varios minutos.`);
+
+          // Timeout de 10 minutos (600000 ms) para scripts largos
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 600000);
+
+          const response = await fetch('/api/ejecutar_appscript', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tipo: script.tipo }),
+            signal: controller.signal
+          });
+
+          clearTimeout(timeoutId);
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(`Error en ${script.nombre}: ${result.error || 'Error desconocido'}`);
+          }
+
+          // Esperar 10 minutos entre scripts (600000 ms)
+          if (i < scripts.length - 1) {
+            mostrarEstado('info', `${script.nombre} completado. Esperando 10 minutos antes de continuar...`);
+            await esperarMinutos(10);
+          }
+        }
+
+        progressFill.style.width = '100%';
+        progressFill.textContent = '100%';
+        mostrarEstado('success', '¡Todos los procesos se completaron exitosamente!');
+
+        setTimeout(() => {
+          progressBar.classList.remove('active');
+        }, 3000);
+
+      } catch (error) {
+        mostrarEstado('error', error.message);
+        progressBar.classList.remove('active');
+      } finally {
+        ejecutando = false;
+      }
+    }
+
+    function esperarMinutos(minutos) {
+      return new Promise(resolve => {
+        const ms = minutos * 60 * 1000;
+        let tiempoRestante = ms;
+
+        const intervalo = setInterval(() => {
+          tiempoRestante -= 1000;
+          const minutosRestantes = Math.floor(tiempoRestante / 60000);
+          const segundosRestantes = Math.floor((tiempoRestante % 60000) / 1000);
+          mostrarEstado('info', `Esperando ${minutosRestantes}:${segundosRestantes.toString().padStart(2, '0')} antes del siguiente proceso...`);
+
+          if (tiempoRestante <= 0) {
+            clearInterval(intervalo);
+            resolve();
+          }
+        }, 1000);
+      });
+    }
+
+    function mostrarEstado(tipo, mensaje) {
+      const statusDiv = document.getElementById('status-message');
+      statusDiv.className = 'status-message ' + tipo;
+      statusDiv.textContent = mensaje;
+      statusDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

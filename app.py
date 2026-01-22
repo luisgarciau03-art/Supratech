@@ -2451,6 +2451,10 @@ def pedidos_bdqty_bulk():
 def compras():
     return render_template('compras.html')
 
+@app.route('/actualizar')
+def actualizar():
+    return render_template('Actualizar.html')
+
 @app.route('/cotizaciones')
 def cotizaciones():
     """Muestra la página de visualización de Cotizaciones"""
