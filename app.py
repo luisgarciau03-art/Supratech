@@ -3183,10 +3183,10 @@ def ejecutar_appscript():
 
             try:
                 # Hacer GET request a la Web App con el nombre de la función como parámetro
-                # Timeout de 600 segundos (10 minutos) para scripts largos
+                # Timeout de 1800 segundos (30 minutos) para scripts largos
                 params = {'func': function_name}
-                print(f'[APPSCRIPT] Esperando respuesta (timeout: 600s)...')
-                response = requests.get(web_app_url, params=params, timeout=600)
+                print(f'[APPSCRIPT] Esperando respuesta (timeout: 1800s)...')
+                response = requests.get(web_app_url, params=params, timeout=1800)
                 print(f'[APPSCRIPT] Respuesta recibida con código: {response.status_code}')
 
                 if response.status_code == 200:

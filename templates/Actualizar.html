@@ -251,9 +251,9 @@
       mostrarEstado('info', `Ejecutando ${tipo.toUpperCase().replace('_', ' ')}... Esto puede tomar varios minutos.`);
 
       try {
-        // Timeout de 10 minutos (600000 ms) para scripts largos
+        // Timeout de 30 minutos (1800000 ms) para scripts largos
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 600000);
+        const timeoutId = setTimeout(() => controller.abort(), 1800000);
 
         const response = await fetch('/api/ejecutar_appscript', {
           method: 'POST',
@@ -275,7 +275,7 @@
         mostrarEstado('success', result.message || 'Script ejecutado exitosamente');
       } catch (error) {
         if (error.name === 'AbortError') {
-          mostrarEstado('error', 'Error: El script tardó más de 10 minutos en ejecutarse. Verifica la hoja de cálculo para ver si completó.');
+          mostrarEstado('error', 'Error: El script tardó más de 30 minutos en ejecutarse. Verifica la hoja de cálculo para ver si completó.');
         } else {
           mostrarEstado('error', 'Error: ' + error.message);
         }
@@ -316,9 +316,9 @@
           progressFill.textContent = progreso + '%';
           mostrarEstado('info', `Ejecutando ${script.nombre}... (${i + 1}/${scripts.length}) - Esto puede tomar varios minutos.`);
 
-          // Timeout de 10 minutos (600000 ms) para scripts largos
+          // Timeout de 30 minutos (1800000 ms) para scripts largos
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 600000);
+          const timeoutId = setTimeout(() => controller.abort(), 1800000);
 
           const response = await fetch('/api/ejecutar_appscript', {
             method: 'POST',
