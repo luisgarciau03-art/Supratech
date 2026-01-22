@@ -3370,23 +3370,41 @@ def ventas_semanales_add():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Preparar los datos para agregar
-        # SKU va a A (duplicado), D (principal)
-        # Unidades vendidas va a I
-        values = [[sku, '', '', sku, '', '', '', '', unidades]]
+        # Obtener la última fila para saber dónde insertar
+        sheet_name = 'VENTAS SEMANALES'
+        result_range = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f'{sheet_name}!A:A'
+        ).execute()
 
-        body = {
-            'values': values,
-            'majorDimension': 'ROWS'
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Usar batchUpdate para escribir en columnas específicas
+        # SKU va a A y D, Unidades va a I
+        batch_data = [
+            {
+                'range': f'{sheet_name}!A{next_row}',
+                'values': [[sku]]
+            },
+            {
+                'range': f'{sheet_name}!D{next_row}',
+                'values': [[sku]]
+            },
+            {
+                'range': f'{sheet_name}!I{next_row}',
+                'values': [[unidades]]
+            }
+        ]
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
         }
 
-        # Agregar fila a la hoja VENTAS SEMANALES
-        result = service.spreadsheets().values().append(
+        result = service.spreadsheets().values().batchUpdate(
             spreadsheetId=spreadsheet_id,
-            range='VENTAS SEMANALES!A:I',
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body=body
+            body=batch_body
         ).execute()
 
         return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
@@ -3423,32 +3441,56 @@ def ventas_semanales_bulk():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Preparar los datos
-        values = []
+        # Validar datos
+        valid_rows = []
         for row in rows:
             sku = row.get('sku', '').strip()
             unidades = row.get('unidades', '').strip()
             if sku and unidades:
-                values.append([sku, '', '', sku, '', '', '', '', unidades])
+                valid_rows.append({'sku': sku, 'unidades': unidades})
 
-        if not values:
+        if not valid_rows:
             return jsonify({'error': 'No hay datos válidos para procesar'}), 400
 
-        body = {
-            'values': values,
-            'majorDimension': 'ROWS'
-        }
-
-        # Agregar filas a la hoja VENTAS SEMANALES
-        result = service.spreadsheets().values().append(
+        # Obtener la última fila
+        sheet_name = 'VENTAS SEMANALES'
+        result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='VENTAS SEMANALES!A:I',
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body=body
+            range=f'{sheet_name}!A:A'
         ).execute()
 
-        return jsonify({'message': f'{len(values)} registros añadidos exitosamente', 'result': result}), 200
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Preparar batch update para todas las filas
+        batch_data = []
+        for i, row_data in enumerate(valid_rows):
+            current_row = next_row + i
+            # SKU a columnas A y D, Unidades a columna I
+            batch_data.append({
+                'range': f'{sheet_name}!A{current_row}',
+                'values': [[row_data['sku']]]
+            })
+            batch_data.append({
+                'range': f'{sheet_name}!D{current_row}',
+                'values': [[row_data['sku']]]
+            })
+            batch_data.append({
+                'range': f'{sheet_name}!I{current_row}',
+                'values': [[row_data['unidades']]]
+            })
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
+        }
+
+        result = service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=batch_body
+        ).execute()
+
+        return jsonify({'message': f'{len(valid_rows)} registros añadidos exitosamente', 'result': result}), 200
 
     except Exception as e:
         import traceback
@@ -3485,24 +3527,44 @@ def para_impulsar_add():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Preparar los datos
-        # SKU va a C, duplicado a D
-        # Unidades impulsar va a L
-        # Ventas 30 días va a I
-        values = [['', '', sku, sku, '', '', '', '', ventas_30dias, '', '', unidades_impulsar]]
+        # Obtener la última fila
+        sheet_name = 'PARA IMPULSAR VENTAS'
+        result_range = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f'{sheet_name}!A:A'
+        ).execute()
 
-        body = {
-            'values': values,
-            'majorDimension': 'ROWS'
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # SKU va a C y D, Ventas 30 días va a I, Unidades impulsar va a L
+        batch_data = [
+            {
+                'range': f'{sheet_name}!C{next_row}',
+                'values': [[sku]]
+            },
+            {
+                'range': f'{sheet_name}!D{next_row}',
+                'values': [[sku]]
+            },
+            {
+                'range': f'{sheet_name}!I{next_row}',
+                'values': [[ventas_30dias]]
+            },
+            {
+                'range': f'{sheet_name}!L{next_row}',
+                'values': [[unidades_impulsar]]
+            }
+        ]
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
         }
 
-        # Agregar fila a la hoja PARA IMPULSAR VENTAS
-        result = service.spreadsheets().values().append(
+        result = service.spreadsheets().values().batchUpdate(
             spreadsheetId=spreadsheet_id,
-            range='PARA IMPULSAR VENTAS!A:L',
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body=body
+            body=batch_body
         ).execute()
 
         return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
@@ -3539,33 +3601,49 @@ def para_impulsar_bulk():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Preparar los datos
-        values = []
+        # Validar datos
+        valid_rows = []
         for row in rows:
             sku = row.get('sku', '').strip()
             unidades_impulsar = row.get('unidades_impulsar', '').strip()
             ventas_30dias = row.get('ventas_30dias', '').strip()
             if sku and unidades_impulsar and ventas_30dias:
-                values.append(['', '', sku, sku, '', '', '', '', ventas_30dias, '', '', unidades_impulsar])
+                valid_rows.append({'sku': sku, 'unidades_impulsar': unidades_impulsar, 'ventas_30dias': ventas_30dias})
 
-        if not values:
+        if not valid_rows:
             return jsonify({'error': 'No hay datos válidos para procesar'}), 400
 
-        body = {
-            'values': values,
-            'majorDimension': 'ROWS'
-        }
-
-        # Agregar filas a la hoja PARA IMPULSAR VENTAS
-        result = service.spreadsheets().values().append(
+        # Obtener la última fila
+        sheet_name = 'PARA IMPULSAR VENTAS'
+        result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='PARA IMPULSAR VENTAS!A:L',
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body=body
+            range=f'{sheet_name}!A:A'
         ).execute()
 
-        return jsonify({'message': f'{len(values)} registros añadidos exitosamente', 'result': result}), 200
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Preparar batch update
+        batch_data = []
+        for i, row_data in enumerate(valid_rows):
+            current_row = next_row + i
+            # SKU a C y D, Ventas 30 días a I, Unidades impulsar a L
+            batch_data.append({'range': f'{sheet_name}!C{current_row}', 'values': [[row_data['sku']]]})
+            batch_data.append({'range': f'{sheet_name}!D{current_row}', 'values': [[row_data['sku']]]})
+            batch_data.append({'range': f'{sheet_name}!I{current_row}', 'values': [[row_data['ventas_30dias']]]})
+            batch_data.append({'range': f'{sheet_name}!L{current_row}', 'values': [[row_data['unidades_impulsar']]]})
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
+        }
+
+        result = service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=batch_body
+        ).execute()
+
+        return jsonify({'message': f'{len(valid_rows)} registros añadidos exitosamente', 'result': result}), 200
 
     except Exception as e:
         import traceback
@@ -3600,22 +3678,30 @@ def para_descartar_add():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Preparar los datos
-        # SKU va a C (C3 según instrucciones), duplicado a D (D3)
-        values = [['', '', sku, sku]]
+        # Get last row
+        sheet_name = 'PARA EVITAR DESCARTE'
+        result_range = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f'{sheet_name}!A:A'
+        ).execute()
 
-        body = {
-            'values': values,
-            'majorDimension': 'ROWS'
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Use batchUpdate for specific columns: SKU en C y D
+        batch_data = [
+            {'range': f'{sheet_name}!C{next_row}', 'values': [[sku]]},
+            {'range': f'{sheet_name}!D{next_row}', 'values': [[sku]]}
+        ]
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
         }
 
-        # Agregar fila a la hoja PARA EVITAR DESCARTE
-        result = service.spreadsheets().values().append(
+        result = service.spreadsheets().values().batchUpdate(
             spreadsheetId=spreadsheet_id,
-            range='PARA EVITAR DESCARTE!A:D',
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body=body
+            body=batch_body
         ).execute()
 
         return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
@@ -3652,31 +3738,44 @@ def para_descartar_bulk():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Preparar los datos
-        values = []
+        # Validar datos
+        valid_rows = []
         for row in rows:
             sku = row.get('sku', '').strip()
             if sku:
-                values.append(['', '', sku, sku])
+                valid_rows.append({'sku': sku})
 
-        if not values:
+        if not valid_rows:
             return jsonify({'error': 'No hay datos válidos para procesar'}), 400
 
-        body = {
-            'values': values,
-            'majorDimension': 'ROWS'
-        }
-
-        # Agregar filas a la hoja PARA EVITAR DESCARTE
-        result = service.spreadsheets().values().append(
+        # Get last row
+        sheet_name = 'PARA EVITAR DESCARTE'
+        result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='PARA EVITAR DESCARTE!A:D',
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body=body
+            range=f'{sheet_name}!A:A'
         ).execute()
 
-        return jsonify({'message': f'{len(values)} registros añadidos exitosamente', 'result': result}), 200
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Prepare batch update for all rows
+        batch_data = []
+        for i, row_data in enumerate(valid_rows):
+            current_row = next_row + i
+            batch_data.append({'range': f'{sheet_name}!C{current_row}', 'values': [[row_data['sku']]]})
+            batch_data.append({'range': f'{sheet_name}!D{current_row}', 'values': [[row_data['sku']]]})
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
+        }
+
+        result = service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=batch_body
+        ).execute()
+
+        return jsonify({'message': f'{len(valid_rows)} registros añadidos exitosamente', 'result': result}), 200
 
     except Exception as e:
         import traceback
@@ -3711,22 +3810,30 @@ def para_poner_en_venta_add():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Preparar los datos
-        # SKU va a C, duplicado a D
-        values = [['', '', sku, sku]]
+        # Get last row
+        sheet_name = 'PARA PONER EN VENTA'
+        result_range = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f'{sheet_name}!A:A'
+        ).execute()
 
-        body = {
-            'values': values,
-            'majorDimension': 'ROWS'
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Use batchUpdate for specific columns: SKU en C y D
+        batch_data = [
+            {'range': f'{sheet_name}!C{next_row}', 'values': [[sku]]},
+            {'range': f'{sheet_name}!D{next_row}', 'values': [[sku]]}
+        ]
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
         }
 
-        # Agregar fila a la hoja PARA PONER EN VENTA
-        result = service.spreadsheets().values().append(
+        result = service.spreadsheets().values().batchUpdate(
             spreadsheetId=spreadsheet_id,
-            range='PARA PONER EN VENTA!A:D',
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body=body
+            body=batch_body
         ).execute()
 
         return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
@@ -3763,31 +3870,44 @@ def para_poner_en_venta_bulk():
         # ID del spreadsheet BDPROMOTE
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
 
-        # Preparar los datos
-        values = []
+        # Validar datos
+        valid_rows = []
         for row in rows:
             sku = row.get('sku', '').strip()
             if sku:
-                values.append(['', '', sku, sku])
+                valid_rows.append({'sku': sku})
 
-        if not values:
+        if not valid_rows:
             return jsonify({'error': 'No hay datos válidos para procesar'}), 400
 
-        body = {
-            'values': values,
-            'majorDimension': 'ROWS'
-        }
-
-        # Agregar filas a la hoja PARA PONER EN VENTA
-        result = service.spreadsheets().values().append(
+        # Get last row
+        sheet_name = 'PARA PONER EN VENTA'
+        result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='PARA PONER EN VENTA!A:D',
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body=body
+            range=f'{sheet_name}!A:A'
         ).execute()
 
-        return jsonify({'message': f'{len(values)} registros añadidos exitosamente', 'result': result}), 200
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+
+        # Prepare batch update for all rows
+        batch_data = []
+        for i, row_data in enumerate(valid_rows):
+            current_row = next_row + i
+            batch_data.append({'range': f'{sheet_name}!C{current_row}', 'values': [[row_data['sku']]]})
+            batch_data.append({'range': f'{sheet_name}!D{current_row}', 'values': [[row_data['sku']]]})
+
+        batch_body = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data
+        }
+
+        result = service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=batch_body
+        ).execute()
+
+        return jsonify({'message': f'{len(valid_rows)} registros añadidos exitosamente', 'result': result}), 200
 
     except Exception as e:
         import traceback
