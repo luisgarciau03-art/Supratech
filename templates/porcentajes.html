@@ -323,6 +323,22 @@
   }
 
   async function guardarCambios() {
+    // Validar que todos los valores tengan el símbolo %
+    for (let i = 0; i < tableData.length; i++) {
+      const descuentoMaximo = tableData[i].descuento_maximo || '';
+      const utilidadMinima = tableData[i].utilidad_minima || '';
+
+      if (descuentoMaximo && !descuentoMaximo.endsWith('%')) {
+        mostrarError(`Error en fila ${i + 1}: DESCUENTO MAXIMO debe terminar con el símbolo %`);
+        return;
+      }
+
+      if (utilidadMinima && !utilidadMinima.endsWith('%')) {
+        mostrarError(`Error en fila ${i + 1}: UTILIDAD MINIMA debe terminar con el símbolo %`);
+        return;
+      }
+    }
+
     try {
       const res = await fetch('/api/porcentajes/update', {
         method: 'POST',
