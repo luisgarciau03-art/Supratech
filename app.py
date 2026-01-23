@@ -266,6 +266,10 @@ def baseplus_campos():
 
 @app.route('/')
 def home():
+    return render_template('demo.html')
+
+@app.route('/login')
+def login():
     return render_template('login.html')
 
 @app.route('/panel')
