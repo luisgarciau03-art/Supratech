@@ -358,6 +358,116 @@
       opacity: 0.9;
     }
 
+    /* Preview Section */
+    .preview {
+      padding: 100px 40px;
+      background: white;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 50px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .preview-item {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.4s ease;
+    }
+
+    .preview-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .preview-item h3 {
+      font-size: 1.6em;
+      margin-bottom: 20px;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preview-item p {
+      color: var(--text-light);
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .preview-screenshot {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      background: var(--bg-light);
+    }
+
+    .preview-screenshot:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+    }
+
+    .preview-screenshot img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .preview-screenshot:hover img {
+      transform: scale(1.05);
+    }
+
+    .preview-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+    }
+
+    .preview-placeholder {
+      width: 100%;
+      padding-top: 60%;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-placeholder-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: var(--text-light);
+    }
+
+    .preview-placeholder-content div {
+      font-size: 4em;
+      margin-bottom: 10px;
+      opacity: 0.6;
+    }
+
+    .preview-placeholder-content p {
+      font-size: 1.1em;
+      font-weight: 500;
+      margin: 0;
+    }
+
     /* Process Section */
     .process {
       padding: 100px 40px;
@@ -575,6 +685,96 @@
     </div>
   </section>
 
+  <!-- Preview Section -->
+  <section class="preview">
+    <h2 class="section-title">Vista Previa del Sistema</h2>
+    <div class="preview-grid">
+      <div class="preview-item">
+        <h3>🏠 Panel Principal</h3>
+        <p>Interfaz intuitiva con acceso rápido a todos los módulos. Visualiza tu información de usuario y navega entre las diferentes secciones del sistema.</p>
+        <div class="preview-screenshot">
+          <div class="preview-badge">Panel de Usuario</div>
+          <div class="preview-placeholder">
+            <div class="preview-placeholder-content">
+              <div>🏠</div>
+              <p>Panel Principal</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-item">
+        <h3>🛒 Módulo de Compras</h3>
+        <p>Gestiona cotizaciones, pedidos anteriores e indicadores. Visualiza datos en tiempo real sincronizados con Google Sheets.</p>
+        <div class="preview-screenshot">
+          <div class="preview-badge">Compras</div>
+          <div class="preview-placeholder">
+            <div class="preview-placeholder-content">
+              <div>🛒</div>
+              <p>Panel de Compras</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-item">
+        <h3>📊 Bases de Datos</h3>
+        <p>Administra múltiples bases de datos: BASE+, BD Marcas, Stock, Ventas. Edición en línea con validación automática.</p>
+        <div class="preview-screenshot">
+          <div class="preview-badge">Bases de Datos</div>
+          <div class="preview-placeholder">
+            <div class="preview-placeholder-content">
+              <div>📊</div>
+              <p>Gestión de Datos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-item">
+        <h3>💰 Sistema de Descuentos</h3>
+        <p>Calcula descuentos inteligentes basados en márgenes y categorías. Identifica productos con errores y oportunidades de promoción.</p>
+        <div class="preview-screenshot">
+          <div class="preview-badge">Descuentos</div>
+          <div class="preview-placeholder">
+            <div class="preview-placeholder-content">
+              <div>💰</div>
+              <p>Calculadora de Descuentos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-item">
+        <h3>🔄 Automatización</h3>
+        <p>Ejecuta procesos complejos con un solo clic. Actualiza pedidos, cálculos e indicadores de forma automática.</p>
+        <div class="preview-screenshot">
+          <div class="preview-badge">Automatización</div>
+          <div class="preview-placeholder">
+            <div class="preview-placeholder-content">
+              <div>🔄</div>
+              <p>Panel de Automatización</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-item">
+        <h3>📈 Indicadores</h3>
+        <p>Visualiza métricas clave de tu negocio. Analiza tendencias y genera reportes automáticos para toma de decisiones.</p>
+        <div class="preview-screenshot">
+          <div class="preview-badge">Indicadores</div>
+          <div class="preview-placeholder">
+            <div class="preview-placeholder-content">
+              <div>📈</div>
+              <p>Dashboard de Indicadores</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Process Section -->
   <section class="process">
     <h2 class="section-title">Cómo Funciona</h2>
@@ -647,7 +847,7 @@
     }, observerOptions);
 
     // Observe all cards
-    document.querySelectorAll('.feature-card, .module-card, .process-step').forEach((el) => {
+    document.querySelectorAll('.feature-card, .module-card, .process-step, .preview-item').forEach((el) => {
       observer.observe(el);
     });
 
