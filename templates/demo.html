@@ -358,6 +358,83 @@
       opacity: 0.9;
     }
 
+    /* Future Modules Section */
+    .future-modules {
+      padding: 100px 40px;
+      background: white;
+    }
+
+    .future-modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .future-module-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 20px;
+      padding: 35px 30px;
+      transition: all 0.4s ease;
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .future-module-card::before {
+      content: 'PRÓXIMAMENTE';
+      position: absolute;
+      top: 15px;
+      right: -35px;
+      background: linear-gradient(45deg, #ffa726, #ff7043);
+      color: white;
+      padding: 5px 40px;
+      font-size: 0.7em;
+      font-weight: 700;
+      transform: rotate(45deg);
+      box-shadow: 0 3px 10px rgba(255, 167, 38, 0.3);
+    }
+
+    .future-module-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .future-module-card:hover {
+      border-color: var(--primary-color);
+      box-shadow: 0 10px 40px rgba(67, 97, 238, 0.15);
+      transform: translateY(-5px);
+    }
+
+    .future-module-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .future-module-icon {
+      font-size: 2.5em;
+      flex-shrink: 0;
+    }
+
+    .future-module-header h3 {
+      font-size: 1.4em;
+      color: var(--text-dark);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .future-module-card p {
+      color: var(--text-light);
+      line-height: 1.7;
+      margin: 0;
+      font-size: 0.95em;
+    }
+
     /* Preview Section */
     .preview {
       padding: 100px 40px;
@@ -413,14 +490,16 @@
       box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
     }
 
-    .preview-screenshot img {
+    .preview-screenshot img,
+    .preview-screenshot video {
       width: 100%;
       height: auto;
       display: block;
       transition: transform 0.4s ease;
     }
 
-    .preview-screenshot:hover img {
+    .preview-screenshot:hover img,
+    .preview-screenshot:hover video {
       transform: scale(1.05);
     }
 
@@ -534,6 +613,114 @@
       line-height: 1.7;
     }
 
+    /* Benefits Section */
+    .benefits {
+      padding: 100px 40px;
+      background: var(--bg-light);
+    }
+
+    .benefits-comparison {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .benefit-column {
+      background: white;
+      border-radius: 24px;
+      padding: 50px 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+
+    .benefit-column.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .benefit-column.with-system {
+      border: 3px solid var(--primary-color);
+      position: relative;
+    }
+
+    .benefit-column.with-system::before {
+      content: '✓ RECOMENDADO';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 8px 24px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 700;
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+    }
+
+    .benefit-column.without-system {
+      border: 3px solid #dc3545;
+      opacity: 0.9;
+    }
+
+    .benefit-column h3 {
+      font-size: 2em;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .benefit-column.with-system h3 {
+      color: var(--primary-color);
+    }
+
+    .benefit-column.without-system h3 {
+      color: #dc3545;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 25px;
+      gap: 15px;
+    }
+
+    .benefit-icon {
+      font-size: 1.8em;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .benefit-column.with-system .benefit-icon {
+      color: #28a745;
+    }
+
+    .benefit-column.without-system .benefit-icon {
+      color: #dc3545;
+    }
+
+    .benefit-text h4 {
+      font-size: 1.2em;
+      margin-bottom: 8px;
+      color: var(--text-dark);
+    }
+
+    .benefit-text p {
+      color: var(--text-light);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    @media (max-width: 968px) {
+      .benefits-comparison {
+        grid-template-columns: 1fr;
+        gap: 60px;
+      }
+    }
+
     /* CTA Section */
     .cta-section {
       padding: 100px 40px;
@@ -611,7 +798,7 @@
         <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Supratech Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 20px;">
       </div>
       <h1>Supratech Web</h1>
-      <p>Sistema Integral de Gestión Empresarial</p>
+      <p>Automatización de Áreas y Procesos Administrativos</p>
       <a href="#features" class="cta-button">Descubre Más</a>
     </div>
     <div class="scroll-indicator"></div>
@@ -623,33 +810,33 @@
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon">📊</div>
-        <h3>Gestión de Datos</h3>
-        <p>Administra múltiples bases de datos sincronizadas con Google Sheets en tiempo real.</p>
+        <h3>Gestión Centralizada</h3>
+        <p>Administra múltiples bases de datos desde una sola plataforma, manteniendo toda la información organizada y actualizada.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🔄</div>
-        <h3>Automatización</h3>
-        <p>Procesos automatizados que ejecutan tareas complejas con un solo clic.</p>
+        <h3>Automatización Total</h3>
+        <p>Ejecuta procesos administrativos complejos con un solo clic, eliminando tareas repetitivas y errores manuales.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">💰</div>
-        <h3>Sistema de Descuentos</h3>
-        <p>Cálculo inteligente de descuentos optimizados basados en márgenes y categorías.</p>
+        <h3>Optimización de Precios</h3>
+        <p>Calcula descuentos óptimos automáticamente basándose en márgenes de utilidad y categorías de productos.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">📦</div>
-        <h3>Control de Inventario</h3>
-        <p>Seguimiento de stock, ventas y productos en tiempo real.</p>
+        <h3>Control Operativo</h3>
+        <p>Monitorea inventarios, ventas y órdenes de compra en tiempo real desde cualquier lugar.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">📈</div>
-        <h3>Análisis e Indicadores</h3>
-        <p>Visualiza métricas clave y genera reportes automáticos.</p>
+        <h3>Inteligencia de Negocio</h3>
+        <p>Genera reportes automáticos con métricas clave para tomar decisiones informadas rápidamente.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🔐</div>
-        <h3>Seguridad</h3>
-        <p>Autenticación con Firebase y control de acceso por roles.</p>
+        <h3>Acceso Controlado</h3>
+        <p>Sistema de autenticación seguro con permisos por roles para proteger información sensible.</p>
       </div>
     </div>
   </section>
@@ -685,91 +872,137 @@
     </div>
   </section>
 
+  <!-- Future Modules Section -->
+  <section class="future-modules">
+    <h2 class="section-title">Módulos Próximos</h2>
+    <div class="future-modules-grid">
+
+      <div class="future-module-card">
+        <div class="future-module-header">
+          <div class="future-module-icon">💼</div>
+          <h3>Finanzas</h3>
+        </div>
+        <p>Análisis financiero mensual de costos e ingresos basado en datos proporcionados. Visualiza el flujo de efectivo, rentabilidad y proyecciones financieras mes a mes.</p>
+      </div>
+
+      <div class="future-module-card">
+        <div class="future-module-header">
+          <div class="future-module-icon">🔍</div>
+          <h3>Verificador de Precios</h3>
+        </div>
+        <p>Validador de márgenes de utilidad del catálogo completo. Identifica productos con utilidades por debajo del objetivo y alerta sobre precios no competitivos.</p>
+      </div>
+
+      <div class="future-module-card">
+        <div class="future-module-header">
+          <div class="future-module-icon">📊</div>
+          <h3>Resultados por Item</h3>
+        </div>
+        <p>Análisis detallado de desempeño por producto: ventas totales, ventas en moneda nacional, unidades vendidas y tendencias semanales para identificar productos estrella.</p>
+      </div>
+
+      <div class="future-module-card">
+        <div class="future-module-header">
+          <div class="future-module-icon">📦</div>
+          <h3>Productos Olvidados</h3>
+        </div>
+        <p>Formulador automático de pedidos para productos con 30 días o más sin reabastecimiento. Evita quiebres de inventario y pérdida de ventas por desabasto.</p>
+      </div>
+
+      <div class="future-module-card">
+        <div class="future-module-header">
+          <div class="future-module-icon">📈</div>
+          <h3>Estatus de Inventario</h3>
+        </div>
+        <p>Dashboard en tiempo real del estado del inventario: capacidad de abastecimiento en días, rotación, punto de reorden y alertas de stock crítico.</p>
+      </div>
+
+      <div class="future-module-card">
+        <div class="future-module-header">
+          <div class="future-module-icon">⏰</div>
+          <h3>Antigüedad de Inventario</h3>
+        </div>
+        <p>Calculadora de días de antigüedad del inventario, detector de productos con sobrestock y recomendaciones para liquidación de mercancía obsoleta.</p>
+      </div>
+
+      <div class="future-module-card">
+        <div class="future-module-header">
+          <div class="future-module-icon">🔮</div>
+          <h3>Prospección de Productos</h3>
+        </div>
+        <p>Herramienta para evaluar el ingreso de nuevos productos de marcas no activas en el catálogo. Calcula potencial de ventas, márgenes y viabilidad comercial.</p>
+      </div>
+
+    </div>
+  </section>
+
   <!-- Preview Section -->
   <section class="preview">
     <h2 class="section-title">Vista Previa del Sistema</h2>
     <div class="preview-grid">
       <div class="preview-item">
         <h3>🏠 Panel Principal</h3>
-        <p>Interfaz intuitiva con acceso rápido a todos los módulos. Visualiza tu información de usuario y navega entre las diferentes secciones del sistema.</p>
+        <p>Centro de control unificado con acceso directo a todos los módulos del sistema. Navega fácilmente entre áreas de compras, bases de datos, descuentos y automatización.</p>
         <div class="preview-screenshot">
           <div class="preview-badge">Panel de Usuario</div>
-          <div class="preview-placeholder">
-            <div class="preview-placeholder-content">
-              <div>🏠</div>
-              <p>Panel Principal</p>
-            </div>
-          </div>
+          <video autoplay loop muted playsinline>
+            <source src="https://res.cloudinary.com/dipt3jq6r/video/upload/v1769133819/Panelprinc_aro026.webm" type="video/webm">
+          </video>
         </div>
       </div>
 
       <div class="preview-item">
         <h3>🛒 Módulo de Compras</h3>
-        <p>Gestiona cotizaciones, pedidos anteriores e indicadores. Visualiza datos en tiempo real sincronizados con Google Sheets.</p>
+        <p>Gestiona cotizaciones de proveedores, historial de pedidos e indicadores de desempeño. Centraliza todo el proceso de adquisiciones en una sola interfaz.</p>
         <div class="preview-screenshot">
           <div class="preview-badge">Compras</div>
-          <div class="preview-placeholder">
-            <div class="preview-placeholder-content">
-              <div>🛒</div>
-              <p>Panel de Compras</p>
-            </div>
-          </div>
+          <video autoplay loop muted playsinline>
+            <source src="https://res.cloudinary.com/dipt3jq6r/video/upload/v1769133911/Modulocompras_jcppu8.webm" type="video/webm">
+          </video>
         </div>
       </div>
 
       <div class="preview-item">
         <h3>📊 Bases de Datos</h3>
-        <p>Administra múltiples bases de datos: BASE+, BD Marcas, Stock, Ventas. Edición en línea con validación automática.</p>
+        <p>Administra catálogos de productos, marcas, inventarios y registros de ventas. Edición directa con validación automática para mantener la integridad de los datos.</p>
         <div class="preview-screenshot">
           <div class="preview-badge">Bases de Datos</div>
-          <div class="preview-placeholder">
-            <div class="preview-placeholder-content">
-              <div>📊</div>
-              <p>Gestión de Datos</p>
-            </div>
-          </div>
+          <video autoplay loop muted playsinline>
+            <source src="https://res.cloudinary.com/dipt3jq6r/video/upload/v1769133938/Modulobds_p7ifhj.webm" type="video/webm">
+          </video>
         </div>
       </div>
 
       <div class="preview-item">
         <h3>💰 Sistema de Descuentos</h3>
-        <p>Calcula descuentos inteligentes basados en márgenes y categorías. Identifica productos con errores y oportunidades de promoción.</p>
+        <p>Calcula descuentos óptimos automáticamente respetando márgenes de utilidad por categoría. Detecta productos con errores de precio y oportunidades de promoción.</p>
         <div class="preview-screenshot">
           <div class="preview-badge">Descuentos</div>
-          <div class="preview-placeholder">
-            <div class="preview-placeholder-content">
-              <div>💰</div>
-              <p>Calculadora de Descuentos</p>
-            </div>
-          </div>
+          <video autoplay loop muted playsinline>
+            <source src="https://res.cloudinary.com/dipt3jq6r/video/upload/v1769133880/Desct_jj8q6m.webm" type="video/webm">
+          </video>
         </div>
       </div>
 
       <div class="preview-item">
         <h3>🔄 Automatización</h3>
-        <p>Ejecuta procesos complejos con un solo clic. Actualiza pedidos, cálculos e indicadores de forma automática.</p>
+        <p>Ejecuta múltiples procesos administrativos con un solo clic. Actualiza pedidos, recalcula márgenes y genera indicadores automáticamente sin intervención manual.</p>
         <div class="preview-screenshot">
           <div class="preview-badge">Automatización</div>
-          <div class="preview-placeholder">
-            <div class="preview-placeholder-content">
-              <div>🔄</div>
-              <p>Panel de Automatización</p>
-            </div>
-          </div>
+          <video autoplay loop muted playsinline>
+            <source src="https://res.cloudinary.com/dipt3jq6r/video/upload/v1769133938/Moduloautomat_zgl8et.webm" type="video/webm">
+          </video>
         </div>
       </div>
 
       <div class="preview-item">
         <h3>📈 Indicadores</h3>
-        <p>Visualiza métricas clave de tu negocio. Analiza tendencias y genera reportes automáticos para toma de decisiones.</p>
+        <p>Visualiza métricas clave del negocio en tiempo real. Analiza tendencias de ventas, inventarios y compras con reportes generados automáticamente.</p>
         <div class="preview-screenshot">
           <div class="preview-badge">Indicadores</div>
-          <div class="preview-placeholder">
-            <div class="preview-placeholder-content">
-              <div>📈</div>
-              <p>Dashboard de Indicadores</p>
-            </div>
-          </div>
+          <video autoplay loop muted playsinline>
+            <source src="https://res.cloudinary.com/dipt3jq6r/video/upload/v1769133912/Moduloindicadores_iy7elc.webm" type="video/webm">
+          </video>
         </div>
       </div>
     </div>
@@ -783,35 +1016,163 @@
         <div class="step-number">1</div>
         <div class="step-content">
           <h4>Acceso Seguro</h4>
-          <p>Inicia sesión con tu cuenta de Google. El sistema verifica tus credenciales y permisos.</p>
+          <p>Inicia sesión con tu cuenta corporativa. El sistema verifica tus credenciales y asigna permisos según tu rol.</p>
         </div>
       </div>
       <div class="process-step">
         <div class="step-number">2</div>
         <div class="step-content">
-          <h4>Selecciona tu Módulo</h4>
-          <p>Accede al módulo que necesites: Compras, Bases de Datos, Descuentos, o Automatización.</p>
+          <h4>Selecciona tu Área</h4>
+          <p>Accede al módulo correspondiente a tu departamento: Compras, Inventarios, Pricing o Reportes.</p>
         </div>
       </div>
       <div class="process-step">
         <div class="step-number">3</div>
         <div class="step-content">
-          <h4>Gestiona tus Datos</h4>
-          <p>Carga archivos CSV/Excel, edita tablas, o ingresa datos manualmente. Todo se sincroniza con Google Sheets.</p>
+          <h4>Gestiona tu Información</h4>
+          <p>Carga archivos masivos, edita registros individuales o ingresa datos manualmente. Todo queda centralizado y actualizado.</p>
         </div>
       </div>
       <div class="process-step">
         <div class="step-number">4</div>
         <div class="step-content">
-          <h4>Automatiza Procesos</h4>
-          <p>Ejecuta scripts de automatización como cálculo de descuentos, actualización de indicadores, y más.</p>
+          <h4>Ejecuta Automatizaciones</h4>
+          <p>Lanza procesos automáticos con un clic: cálculo de precios, actualización de inventarios, generación de órdenes de compra.</p>
         </div>
       </div>
       <div class="process-step">
         <div class="step-number">5</div>
         <div class="step-content">
-          <h4>Descarga Resultados</h4>
-          <p>Exporta reportes en CSV o Excel, y visualiza tus datos actualizados en tiempo real.</p>
+          <h4>Obtén Resultados Inmediatos</h4>
+          <p>Descarga reportes actualizados, visualiza indicadores en tiempo real y toma decisiones basadas en datos precisos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="benefits">
+    <h2 class="section-title">¿Por qué Automatizar?</h2>
+    <div class="benefits-comparison">
+      <!-- CON Sistema -->
+      <div class="benefit-column with-system">
+        <h3>✓ Con Supratech Web</h3>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">⚡</div>
+          <div class="benefit-text">
+            <h4>Eficiencia Operativa</h4>
+            <p>Procesos que tomaban horas ahora se completan en minutos. Elimina tareas repetitivas y errores manuales.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">💰</div>
+          <div class="benefit-text">
+            <h4>Ahorro en Personal</h4>
+            <p>Reduce la necesidad de personal para tareas administrativas repetitivas, optimizando tu nómina.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">📊</div>
+          <div class="benefit-text">
+            <h4>Datos Centralizados</h4>
+            <p>Toda la información en un solo lugar, accesible en tiempo real desde cualquier dispositivo.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">🎯</div>
+          <div class="benefit-text">
+            <h4>Decisiones Informadas</h4>
+            <p>Reportes automáticos y métricas actualizadas para tomar decisiones basadas en datos reales.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">🚀</div>
+          <div class="benefit-text">
+            <h4>Escalabilidad</h4>
+            <p>Crece sin límites. El sistema se adapta al volumen de tu negocio sin necesidad de más recursos.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">🔒</div>
+          <div class="benefit-text">
+            <h4>Control y Seguridad</h4>
+            <p>Permisos por rol, auditoría de cambios y respaldos automáticos de toda tu información crítica.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">📈</div>
+          <div class="benefit-text">
+            <h4>Mayor Productividad</h4>
+            <p>Tu equipo se enfoca en tareas estratégicas mientras el sistema maneja lo operativo automáticamente.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIN Sistema -->
+      <div class="benefit-column without-system">
+        <h3>✗ Sin Sistema de Automatización</h3>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">🐌</div>
+          <div class="benefit-text">
+            <h4>Procesos Lentos</h4>
+            <p>Tareas manuales que consumen horas valiosas cada día. Tiempo perdido en operaciones repetitivas.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">👥</div>
+          <div class="benefit-text">
+            <h4>Mayor Costo de Nómina</h4>
+            <p>Necesitas más personal para realizar tareas administrativas que podrían automatizarse.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">📂</div>
+          <div class="benefit-text">
+            <h4>Datos Dispersos</h4>
+            <p>Información en múltiples archivos Excel, correos y papeles. Difícil de localizar y consolidar.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">🎲</div>
+          <div class="benefit-text">
+            <h4>Decisiones a Ciegas</h4>
+            <p>Sin reportes actualizados, decides basándote en información desactualizada o incompleta.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">⚠️</div>
+          <div class="benefit-text">
+            <h4>Errores Humanos</h4>
+            <p>Errores de captura, cálculos incorrectos y pérdida de información por manipulación manual.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">🔓</div>
+          <div class="benefit-text">
+            <h4>Riesgos de Seguridad</h4>
+            <p>Sin control de accesos adecuado. Archivos compartidos sin restricciones ni auditoría.</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon">📉</div>
+          <div class="benefit-text">
+            <h4>Baja Productividad</h4>
+            <p>Tu equipo desperdicia tiempo en tareas operativas en lugar de enfocarse en crecimiento estratégico.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -819,8 +1180,8 @@
 
   <!-- CTA Section -->
   <section class="cta-section">
-    <h2>¿Listo para Optimizar tu Negocio?</h2>
-    <p>Supratech Web te ayuda a gestionar tu empresa de manera más eficiente</p>
+    <h2>¿Listo para Automatizar tu Empresa?</h2>
+    <p>Transforma tus procesos administrativos y lleva tu negocio al siguiente nivel</p>
     <a href="/login" class="cta-button">Iniciar Sesión</a>
   </section>
 
@@ -847,7 +1208,7 @@
     }, observerOptions);
 
     // Observe all cards
-    document.querySelectorAll('.feature-card, .module-card, .process-step, .preview-item').forEach((el) => {
+    document.querySelectorAll('.feature-card, .module-card, .future-module-card, .process-step, .preview-item, .benefit-column').forEach((el) => {
       observer.observe(el);
     });
 

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejemplo de Reemplazo de Video</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    .ejemplo {
+      background: #252526;
+      padding: 30px;
+      border-radius: 8px;
+      margin-bottom: 40px;
+      border-left: 4px solid #007acc;
+    }
+    h1 {
+      color: #4ec9b0;
+      border-bottom: 2px solid #007acc;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #569cd6;
+      margin-top: 30px;
+    }
+    pre {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid #3c3c3c;
+    }
+    .antes {
+      border-left-color: #ce9178;
+    }
+    .despues {
+      border-left-color: #4ec9b0;
+    }
+    code {
+      color: #ce9178;
+    }
+    .comentario {
+      color: #6a9955;
+      font-style: italic;
+    }
+    .tag {
+      color: #569cd6;
+    }
+    .atributo {
+      color: #9cdcfe;
+    }
+    .valor {
+      color: #ce9178;
+    }
+    .paso {
+      background: #264f78;
+      padding: 10px 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>📹 Ejemplo: Cómo Reemplazar Placeholders con Videos</h1>
+
+  <div class="paso">PASO 1: Encuentra el comentario en demo.html</div>
+
+  <div class="ejemplo antes">
+    <h2>❌ ANTES (Placeholder actual)</h2>
+    <pre><code><span class="comentario">&lt;!-- Este es el código ACTUAL en demo.html --&gt;</span>
+
+<span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-item"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h3&gt;</span>🏠 Panel Principal<span class="tag">&lt;/h3&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Interfaz intuitiva...<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-screenshot"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-badge"</span><span class="tag">&gt;</span>Panel de Usuario<span class="tag">&lt;/div&gt;</span>
+
+    <span class="comentario">&lt;!-- 📹 REEMPLAZA ESTE PLACEHOLDER CON TU VIDEO --&gt;</span>
+
+    <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-placeholder"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-placeholder-content"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div&gt;</span>🏠<span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;p&gt;</span>Panel Principal<span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code></pre>
+  </div>
+
+  <div class="paso">PASO 2: ELIMINA el div.preview-placeholder completo</div>
+
+  <div class="paso">PASO 3: REEMPLAZA con tu video</div>
+
+  <div class="ejemplo despues">
+    <h2>✅ DESPUÉS (Con video WebM)</h2>
+    <pre><code><span class="comentario">&lt;!-- Código NUEVO con tu video --&gt;</span>
+
+<span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-item"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h3&gt;</span>🏠 Panel Principal<span class="tag">&lt;/h3&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Interfaz intuitiva...<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-screenshot"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-badge"</span><span class="tag">&gt;</span>Panel de Usuario<span class="tag">&lt;/div&gt;</span>
+
+    <span class="comentario">&lt;!-- ✅ Video agregado --&gt;</span>
+    <span class="tag">&lt;video</span> <span class="atributo">autoplay loop muted playsinline</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;source</span> <span class="atributo">src</span>=<span class="valor">"https://res.cloudinary.com/dipt3jq6r/video/upload/v1737586000/panel-demo.webm"</span>
+              <span class="atributo">type</span>=<span class="valor">"video/webm"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;source</span> <span class="atributo">src</span>=<span class="valor">"https://res.cloudinary.com/dipt3jq6r/video/upload/v1737586000/panel-demo.mp4"</span>
+              <span class="atributo">type</span>=<span class="valor">"video/mp4"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;/video&gt;</span>
+
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code></pre>
+  </div>
+
+  <div class="paso">ALTERNATIVA: Si prefieres usar GIF</div>
+
+  <div class="ejemplo despues">
+    <h2>✅ OPCIÓN GIF (Más simple)</h2>
+    <pre><code><span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-item"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h3&gt;</span>🏠 Panel Principal<span class="tag">&lt;/h3&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Interfaz intuitiva...<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-screenshot"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-badge"</span><span class="tag">&gt;</span>Panel de Usuario<span class="tag">&lt;/div&gt;</span>
+
+    <span class="comentario">&lt;!-- ✅ GIF agregado (más simple) --&gt;</span>
+    <span class="tag">&lt;img</span> <span class="atributo">src</span>=<span class="valor">"https://res.cloudinary.com/dipt3jq6r/image/upload/v1737586000/panel-demo.gif"</span>
+         <span class="atributo">alt</span>=<span class="valor">"Panel Principal"</span><span class="tag">&gt;</span>
+
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code></pre>
+  </div>
+
+  <div class="paso">ALTERNATIVA: Si prefieres usar imagen estática (PNG/JPG)</div>
+
+  <div class="ejemplo despues">
+    <h2>✅ OPCIÓN IMAGEN (Screenshot)</h2>
+    <pre><code><span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-item"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h3&gt;</span>🏠 Panel Principal<span class="tag">&lt;/h3&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Interfaz intuitiva...<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-screenshot"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-badge"</span><span class="tag">&gt;</span>Panel de Usuario<span class="tag">&lt;/div&gt;</span>
+
+    <span class="comentario">&lt;!-- ✅ Imagen estática --&gt;</span>
+    <span class="tag">&lt;img</span> <span class="atributo">src</span>=<span class="valor">"https://res.cloudinary.com/dipt3jq6r/image/upload/v1737586000/panel-screenshot.png"</span>
+         <span class="atributo">alt</span>=<span class="valor">"Panel Principal"</span><span class="tag">&gt;</span>
+
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code></pre>
+  </div>
+
+  <hr style="margin: 50px 0; border-color: #3c3c3c;">
+
+  <h2 style="color: #4ec9b0;">🎯 Checklist de Reemplazo</h2>
+  <div class="ejemplo">
+    <p>Para cada uno de los 6 videos:</p>
+    <ol style="line-height: 2;">
+      <li>✅ Graba el video (10-15 segundos)</li>
+      <li>✅ Exporta como WebM o GIF</li>
+      <li>✅ Sube a Cloudinary</li>
+      <li>✅ Copia la URL del video</li>
+      <li>✅ Busca el comentario <code>&lt;!-- 📹 REEMPLAZA --&gt;</code> en demo.html</li>
+      <li>✅ Elimina el <code>&lt;div class="preview-placeholder"&gt;...&lt;/div&gt;</code></li>
+      <li>✅ Pega el código de video/GIF/imagen</li>
+      <li>✅ Cambia la URL por la tuya</li>
+      <li>✅ Guarda el archivo</li>
+      <li>✅ Recarga el navegador</li>
+    </ol>
+  </div>
+
+  <h2 style="color: #4ec9b0;">📍 Ubicaciones en demo.html</h2>
+  <div class="ejemplo">
+    <ul style="line-height: 2;">
+      <li>🏠 Panel Principal - Línea ~694</li>
+      <li>🛒 Módulo de Compras - Línea ~720</li>
+      <li>📊 Bases de Datos - Línea ~738</li>
+      <li>💰 Sistema de Descuentos - Línea ~756</li>
+      <li>🔄 Automatización - Línea ~774</li>
+      <li>📈 Indicadores - Línea ~792</li>
+    </ul>
+    <p style="color: #6a9955; margin-top: 20px;">
+      💡 Busca "Preview Section" o los comentarios "📹 REEMPLAZA" para encontrarlos rápidamente
+    </p>
+  </div>
+
+  <h2 style="color: #4ec9b0;">⚠️ Errores Comunes</h2>
+  <div class="ejemplo" style="border-left-color: #f48771;">
+    <p><strong>❌ Error 1:</strong> Olvidar cerrar las etiquetas</p>
+    <pre><code><span class="comentario">Incorrecto:</span>
+<span class="tag">&lt;video</span> <span class="atributo">autoplay loop muted playsinline</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;source</span> <span class="atributo">src</span>=<span class="valor">"..."</span><span class="tag">&gt;</span>
+<span class="comentario">&lt;!-- Falta &lt;/video&gt; --&gt;</span></code></pre>
+
+    <p style="margin-top: 20px;"><strong>❌ Error 2:</strong> No cambiar la URL</p>
+    <pre><code><span class="comentario">Incorrecto (dejar URL de ejemplo):</span>
+<span class="tag">&lt;img</span> <span class="atributo">src</span>=<span class="valor">"https://res.cloudinary.com/.../EJEMPLO.png"</span><span class="tag">&gt;</span>
+
+<span class="comentario">Correcto (usar TU URL):</span>
+<span class="tag">&lt;img</span> <span class="atributo">src</span>=<span class="valor">"https://res.cloudinary.com/dipt3jq6r/image/upload/v1737586000/panel-demo.png"</span><span class="tag">&gt;</span></code></pre>
+
+    <p style="margin-top: 20px;"><strong>❌ Error 3:</strong> Dejar el placeholder Y el video</p>
+    <pre><code><span class="comentario">Incorrecto (tener ambos):</span>
+<span class="tag">&lt;video&gt;</span>...<span class="tag">&lt;/video&gt;</span>
+<span class="tag">&lt;div</span> <span class="atributo">class</span>=<span class="valor">"preview-placeholder"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span> <span class="comentario">&lt;!-- Eliminar esto --&gt;</span></code></pre>
+  </div>
+
+  <div style="text-align: center; margin-top: 50px; padding: 30px; background: #264f78; border-radius: 8px;">
+    <h2 style="color: #fff; margin: 0;">🎉 ¡Listo!</h2>
+    <p style="color: #d4d4d4; margin-top: 10px;">
+      Ahora tu página demo tendrá videos animados que mostrarán exactamente cómo funciona tu sistema.
+    </p>
+  </div>
+
+</body>
+</html>
