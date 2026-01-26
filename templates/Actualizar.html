@@ -232,6 +232,14 @@
       </div>
     </div>
 
+    <!-- Sección METRICAS PRODUCTOS -->
+    <div class="automation-section">
+      <h3>📊 Metricas Productos</h3>
+      <div class="panel-links">
+        <button class="panel-link" onclick="ejecutarMetricasProductos()">📈 METRICAS PRODUCTOS</button>
+      </div>
+    </div>
+
     <div id="status-message" class="status-message"></div>
     <div id="progress-bar" class="progress-bar">
       <div id="progress-fill" class="progress-fill">0%</div>
@@ -384,6 +392,79 @@
       statusDiv.className = 'status-message ' + tipo;
       statusDiv.textContent = mensaje;
       statusDiv.style.display = 'block';
+    }
+
+    async function ejecutarMetricasProductos() {
+      if (ejecutando) {
+        alert('Ya hay un proceso en ejecución. Por favor espera.');
+        return;
+      }
+
+      if (!confirm('¿Deseas ejecutar METRICAS PRODUCTOS? Esto ejecutará dos procesos con un intervalo de 2 minutos.')) {
+        return;
+      }
+
+      ejecutando = true;
+      const progressBar = document.getElementById('progress-bar');
+      const progressFill = document.getElementById('progress-fill');
+      progressBar.classList.add('active');
+
+      try {
+        // Paso 1: Ejecutar copiarDatosABD_APRELIST
+        progressFill.style.width = '10%';
+        progressFill.textContent = '10%';
+        mostrarEstado('info', 'Ejecutando copiarDatosABD_APRELIST...');
+
+        const url1 = 'https://script.google.com/macros/s/AKfycbx-tK5anjVCSIdI25KLdTT-XAVOAPfbZLJRHKXrfMcnlRx0Bm9fsr8zysdU0Xkwq38SSg/exec';
+
+        await fetch(url1, { method: 'GET', mode: 'no-cors' });
+
+        progressFill.style.width = '40%';
+        progressFill.textContent = '40%';
+        mostrarEstado('info', 'copiarDatosABD_APRELIST ejecutado. Esperando 2 minutos antes de continuar...');
+
+        // Esperar 2 minutos (120000 ms)
+        await new Promise(resolve => {
+          let tiempoRestante = 120000;
+          const intervalo = setInterval(() => {
+            tiempoRestante -= 1000;
+            const minutosRestantes = Math.floor(tiempoRestante / 60000);
+            const segundosRestantes = Math.floor((tiempoRestante % 60000) / 1000);
+            const progreso = 40 + Math.round((120000 - tiempoRestante) / 120000 * 30);
+            progressFill.style.width = progreso + '%';
+            progressFill.textContent = progreso + '%';
+            mostrarEstado('info', `Esperando ${minutosRestantes}:${segundosRestantes.toString().padStart(2, '0')} antes del siguiente proceso...`);
+
+            if (tiempoRestante <= 0) {
+              clearInterval(intervalo);
+              resolve();
+            }
+          }, 1000);
+        });
+
+        // Paso 2: Ejecutar calcularPromediosUltimas12Semanas
+        progressFill.style.width = '75%';
+        progressFill.textContent = '75%';
+        mostrarEstado('info', 'Ejecutando calcularPromediosUltimas12Semanas...');
+
+        const url2 = 'https://script.google.com/macros/s/AKfycbzXiN69TVCw_T9qEeyQQGOEsKpRWhUPf9TMANel_5aLEmBc4_e44rXCEBplp86Y1po7/exec';
+
+        await fetch(url2, { method: 'GET', mode: 'no-cors' });
+
+        progressFill.style.width = '100%';
+        progressFill.textContent = '100%';
+        mostrarEstado('success', 'METRICAS PRODUCTOS completado exitosamente!');
+
+        setTimeout(() => {
+          progressBar.classList.remove('active');
+        }, 3000);
+
+      } catch (error) {
+        mostrarEstado('error', 'Error: ' + error.message);
+        progressBar.classList.remove('active');
+      } finally {
+        ejecutando = false;
+      }
     }
   </script>
 </body>

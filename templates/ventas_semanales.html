@@ -224,7 +224,7 @@
 </head>
 <body>
   <div class="panel-card">
-    <a href="/bd_descuentos" class="back-link">← Volver</a>
+    <a href="/Llenar_BDS" class="back-link">← Volver</a>
     <h2>VENTAS SEMANALES</h2>
 
     <div id="status-success" class="success"></div>
@@ -236,6 +236,9 @@
 
       <label>Unidades vendidas</label>
       <input type="number" name="unidades" required>
+
+      <label>Precio de venta (MXN)</label>
+      <input type="number" name="precio_venta" step="0.01" required>
 
       <button type="submit">AÑADIR</button>
     </form>
@@ -265,7 +268,7 @@
     // Descargar plantilla CSV
     document.getElementById('template-link').onclick = function(e) {
       e.preventDefault();
-      const csvContent = 'SKU de la publicación,Unidades vendidas\nMLM123456,10\n';
+      const csvContent = 'SKU de la publicación,Unidades vendidas,Precio de venta\nMLM123456,10,299.99\n';
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -283,7 +286,8 @@
       const formData = new FormData(e.target);
       const data = {
         sku: formData.get('sku'),
-        unidades: formData.get('unidades')
+        unidades: formData.get('unidades'),
+        precio_venta: formData.get('precio_venta')
       };
 
       try {
@@ -330,9 +334,12 @@
             for (let i = 1; i < lines.length; i++) {
               const line = lines[i].trim();
               if (line) {
-                const [sku, unidades] = line.split(',');
+                const parts = line.split(',');
+                const sku = parts[0];
+                const unidades = parts[1];
+                const precio_venta = parts[2] || '';
                 if (sku && unidades) {
-                  rows.push({ sku: sku.trim(), unidades: unidades.trim() });
+                  rows.push({ sku: sku.trim(), unidades: unidades.trim(), precio_venta: precio_venta.trim() });
                 }
               }
             }
@@ -344,7 +351,8 @@
 
             rows = jsonData.map(row => ({
               sku: row['SKU de la publicación'] || row['SKU'] || '',
-              unidades: row['Unidades vendidas'] || row['Unidades'] || ''
+              unidades: row['Unidades vendidas'] || row['Unidades'] || '',
+              precio_venta: row['Precio de venta'] || row['Precio'] || ''
             }));
           }
 

@@ -3381,6 +3381,49 @@ def descuentos():
 def bd_descuentos():
     return render_template('bd_descuentos.html')
 
+@app.route('/metricas_productos')
+def metricas_productos():
+    return render_template('metricas_productos.html')
+
+# --- API Endpoint para METRICAS PRODUCTOS ---
+@app.route('/api/metricas_productos/data', methods=['POST'])
+def metricas_productos_data():
+    """Obtiene datos de las hojas de WOWITEMS para METRICAS PRODUCTOS"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+
+        data = request.get_json()
+        sheet_name = data.get('sheet', '')
+        range_str = data.get('range', '')
+
+        if not sheet_name or not range_str:
+            return jsonify({'error': 'Faltan parámetros sheet y range'}), 400
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # WOWITEMS spreadsheet ID
+        spreadsheet_id = '18rvbsRrqPcZP8W5AYJyc_ivxPIRFl46b2tAyq6Fvv9g'
+
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f"'{sheet_name}'!{range_str}"
+        ).execute()
+
+        return jsonify({'values': result.get('values', [])}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 # --- Sub-rutas para BD Descuentos ---
 @app.route('/<page_name>')
 def bd_descuentos_page(page_name):
@@ -3407,8 +3450,9 @@ def ventas_semanales_add():
         data = request.get_json()
         sku = data.get('sku', '').strip()
         unidades = data.get('unidades', '').strip()
+        precio_venta = data.get('precio_venta', '').strip()
 
-        if not sku or not unidades:
+        if not sku or not unidades or not precio_venta:
             return jsonify({'error': 'Faltan datos requeridos'}), 400
 
         # Obtener credenciales y conectar con Google Sheets
@@ -3416,11 +3460,10 @@ def ventas_semanales_add():
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
 
-        # ID del spreadsheet BDPROMOTE
+        # === PRIMERA HOJA: BDPROMOTE ===
         spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
-
-        # Obtener la última fila para saber dónde insertar
         sheet_name = 'VENTAS SEMANALES'
+
         result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
             range=f'{sheet_name}!A:A'
@@ -3429,21 +3472,11 @@ def ventas_semanales_add():
         existing_rows = result_range.get('values', [])
         next_row = len(existing_rows) + 1
 
-        # Usar batchUpdate para escribir en columnas específicas
         # SKU va a A y D, Unidades va a I
         batch_data = [
-            {
-                'range': f'{sheet_name}!A{next_row}',
-                'values': [[sku]]
-            },
-            {
-                'range': f'{sheet_name}!D{next_row}',
-                'values': [[sku]]
-            },
-            {
-                'range': f'{sheet_name}!I{next_row}',
-                'values': [[unidades]]
-            }
+            {'range': f'{sheet_name}!A{next_row}', 'values': [[sku]]},
+            {'range': f'{sheet_name}!D{next_row}', 'values': [[sku]]},
+            {'range': f'{sheet_name}!I{next_row}', 'values': [[unidades]]}
         ]
 
         batch_body = {
@@ -3451,12 +3484,42 @@ def ventas_semanales_add():
             'data': batch_data
         }
 
-        result = service.spreadsheets().values().batchUpdate(
+        service.spreadsheets().values().batchUpdate(
             spreadsheetId=spreadsheet_id,
             body=batch_body
         ).execute()
 
-        return jsonify({'message': 'Registro añadido exitosamente', 'result': result}), 200
+        # === SEGUNDA HOJA: BDVENTASWOWITEMS ===
+        spreadsheet_id_2 = '1yMGIpgtfnz1ROcJ0d9dzGBsdxPLwBCt_danE8S8AA6U'
+        sheet_name_2 = 'BD VENTAS FULL WEEK'
+
+        result_range_2 = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id_2,
+            range=f"'{sheet_name_2}'!Q:Q"
+        ).execute()
+
+        existing_rows_2 = result_range_2.get('values', [])
+        next_row_2 = max(len(existing_rows_2) + 1, 2)  # Mínimo fila 2
+
+        # SKU va a Q y R, Unidades va a G, Precio de venta va a H
+        batch_data_2 = [
+            {'range': f"'{sheet_name_2}'!Q{next_row_2}", 'values': [[sku]]},
+            {'range': f"'{sheet_name_2}'!R{next_row_2}", 'values': [[sku]]},
+            {'range': f"'{sheet_name_2}'!G{next_row_2}", 'values': [[unidades]]},
+            {'range': f"'{sheet_name_2}'!H{next_row_2}", 'values': [[precio_venta]]}
+        ]
+
+        batch_body_2 = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data_2
+        }
+
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id_2,
+            body=batch_body_2
+        ).execute()
+
+        return jsonify({'message': 'Registro añadido exitosamente en ambas hojas'}), 200
 
     except Exception as e:
         import traceback
@@ -3487,22 +3550,22 @@ def ventas_semanales_bulk():
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
 
-        # ID del spreadsheet BDPROMOTE
-        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
-
         # Validar datos
         valid_rows = []
         for row in rows:
-            sku = row.get('sku', '').strip()
-            unidades = row.get('unidades', '').strip()
+            sku = str(row.get('sku', '')).strip()
+            unidades = str(row.get('unidades', '')).strip()
+            precio_venta = str(row.get('precio_venta', '')).strip()
             if sku and unidades:
-                valid_rows.append({'sku': sku, 'unidades': unidades})
+                valid_rows.append({'sku': sku, 'unidades': unidades, 'precio_venta': precio_venta})
 
         if not valid_rows:
             return jsonify({'error': 'No hay datos válidos para procesar'}), 400
 
-        # Obtener la última fila
+        # === PRIMERA HOJA: BDPROMOTE ===
+        spreadsheet_id = '14F6ZSyrhp9_f6tHYz6GYaIVqoAEdZo6UICJP0_GR7ew'
         sheet_name = 'VENTAS SEMANALES'
+
         result_range = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
             range=f'{sheet_name}!A:A'
@@ -3511,35 +3574,57 @@ def ventas_semanales_bulk():
         existing_rows = result_range.get('values', [])
         next_row = len(existing_rows) + 1
 
-        # Preparar batch update para todas las filas
+        # Preparar batch update para BDPROMOTE
         batch_data = []
         for i, row_data in enumerate(valid_rows):
             current_row = next_row + i
-            # SKU a columnas A y D, Unidades a columna I
-            batch_data.append({
-                'range': f'{sheet_name}!A{current_row}',
-                'values': [[row_data['sku']]]
-            })
-            batch_data.append({
-                'range': f'{sheet_name}!D{current_row}',
-                'values': [[row_data['sku']]]
-            })
-            batch_data.append({
-                'range': f'{sheet_name}!I{current_row}',
-                'values': [[row_data['unidades']]]
-            })
+            batch_data.append({'range': f'{sheet_name}!A{current_row}', 'values': [[row_data['sku']]]})
+            batch_data.append({'range': f'{sheet_name}!D{current_row}', 'values': [[row_data['sku']]]})
+            batch_data.append({'range': f'{sheet_name}!I{current_row}', 'values': [[row_data['unidades']]]})
 
         batch_body = {
             'valueInputOption': 'USER_ENTERED',
             'data': batch_data
         }
 
-        result = service.spreadsheets().values().batchUpdate(
+        service.spreadsheets().values().batchUpdate(
             spreadsheetId=spreadsheet_id,
             body=batch_body
         ).execute()
 
-        return jsonify({'message': f'{len(valid_rows)} registros añadidos exitosamente', 'result': result}), 200
+        # === SEGUNDA HOJA: BDVENTASWOWITEMS ===
+        spreadsheet_id_2 = '1yMGIpgtfnz1ROcJ0d9dzGBsdxPLwBCt_danE8S8AA6U'
+        sheet_name_2 = 'BD VENTAS FULL WEEK'
+
+        result_range_2 = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id_2,
+            range=f"'{sheet_name_2}'!Q:Q"
+        ).execute()
+
+        existing_rows_2 = result_range_2.get('values', [])
+        next_row_2 = max(len(existing_rows_2) + 1, 2)  # Mínimo fila 2
+
+        # Preparar batch update para BDVENTASWOWITEMS
+        batch_data_2 = []
+        for i, row_data in enumerate(valid_rows):
+            current_row_2 = next_row_2 + i
+            batch_data_2.append({'range': f"'{sheet_name_2}'!Q{current_row_2}", 'values': [[row_data['sku']]]})
+            batch_data_2.append({'range': f"'{sheet_name_2}'!R{current_row_2}", 'values': [[row_data['sku']]]})
+            batch_data_2.append({'range': f"'{sheet_name_2}'!G{current_row_2}", 'values': [[row_data['unidades']]]})
+            if row_data['precio_venta']:
+                batch_data_2.append({'range': f"'{sheet_name_2}'!H{current_row_2}", 'values': [[row_data['precio_venta']]]})
+
+        batch_body_2 = {
+            'valueInputOption': 'USER_ENTERED',
+            'data': batch_data_2
+        }
+
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id_2,
+            body=batch_body_2
+        ).execute()
+
+        return jsonify({'message': f'{len(valid_rows)} registros añadidos exitosamente en ambas hojas'}), 200
 
     except Exception as e:
         import traceback
