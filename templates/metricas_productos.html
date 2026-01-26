@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>METRICAS PRODUCTOS</title>
+  <title>Metricas Por Producto</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -216,6 +216,38 @@
       box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
     }
 
+    .week-selector-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .week-selector {
+      padding: 10px 18px;
+      border: 1px solid rgba(67, 97, 238, 0.2);
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      background: white;
+      color: var(--primary-color);
+      cursor: pointer;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .week-selector:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+
+    .week-selector:hover {
+      border-color: var(--primary-color);
+    }
+
     @media (max-width: 768px) {
       .panel-card {
         padding: 20px 15px;
@@ -245,8 +277,13 @@
   <div class="container">
     <div class="panel-card">
       <a href="/panel" class="back-link">← Volver al Panel</a>
-      <h2>METRICAS PRODUCTOS</h2>
-      <div class="week-info" id="week-info">Semana actual: Cargando...</div>
+      <h2>Metricas Por Producto</h2>
+      <div class="week-selector-container">
+        <div class="week-info" id="week-info">Mostrando datos de: Cargando...</div>
+        <select id="week-selector" class="week-selector" title="Seleccionar semana" onchange="changeWeek(this.value)">
+          <!-- Opciones generadas dinámicamente -->
+        </select>
+      </div>
 
       <div class="tabs">
         <button class="tab-btn active" onclick="showTab('menos-mov')">TOP MENOS MOVIMIENTOS</button>
@@ -298,12 +335,15 @@
 <script>
   let idToken = null;
   let currentWeek = null;
+  let displayWeek = null; // Semana a mostrar
 
   firebase.auth().onAuthStateChanged(async function(user) {
     if (user) {
       idToken = await user.getIdToken();
       currentWeek = getWeekNumber(new Date());
-      document.getElementById('week-info').textContent = `Semana actual: W${currentWeek}`;
+      displayWeek = currentWeek - 1; // Por defecto mostrar semana anterior
+      initWeekSelector();
+      updateWeekInfo();
       loadAllData();
     } else {
       window.location.href = '/';
@@ -316,6 +356,43 @@
     const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
     const weekNo = Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
     return weekNo;
+  }
+
+  function initWeekSelector() {
+    const selector = document.getElementById('week-selector');
+    selector.innerHTML = '';
+
+    // Generar opciones para las últimas 12 semanas
+    for (let i = 1; i <= 12; i++) {
+      const weekNum = currentWeek - i;
+      if (weekNum > 0) {
+        const option = document.createElement('option');
+        option.value = weekNum;
+        option.textContent = `Semana W${weekNum}`;
+        if (weekNum === displayWeek) {
+          option.selected = true;
+        }
+        selector.appendChild(option);
+      }
+    }
+  }
+
+  function updateWeekInfo() {
+    document.getElementById('week-info').textContent = `Mostrando datos de: Semana W${displayWeek}`;
+  }
+
+  function changeWeek(weekNum) {
+    displayWeek = parseInt(weekNum);
+    updateWeekInfo();
+
+    // Mostrar loading en todas las pestañas
+    document.getElementById('menos-mov-content').innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Cargando datos...</p></div>';
+    document.getElementById('mas-mov-content').innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Cargando datos...</p></div>';
+    document.getElementById('lista-items-content').innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Cargando datos...</p></div>';
+    document.getElementById('volatilidad-content').innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Cargando datos...</p></div>';
+
+    // Recargar datos
+    loadAllData();
   }
 
   function showTab(tabId) {
@@ -425,8 +502,8 @@
       }
 
       const headers = headerData.values ? headerData.values[0] : [];
-      const ventasCol = headers.findIndex(h => h === `VENTAS W${currentWeek}`);
-      const avgPriceCol = headers.findIndex(h => h === `AVG PRICE W${currentWeek}`);
+      const ventasCol = headers.findIndex(h => h === `VENTAS W${displayWeek}`);
+      const avgPriceCol = headers.findIndex(h => h === `AVG PRICE W${displayWeek}`);
 
       let weekDataPromise = null;
       if (ventasCol !== -1 && avgPriceCol !== -1) {
@@ -444,8 +521,8 @@
           <th>SKU</th><th>MARCA</th><th>TIENDAS</th><th>VOLATILIDAD</th>
           <th>STOCK</th><th>AVG VENTAS 12</th><th>TICKET AVG 12</th>`;
 
-      if (ventasCol !== -1) html += `<th>VENTAS W${currentWeek}</th>`;
-      if (avgPriceCol !== -1) html += `<th>AVG PRICE W${currentWeek}</th>`;
+      if (ventasCol !== -1) html += `<th>VENTAS W${displayWeek}</th>`;
+      if (avgPriceCol !== -1) html += `<th>AVG PRICE W${displayWeek}</th>`;
 
       html += '</tr></thead><tbody>';
 
@@ -486,8 +563,8 @@
       }
 
       const headers = headerData.values ? headerData.values[0] : [];
-      const ventasCol = headers.findIndex(h => h === `VENTAS W${currentWeek}`);
-      const avgPriceCol = headers.findIndex(h => h === `AVG PRICE W${currentWeek}`);
+      const ventasCol = headers.findIndex(h => h === `VENTAS W${displayWeek}`);
+      const avgPriceCol = headers.findIndex(h => h === `AVG PRICE W${displayWeek}`);
 
       let weekDataPromise = null;
       if (ventasCol !== -1 && avgPriceCol !== -1) {
@@ -505,8 +582,8 @@
           <th>SKU</th><th>MARCA</th><th>TIENDAS</th><th>VOLATILIDAD</th>
           <th>STOCK</th><th>AVG VENTAS</th><th>PROMEDIO AVG</th>`;
 
-      if (ventasCol !== -1) html += `<th>VENTAS W${currentWeek}</th>`;
-      if (avgPriceCol !== -1) html += `<th>AVG PRICE W${currentWeek}</th>`;
+      if (ventasCol !== -1) html += `<th>VENTAS W${displayWeek}</th>`;
+      if (avgPriceCol !== -1) html += `<th>AVG PRICE W${displayWeek}</th>`;
 
       html += '</tr></thead><tbody>';
 
