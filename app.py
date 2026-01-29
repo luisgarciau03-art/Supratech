@@ -5575,6 +5575,33 @@ def api_bd_movimientos_financieros_add():
         existing = result.get('values', [])
         next_row = len(existing) + 1
 
+        # Obtener metadata de la hoja para verificar limite de filas
+        sheet_metadata = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        bd_sheet = None
+        for sheet in sheet_metadata.get('sheets', []):
+            if sheet.get('properties', {}).get('title') == 'BD':
+                bd_sheet = sheet
+                break
+
+        if bd_sheet:
+            current_max_rows = bd_sheet.get('properties', {}).get('gridProperties', {}).get('rowCount', 1000)
+            # Si la siguiente fila excede el limite, expandir la hoja
+            if next_row >= current_max_rows:
+                rows_to_add = 1000  # Agregar 1000 filas mas
+                sheet_id = bd_sheet.get('properties', {}).get('sheetId')
+                service.spreadsheets().batchUpdate(
+                    spreadsheetId=spreadsheet_id,
+                    body={
+                        'requests': [{
+                            'appendDimension': {
+                                'sheetId': sheet_id,
+                                'dimension': 'ROWS',
+                                'length': rows_to_add
+                            }
+                        }]
+                    }
+                ).execute()
+
         batch_data = [
             {'range': f'BD!A{next_row}', 'values': [[data.get('fecha_liberacion', '')]]},
             {'range': f'BD!C{next_row}', 'values': [[data.get('numero_id', '')]]},
@@ -5640,6 +5667,22 @@ def api_bd_movimientos_financieros_bulk():
             ).execute()
             existing = result.get('values', [])
             next_row = len(existing) + 1
+            last_row_needed = next_row + len(semanales) - 1
+
+            # Verificar y expandir hoja si es necesario
+            sheet_metadata = service.spreadsheets().get(spreadsheetId=BALANCESSEMANALES_SPREADSHEET_ID).execute()
+            for sheet in sheet_metadata.get('sheets', []):
+                if sheet.get('properties', {}).get('title') == 'BD':
+                    current_max_rows = sheet.get('properties', {}).get('gridProperties', {}).get('rowCount', 1000)
+                    if last_row_needed >= current_max_rows:
+                        rows_to_add = last_row_needed - current_max_rows + 1000
+                        sheet_id = sheet.get('properties', {}).get('sheetId')
+                        service.spreadsheets().batchUpdate(
+                            spreadsheetId=BALANCESSEMANALES_SPREADSHEET_ID,
+                            body={'requests': [{'appendDimension': {'sheetId': sheet_id, 'dimension': 'ROWS', 'length': rows_to_add}}]}
+                        ).execute()
+                    break
+
             batch_data = []
             for i, row_data in enumerate(semanales):
                 current_row = next_row + i
@@ -5661,6 +5704,22 @@ def api_bd_movimientos_financieros_bulk():
             ).execute()
             existing = result.get('values', [])
             next_row = len(existing) + 1
+            last_row_needed = next_row + len(mensuales) - 1
+
+            # Verificar y expandir hoja si es necesario
+            sheet_metadata = service.spreadsheets().get(spreadsheetId=BALANCESMENSUALES_SPREADSHEET_ID).execute()
+            for sheet in sheet_metadata.get('sheets', []):
+                if sheet.get('properties', {}).get('title') == 'BD':
+                    current_max_rows = sheet.get('properties', {}).get('gridProperties', {}).get('rowCount', 1000)
+                    if last_row_needed >= current_max_rows:
+                        rows_to_add = last_row_needed - current_max_rows + 1000
+                        sheet_id = sheet.get('properties', {}).get('sheetId')
+                        service.spreadsheets().batchUpdate(
+                            spreadsheetId=BALANCESMENSUALES_SPREADSHEET_ID,
+                            body={'requests': [{'appendDimension': {'sheetId': sheet_id, 'dimension': 'ROWS', 'length': rows_to_add}}]}
+                        ).execute()
+                    break
+
             batch_data = []
             for i, row_data in enumerate(mensuales):
                 current_row = next_row + i
