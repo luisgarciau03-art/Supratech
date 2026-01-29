@@ -232,11 +232,13 @@
   function mostrarTabla(data) {
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = '';
-    if (data.length === 0) {
+    // Filtrar filas con marca vacia
+    const filteredData = data.filter(row => row.marca && row.marca.trim() !== '');
+    if (filteredData.length === 0) {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
       return;
     }
-    data.forEach(row => {
+    filteredData.forEach(row => {
       const tr = document.createElement('tr');
       // Parsear el porcentaje de linea_usada
       let porcentaje = 0;
@@ -274,10 +276,11 @@
   }
 
   function descargarCSV() {
-    if (tableData.length === 0) { alert('No hay datos'); return; }
+    const filteredData = tableData.filter(row => row.marca && row.marca.trim() !== '');
+    if (filteredData.length === 0) { alert('No hay datos'); return; }
     const headers = ['MARCA', 'MONTO TOTAL', 'LINEA DE CREDITO', 'RESTANTE', 'LINEA DE CREDITO USADA'];
     let csv = headers.join(',') + '\n';
-    tableData.forEach(row => {
+    filteredData.forEach(row => {
       csv += [row.marca||'',row.monto_total||'',row.linea_credito||'',row.restante||'',row.linea_usada||''].join(',') + '\n';
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -288,9 +291,10 @@
   }
 
   function descargarExcel() {
-    if (tableData.length === 0) { alert('No hay datos'); return; }
+    const filteredData = tableData.filter(row => row.marca && row.marca.trim() !== '');
+    if (filteredData.length === 0) { alert('No hay datos'); return; }
     const ws_data = [['MARCA', 'MONTO TOTAL', 'LINEA DE CREDITO', 'RESTANTE', 'LINEA DE CREDITO USADA']];
-    tableData.forEach(row => {
+    filteredData.forEach(row => {
       ws_data.push([row.marca||'',row.monto_total||'',row.linea_credito||'',row.restante||'',row.linea_usada||'']);
     });
     const wb = XLSX.utils.book_new();
