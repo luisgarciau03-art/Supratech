@@ -245,8 +245,10 @@
         </div>
       </div>
 
-      <label>TASK PAGO</label>
-      <input type="text" name="task_pago" placeholder="URL o descripcion del task">
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+        <input type="checkbox" name="pagado" id="pagado-checkbox" style="width: 20px; height: 20px; cursor: pointer;">
+        <label for="pagado-checkbox" style="margin: 0; cursor: pointer;">PAGADO</label>
+      </div>
 
       <button type="submit">REGISTRAR DEUDA</button>
     </form>
@@ -275,7 +277,7 @@
   function setupEventListeners() {
     document.getElementById('template-link').onclick = function(e) {
       e.preventDefault();
-      const csvContent = 'CONCEPTO,NOMBRE,MONTO,FECHA_PAGO,NUMERO_SEMANA,TASK_PAGO\nEjemplo Concepto,Proveedor Ejemplo,$1000.00,2024-01-15,3,https://task.example.com\n';
+      const csvContent = 'CONCEPTO,NOMBRE,MONTO,FECHA_PAGO,NUMERO_SEMANA,PAGADO\nEjemplo Concepto,Proveedor Ejemplo,$1000.00,2024-01-15,3,TRUE\n';
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -286,13 +288,14 @@
     document.getElementById('data-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
+      const pagadoCheckbox = document.getElementById('pagado-checkbox');
       const data = {
         concepto: formData.get('concepto'),
         nombre: formData.get('nombre'),
         monto: formData.get('monto'),
         fecha_pago: formData.get('fecha_pago'),
         numero_semana: formData.get('numero_semana'),
-        task_pago: formData.get('task_pago')
+        pagado: pagadoCheckbox.checked ? 'TRUE' : 'FALSE'
       };
 
       try {
@@ -342,7 +345,7 @@
                     monto: parts[2].trim(),
                     fecha_pago: parts[3].trim(),
                     numero_semana: parts[4].trim(),
-                    task_pago: parts[5].trim()
+                    pagado: parts[5].trim().toUpperCase() === 'TRUE' ? 'TRUE' : 'FALSE'
                   });
                 }
               }
@@ -358,7 +361,7 @@
               monto: row['MONTO'] || '',
               fecha_pago: row['FECHA_PAGO'] || '',
               numero_semana: row['NUMERO_SEMANA'] || '',
-              task_pago: row['TASK_PAGO'] || ''
+              pagado: String(row['PAGADO'] || '').toUpperCase() === 'TRUE' ? 'TRUE' : 'FALSE'
             }));
           }
 

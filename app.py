@@ -4802,7 +4802,7 @@ def api_finanzas_deudas_general_data():
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         result = service.spreadsheets().values().get(
-            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            spreadsheetId=ECOTROS_SPREADSHEET_ID,
             range='ESTADO DE CUENTA!A2:F'
         ).execute()
         values = result.get('values', [])
@@ -4982,10 +4982,10 @@ def api_finanzas_balance_semanal_data():
             range='LIBERACIONES!A1'
         ).execute()
         semana = semana_result.get('values', [['']])[0][0] if semana_result.get('values') else 'SEMANA'
-        # Leer datos
+        # Leer datos (desde fila 3)
         result = service.spreadsheets().values().get(
             spreadsheetId=FINANZAS_SPREADSHEET_ID,
-            range='LIBERACIONES!A2:D27'
+            range='LIBERACIONES!A3:D27'
         ).execute()
         values = result.get('values', [])
         data = []
@@ -5032,10 +5032,10 @@ def api_finanzas_balance_mensual_data():
             range='BALANCE GENERAL MENSUAL!A1'
         ).execute()
         mes = mes_result.get('values', [['']])[0][0] if mes_result.get('values') else 'MES'
-        # Leer datos
+        # Leer datos (desde fila 3)
         result = service.spreadsheets().values().get(
             spreadsheetId=FINANZAS_SPREADSHEET_ID,
-            range='BALANCE GENERAL MENSUAL!A2:D29'
+            range='BALANCE GENERAL MENSUAL!A3:D29'
         ).execute()
         values = result.get('values', [])
         data = []
@@ -5269,7 +5269,7 @@ def api_bd_deudas_generales_add():
             {'range': f'ESTADO DE CUENTA!C{next_row}', 'values': [[data.get('monto', '')]]},
             {'range': f'ESTADO DE CUENTA!D{next_row}', 'values': [[data.get('fecha_pago', '')]]},
             {'range': f'ESTADO DE CUENTA!E{next_row}', 'values': [[data.get('numero_semana', '')]]},
-            {'range': f'ESTADO DE CUENTA!F{next_row}', 'values': [[data.get('task_pago', '')]]}
+            {'range': f'ESTADO DE CUENTA!F{next_row}', 'values': [[data.get('pagado', 'FALSE')]]}
         ]
         service.spreadsheets().values().batchUpdate(
             spreadsheetId=ECOTROS_SPREADSHEET_ID,
@@ -5309,7 +5309,7 @@ def api_bd_deudas_generales_bulk():
             batch_data.append({'range': f'ESTADO DE CUENTA!C{current_row}', 'values': [[row_data.get('monto', '')]]})
             batch_data.append({'range': f'ESTADO DE CUENTA!D{current_row}', 'values': [[row_data.get('fecha_pago', '')]]})
             batch_data.append({'range': f'ESTADO DE CUENTA!E{current_row}', 'values': [[row_data.get('numero_semana', '')]]})
-            batch_data.append({'range': f'ESTADO DE CUENTA!F{current_row}', 'values': [[row_data.get('task_pago', '')]]})
+            batch_data.append({'range': f'ESTADO DE CUENTA!F{current_row}', 'values': [[row_data.get('pagado', 'FALSE')]]})
         service.spreadsheets().values().batchUpdate(
             spreadsheetId=ECOTROS_SPREADSHEET_ID,
             body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
@@ -5567,9 +5567,10 @@ def api_bd_movimientos_financieros_add():
             spreadsheet_id = BALANCESSEMANALES_SPREADSHEET_ID
             destino = 'semanal'
 
+        # Buscar ultima fila con valor en columna E
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='BD!A:A'
+            range='BD!E:E'
         ).execute()
         existing = result.get('values', [])
         next_row = len(existing) + 1
@@ -5635,7 +5636,7 @@ def api_bd_movimientos_financieros_bulk():
         if semanales:
             result = service.spreadsheets().values().get(
                 spreadsheetId=BALANCESSEMANALES_SPREADSHEET_ID,
-                range='BD!A:A'
+                range='BD!E:E'
             ).execute()
             existing = result.get('values', [])
             next_row = len(existing) + 1
@@ -5656,7 +5657,7 @@ def api_bd_movimientos_financieros_bulk():
         if mensuales:
             result = service.spreadsheets().values().get(
                 spreadsheetId=BALANCESMENSUALES_SPREADSHEET_ID,
-                range='BD!A:A'
+                range='BD!E:E'
             ).execute()
             existing = result.get('values', [])
             next_row = len(existing) + 1

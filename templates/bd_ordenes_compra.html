@@ -196,26 +196,17 @@
     <a href="/Llenar_BDS" class="back-link">&larr; Volver</a>
     <h2>Ordenes de Compra</h2>
 
-    <div class="info-box">
-      <strong>Nota:</strong> El estatus se guarda en la hoja como:
-      <ul style="margin: 10px 0 0 20px;">
-        <li>CONFIRMADA = SETTLEMENT</li>
-        <li>ENVIADA = DISPUTE</li>
-        <li>CANCELADA = REFUND</li>
-      </ul>
-    </div>
-
     <div id="status-success" class="success"></div>
     <div id="status-error" class="error"></div>
 
     <form id="data-form">
-      <label>NUMERO DE IDENTIFICACION (External Reference)</label>
+      <label>NUMERO DE IDENTIFICACION</label>
       <input type="text" name="numero_id" placeholder="Ej: ORD-001" required>
 
-      <label>SALDO DE COTIZACION (Settlement Net Amount)</label>
+      <label>SALDO DE COTIZACION</label>
       <input type="text" name="saldo_cotizacion" placeholder="$0.00" required>
 
-      <label>ESTATUS DE ORDEN (Transaction Type)</label>
+      <label>ESTATUS DE ORDEN</label>
       <select name="estatus" required>
         <option value="">Seleccionar estatus...</option>
         <option value="SETTLEMENT">CONFIRMADA</option>

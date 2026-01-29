@@ -111,9 +111,37 @@
       color: white;
     }
 
-    th { padding: 15px; text-align: left; font-weight: 600; font-size: 0.95em; white-space: nowrap; }
-    td { padding: 12px 15px; border-bottom: 1px solid #e9ecef; font-size: 0.9em; }
+    th { padding: 15px; text-align: center; font-weight: 600; font-size: 0.95em; white-space: nowrap; }
+    td { padding: 12px 15px; border-bottom: 1px solid #e9ecef; font-size: 0.9em; text-align: center; }
     tbody tr:hover { background-color: rgba(40, 167, 69, 0.05); }
+
+    .progress-container {
+      width: 100%;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 24px;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-text {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85em;
+      color: #333;
+      line-height: 24px;
+    }
 
     .loading { text-align: center; padding: 40px; color: var(--text-light); font-size: 1.1em; }
     .error { padding: 20px; border-radius: 12px; background: rgba(220, 53, 69, 0.1); color: #dc3545; text-align: center; margin: 20px 0; }
@@ -210,12 +238,31 @@
     }
     data.forEach(row => {
       const tr = document.createElement('tr');
+      // Parsear el porcentaje de linea_usada
+      let porcentaje = 0;
+      let porcentajeTexto = row.linea_usada || '0%';
+      if (porcentajeTexto) {
+        const match = porcentajeTexto.toString().replace('%', '').replace(',', '.');
+        porcentaje = parseFloat(match) || 0;
+        if (porcentaje > 100) porcentaje = 100;
+        if (porcentaje < 0) porcentaje = 0;
+      }
+      // Color del progreso basado en el porcentaje
+      let barColor = '#28a745'; // verde
+      if (porcentaje > 70) barColor = '#ffc107'; // amarillo
+      if (porcentaje > 90) barColor = '#dc3545'; // rojo
+
       tr.innerHTML = `
         <td>${row.marca || ''}</td>
         <td>${row.monto_total || ''}</td>
         <td>${row.linea_credito || ''}</td>
         <td>${row.restante || ''}</td>
-        <td>${row.linea_usada || ''}</td>
+        <td>
+          <div class="progress-container">
+            <div class="progress-bar" style="width: ${porcentaje}%; background-color: ${barColor};"></div>
+            <span class="progress-text">${porcentajeTexto}</span>
+          </div>
+        </td>
       `;
       tbody.appendChild(tr);
     });
