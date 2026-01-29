@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lineas de Credito Proveedores</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --finance-color: #28a745;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2em;
+      margin: 0;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, var(--finance-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .back-link {
+      display: inline-block;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+    }
+
+    .back-link:hover {
+      color: var(--primary-color);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .save-btn, .add-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .save-btn {
+      background: linear-gradient(45deg, #28a745, #20c997);
+      color: white;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .add-btn {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: white;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+    }
+
+    .save-btn:hover, .add-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background: linear-gradient(45deg, var(--finance-color), #20c997);
+      color: white;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.9em;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(40, 167, 69, 0.05);
+    }
+
+    .editable {
+      background-color: rgba(40, 167, 69, 0.05);
+      cursor: pointer;
+    }
+
+    .editable:hover {
+      background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .editable input {
+      width: 100%;
+      border: 2px solid var(--finance-color);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.9em;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-light);
+      font-size: 1.1em;
+    }
+
+    .error, .success {
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .error {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .success {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+      border: 1px solid rgba(40, 167, 69, 0.2);
+      display: none;
+    }
+
+    .add-form {
+      background: rgba(67, 97, 238, 0.03);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .add-form.active {
+      display: block;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .form-row label {
+      font-weight: 600;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .form-row input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid rgba(67, 97, 238, 0.2);
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.6em; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <a href="/finanzas" class="back-link">&larr; Volver</a>
+
+    <div class="header">
+      <h2>Lineas de Credito Proveedores</h2>
+      <div class="btn-group">
+        <button class="add-btn" onclick="toggleAddForm()">+ Agregar</button>
+        <button class="save-btn" onclick="guardarCambios()">Guardar Cambios</button>
+      </div>
+    </div>
+
+    <div id="add-form" class="add-form">
+      <div class="form-row">
+        <div>
+          <label>MARCA</label>
+          <input type="text" id="new-marca" placeholder="Nombre de la marca">
+        </div>
+        <div>
+          <label>DIAS DE CREDITO</label>
+          <input type="number" id="new-dias" placeholder="30">
+        </div>
+        <div>
+          <label>CREDITO (Monto)</label>
+          <input type="text" id="new-credito" placeholder="$10,000.00">
+        </div>
+      </div>
+      <button class="add-btn" onclick="agregarRegistro()">Agregar Registro</button>
+    </div>
+
+    <div id="error-container"></div>
+    <div id="success-container" class="success">Cambios guardados exitosamente</div>
+    <div id="loading" class="loading">Cargando datos...</div>
+
+    <div class="table-container" id="table-container" style="display: none;">
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>MARCA</th>
+            <th>DIAS DE CREDITO</th>
+            <th>CREDITO</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+  let tableData = [];
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      cargarDatos();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  function toggleAddForm() {
+    document.getElementById('add-form').classList.toggle('active');
+  }
+
+  async function cargarDatos() {
+    try {
+      const res = await fetch('/api/finanzas/lineas_credito/data', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        tableData = result.data || [];
+        mostrarTabla(tableData);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('table-container').style.display = 'block';
+      } else {
+        mostrarError(result.error || 'Error al cargar datos');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarTabla(data) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
+      return;
+    }
+
+    data.forEach((row, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.marca || ''}</td>
+        <td class="editable" onclick="editarCelda(this, ${index}, 'dias_credito')">${row.dias_credito || ''}</td>
+        <td class="editable" onclick="editarCelda(this, ${index}, 'credito')">${row.credito || ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function editarCelda(td, rowIndex, field) {
+    if (td.querySelector('input')) return;
+    const valorActual = td.textContent;
+    td.innerHTML = `<input type="text" value="${valorActual}" onblur="finalizarEdicion(this, ${rowIndex}, '${field}')" onkeypress="if(event.key==='Enter') this.blur()">`;
+    td.querySelector('input').focus();
+  }
+
+  function finalizarEdicion(input, rowIndex, field) {
+    const nuevoValor = input.value.trim();
+    tableData[rowIndex][field] = nuevoValor;
+    input.parentElement.textContent = nuevoValor;
+  }
+
+  async function agregarRegistro() {
+    const marca = document.getElementById('new-marca').value.trim();
+    const dias = document.getElementById('new-dias').value.trim();
+    const credito = document.getElementById('new-credito').value.trim();
+
+    if (!marca || !dias || !credito) {
+      mostrarError('Todos los campos son requeridos');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/finanzas/lineas_credito/add', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + idToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ marca, dias_credito: dias, credito })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        mostrarExito();
+        document.getElementById('new-marca').value = '';
+        document.getElementById('new-dias').value = '';
+        document.getElementById('new-credito').value = '';
+        cargarDatos();
+      } else {
+        mostrarError(result.error || 'Error al agregar registro');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  async function guardarCambios() {
+    try {
+      const res = await fetch('/api/finanzas/lineas_credito/update', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + idToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: tableData })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        mostrarExito();
+      } else {
+        mostrarError(result.error || 'Error al guardar cambios');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarError(mensaje) {
+    document.getElementById('loading').style.display = 'none';
+    const errorContainer = document.getElementById('error-container');
+    errorContainer.innerHTML = `<div class="error">${mensaje}</div>`;
+    setTimeout(() => errorContainer.innerHTML = '', 5000);
+  }
+
+  function mostrarExito() {
+    const successContainer = document.getElementById('success-container');
+    successContainer.style.display = 'block';
+    setTimeout(() => successContainer.style.display = 'none', 3000);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Panel de Finanzas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --finance-color: #28a745;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .panel-card {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin-bottom: 15px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, var(--finance-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: var(--text-light);
+      margin-bottom: 35px;
+      font-size: 1em;
+    }
+
+    .section-title {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 30px 0 15px 0;
+      padding: 10px;
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 10px;
+      border-left: 4px solid var(--primary-color);
+      text-align: left;
+    }
+
+    .panel-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      width: 100%;
+    }
+
+    .panel-link {
+      background: white;
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      border: 1px solid rgba(67, 97, 238, 0.15);
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .panel-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .panel-link.green {
+      color: var(--finance-color);
+      border-color: rgba(40, 167, 69, 0.15);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.1);
+    }
+
+    .panel-link.green:hover {
+      background: var(--finance-color);
+      color: white;
+      border-color: var(--finance-color);
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.25);
+    }
+
+    .back-section {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .back-link {
+      display: inline-block;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 10px 20px;
+    }
+
+    .back-link:hover {
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 600px) {
+      .panel-card {
+        padding: 30px 20px;
+      }
+      h2 { font-size: 1.8em; }
+      .panel-links {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel-card">
+    <h2>Panel de Finanzas</h2>
+    <p class="subtitle">Gestiona todos los aspectos financieros de tu negocio</p>
+
+    <div class="section-title">Proveedores y Deudas</div>
+    <div class="panel-links">
+      <a class="panel-link green" href="/finanzas/lineas_credito">LINEAS DE CREDITO PROVEEDORES</a>
+      <a class="panel-link" href="/finanzas/deudas_general">DEUDAS EN GENERAL</a>
+      <a class="panel-link" href="/finanzas/deudas_liquidadas">DEUDAS LIQUIDADAS</a>
+      <a class="panel-link" href="/finanzas/estado_cuenta_proveedores">ESTADO DE CUENTA PROVEEDORES</a>
+      <a class="panel-link" href="/finanzas/multiestados">MULTIESTADOS DE CUENTA</a>
+    </div>
+
+    <div class="section-title">Ventas y Operaciones</div>
+    <div class="panel-links">
+      <a class="panel-link" href="/finanzas/ventas_problemas">VENTAS CON PROBLEMAS</a>
+      <a class="panel-link" href="/finanzas/ventas_por_pagar">VENTAS POR PAGAR</a>
+      <a class="panel-link green" href="/finanzas/estado_lineas_credito">ESTADO LINEAS DE CREDITO</a>
+    </div>
+
+    <div class="section-title">Balances y Calendarios</div>
+    <div class="panel-links">
+      <a class="panel-link" href="/finanzas/balance_semanal">BALANCE SEMANAL</a>
+      <a class="panel-link" href="/finanzas/balance_mensual">BALANCE MENSUAL</a>
+      <a class="panel-link" href="/finanzas/calendario_deuda">CALENDARIO DEUDA POR CONCEPTO</a>
+      <a class="panel-link" href="/finanzas/calendario_pagadas">CALENDARIO DEUDAS PAGADAS</a>
+      <a class="panel-link green" href="/finanzas/presupuesto">PRESUPUESTO TOTAL</a>
+    </div>
+
+    <div class="back-section">
+      <a class="back-link" href="/panel">&larr; Volver al Panel Principal</a>
+    </div>
+  </div>
+</body>
+</html>

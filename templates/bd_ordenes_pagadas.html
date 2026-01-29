@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BD Ordenes de Compra Pagadas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --success-color: #28a745;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .panel-card {
+      width: 100%;
+      max-width: 550px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      text-align: center;
+      margin: 0 auto 40px auto;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 1.8em;
+      margin-bottom: 35px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, var(--success-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      text-align: left;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 0.95em;
+      margin-bottom: -10px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid rgba(40, 167, 69, 0.2);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1em;
+      outline: none;
+      transition: all 0.3s ease;
+      background: white;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    input:focus {
+      border-color: var(--success-color);
+      box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    }
+
+    button {
+      background: linear-gradient(45deg, var(--success-color), #20c997);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 24px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    }
+
+    .success, .error {
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .success { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.2); }
+    .error { background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 25px;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover { color: var(--success-color); }
+
+    .download-link {
+      display: inline-block;
+      margin: 15px 0;
+      color: var(--success-color);
+      font-weight: 600;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      background: rgba(40, 167, 69, 0.08);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .download-link:hover { background: rgba(40, 167, 69, 0.15); transform: translateY(-2px); }
+
+    .file-upload-section {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(40, 167, 69, 0.03);
+      border-radius: 12px;
+      border: 1px dashed rgba(40, 167, 69, 0.3);
+    }
+
+    .file-upload-section h3 { font-size: 1.1em; margin-bottom: 15px; color: var(--text-dark); }
+    input[type="file"] { padding: 10px; background: white; cursor: pointer; }
+    .bulk-btn { margin-top: 15px; }
+
+    @media (max-width: 600px) {
+      .panel-card { padding: 30px 20px; }
+      h2 { font-size: 1.5em; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="panel-card">
+    <a href="/Llenar_BDS" class="back-link">&larr; Volver</a>
+    <h2>Ordenes de Compra Pagadas</h2>
+
+    <div id="status-success" class="success"></div>
+    <div id="status-error" class="error"></div>
+
+    <form id="data-form">
+      <label>NUMERO DE IDENTIFICACION</label>
+      <input type="text" name="numero_id" placeholder="Ej: ORD-001" required>
+
+      <button type="submit">REGISTRAR ORDEN PAGADA</button>
+    </form>
+
+    <div class="file-upload-section">
+      <h3>Carga Masiva</h3>
+      <a id="template-link" class="download-link">Descargar plantilla CSV</a>
+      <label for="bulk-file" style="display: block; margin-top: 10px;">Selecciona archivo CSV/XLSX:</label>
+      <input type="file" id="bulk-file" accept=".csv,.xlsx">
+      <button id="bulk-upload-btn" type="button" class="bulk-btn">Cargar archivo</button>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      setupEventListeners();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  function setupEventListeners() {
+    document.getElementById('template-link').onclick = function(e) {
+      e.preventDefault();
+      const csvContent = 'NUMERO_ID\nORD-001\nORD-002\n';
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'plantilla_ordenes_pagadas.csv';
+      a.click();
+    };
+
+    document.getElementById('data-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = { numero_id: formData.get('numero_id') };
+
+      try {
+        const res = await fetch('/api/bd_ordenes_pagadas/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+          mostrarMensaje('success', result.message || 'Registro anadido exitosamente');
+          e.target.reset();
+        } else {
+          mostrarMensaje('error', result.error || 'Error al anadir registro');
+        }
+      } catch (error) {
+        mostrarMensaje('error', 'Error de conexion: ' + error.message);
+      }
+    });
+
+    document.getElementById('bulk-upload-btn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('bulk-file');
+      const file = fileInput.files[0];
+      if (!file) { mostrarMensaje('error', 'Por favor selecciona un archivo'); return; }
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          let rows = [];
+          if (file.name.endsWith('.csv')) {
+            const text = e.target.result;
+            const lines = text.split('\n');
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (line) {
+                rows.push({ numero_id: line });
+              }
+            }
+          } else {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+            rows = jsonData.map(row => ({ numero_id: row['NUMERO_ID'] || '' }));
+          }
+
+          if (rows.length === 0) { mostrarMensaje('error', 'No se encontraron datos validos'); return; }
+
+          const res = await fetch('/api/bd_ordenes_pagadas/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+            body: JSON.stringify({ rows })
+          });
+          const result = await res.json();
+          if (res.ok) {
+            mostrarMensaje('success', `Carga completada: ${rows.length} registros`);
+            fileInput.value = '';
+          } else {
+            mostrarMensaje('error', result.error || 'Error en carga masiva');
+          }
+        } catch (error) {
+          mostrarMensaje('error', 'Error al procesar archivo: ' + error.message);
+        }
+      };
+      if (file.name.endsWith('.csv')) reader.readAsText(file);
+      else reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function mostrarMensaje(tipo, mensaje) {
+    const successDiv = document.getElementById('status-success');
+    const errorDiv = document.getElementById('status-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    if (tipo === 'success') {
+      successDiv.textContent = mensaje;
+      successDiv.style.display = 'block';
+      setTimeout(() => successDiv.style.display = 'none', 5000);
+    } else {
+      errorDiv.textContent = mensaje;
+      errorDiv.style.display = 'block';
+      setTimeout(() => errorDiv.style.display = 'none', 5000);
+    }
+  }
+</script>
+</body>
+</html>

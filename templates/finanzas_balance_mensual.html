@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Balance Mensual</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2em;
+      margin: 0;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, #e83e8c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .mes-badge {
+      background: linear-gradient(45deg, #e83e8c, #d63384);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+
+    .back-link {
+      display: inline-block;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+    }
+
+    .back-link:hover { color: var(--primary-color); }
+
+    .download-btn {
+      background: linear-gradient(45deg, #e83e8c, #d63384);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(232, 62, 140, 0.3);
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      margin-left: 10px;
+    }
+
+    .download-btn:hover { transform: translateY(-2px); }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background: linear-gradient(45deg, #e83e8c, #d63384);
+      color: white;
+    }
+
+    th { padding: 15px; text-align: left; font-weight: 600; font-size: 0.95em; }
+    td { padding: 12px 15px; border-bottom: 1px solid #e9ecef; font-size: 0.9em; }
+    tbody tr:hover { background-color: rgba(232, 62, 140, 0.05); }
+
+    .total-row {
+      background: linear-gradient(45deg, rgba(232, 62, 140, 0.1), rgba(214, 51, 132, 0.1));
+      font-weight: 700;
+    }
+    .total-row td { border-top: 2px solid #e83e8c; }
+
+    .loading { text-align: center; padding: 40px; color: var(--text-light); font-size: 1.1em; }
+    .error { padding: 20px; border-radius: 12px; background: rgba(220, 53, 69, 0.1); color: #dc3545; text-align: center; margin: 20px 0; }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.6em; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <a href="/finanzas" class="back-link">&larr; Volver</a>
+
+    <div class="header">
+      <h2>Balance Mensual</h2>
+      <span class="mes-badge" id="mes-label">Cargando...</span>
+      <div>
+        <button class="download-btn" onclick="descargarCSV()">CSV</button>
+        <button class="download-btn" onclick="descargarExcel()">Excel</button>
+      </div>
+    </div>
+
+    <div id="error-container"></div>
+    <div id="loading" class="loading">Cargando datos...</div>
+
+    <div class="table-container" id="table-container" style="display: none;">
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>CONCEPTO</th>
+            <th>ACREDITADO</th>
+            <th>DEBITADO</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+  let tableData = [];
+  let totalData = {};
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      cargarDatos();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  async function cargarDatos() {
+    try {
+      const res = await fetch('/api/finanzas/balance_mensual/data', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      const result = await res.json();
+      if (res.ok) {
+        tableData = result.data || [];
+        totalData = result.total || {};
+        document.getElementById('mes-label').textContent = result.mes || 'Mes';
+        mostrarTabla(tableData);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('table-container').style.display = 'block';
+      } else {
+        mostrarError(result.error || 'Error al cargar datos');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarTabla(data) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
+      return;
+    }
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.concepto || ''}</td>
+        <td>${row.acreditado || ''}</td>
+        <td>${row.debitado || ''}</td>
+        <td>${row.porcentaje || ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    if (totalData.concepto || totalData.valor) {
+      const trTotal = document.createElement('tr');
+      trTotal.className = 'total-row';
+      trTotal.innerHTML = `
+        <td>${totalData.concepto || 'TOTAL'}</td>
+        <td colspan="3">${totalData.valor || ''}</td>
+      `;
+      tbody.appendChild(trTotal);
+    }
+  }
+
+  function mostrarError(mensaje) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-container').innerHTML = `<div class="error">${mensaje}</div>`;
+  }
+
+  function descargarCSV() {
+    if (tableData.length === 0) { alert('No hay datos'); return; }
+    const headers = ['CONCEPTO', 'ACREDITADO', 'DEBITADO', '%'];
+    let csv = headers.join(',') + '\n';
+    tableData.forEach(row => {
+      csv += [row.concepto||'',row.acreditado||'',row.debitado||'',row.porcentaje||''].join(',') + '\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'balance_mensual.csv';
+    a.click();
+  }
+
+  function descargarExcel() {
+    if (tableData.length === 0) { alert('No hay datos'); return; }
+    const ws_data = [['CONCEPTO', 'ACREDITADO', 'DEBITADO', '%']];
+    tableData.forEach(row => {
+      ws_data.push([row.concepto||'',row.acreditado||'',row.debitado||'',row.porcentaje||'']);
+    });
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    XLSX.utils.book_append_sheet(wb, ws, 'Balance Mensual');
+    XLSX.writeFile(wb, 'balance_mensual.xlsx');
+  }
+</script>
+</body>
+</html>

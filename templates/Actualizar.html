@@ -400,7 +400,7 @@
         return;
       }
 
-      if (!confirm('¿Deseas ejecutar METRICAS PRODUCTOS? Esto ejecutará 6 procesos secuencialmente con intervalos de 30 segundos.')) {
+      if (!confirm('¿Deseas ejecutar METRICAS PRODUCTOS? Este proceso puede tomar varios minutos debido al volumen de datos.')) {
         return;
       }
 
@@ -409,36 +409,18 @@
       const progressFill = document.getElementById('progress-fill');
       progressBar.classList.add('active');
 
-      const scripts = [
-        { url: 'https://script.google.com/macros/s/AKfycbx-tK5anjVCSIdI25KLdTT-XAVOAPfbZLJRHKXrfMcnlRx0Bm9fsr8zysdU0Xkwq38SSg/exec', nombre: 'Copiar datos BD' },
-        { url: 'https://script.google.com/macros/s/AKfycbzXiN69TVCw_T9qEeyQQGOEsKpRWhUPf9TMANel_5aLEmBc4_e44rXCEBplp86Y1po7/exec', nombre: 'Calcular promedios ventas' },
-        { url: 'https://script.google.com/macros/s/AKfycbz981SgGi35S2Cy0SlaQBYVmb-Tpeo65K8p_33-Wn-Mc5rvnNkjImXe2EATFHC2eIQj/exec', nombre: 'Calcular promedios price' },
-        { url: 'https://script.google.com/macros/s/AKfycbzYNI2C9Mz-pKyIpY48aUGIUlvEfX1-6eWliT1-EKkNLqlRXAqGHXTBXjQSSS1NjeQ/exec', nombre: 'Ordenar lista items' },
-        { url: 'https://script.google.com/macros/s/AKfycbwjc5Itxqgrk871wG3XzSu8ugywW8cgqqUNE30Qkg1PulnxORGQt_4MjfuVgt1Vaes8/exec', nombre: 'Ordenar volatilidad' },
-        { url: 'https://script.google.com/macros/s/AKfycbxdokHK8j9q7DoI4YRxaYu1N0-xKdtPyyq79V0Jd977G8lmpkWmZpCl4CYc8EhZEuYf/exec', nombre: 'Actualizar ventas' }
-      ];
+      progressFill.style.width = '50%';
+      progressFill.textContent = 'Procesando...';
+      mostrarEstado('info', 'Ejecutando METRICAS PRODUCTOS... Esto puede tomar varios minutos. No cierres esta página.');
+
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycbyR9DSJ4jgw2z0hKYRT8ugajETjk6FdrmdnbwwF1op8Jy22NyuaJ-d3fyvlQoT51xEN/exec';
 
       try {
-        for (let i = 0; i < scripts.length; i++) {
-          const script = scripts[i];
-          const progreso = Math.round(((i + 1) / scripts.length) * 100);
-
-          progressFill.style.width = progreso + '%';
-          progressFill.textContent = progreso + '%';
-          mostrarEstado('info', `Ejecutando: ${script.nombre}... (${i + 1}/${scripts.length})`);
-
-          await fetch(script.url, { method: 'GET', mode: 'no-cors' });
-
-          // Esperar 30 segundos entre cada script (excepto el último)
-          if (i < scripts.length - 1) {
-            mostrarEstado('info', `${script.nombre} completado. Esperando 30s...`);
-            await new Promise(resolve => setTimeout(resolve, 30000));
-          }
-        }
+        await fetch(scriptUrl, { method: 'GET', mode: 'no-cors' });
 
         progressFill.style.width = '100%';
         progressFill.textContent = '100%';
-        mostrarEstado('success', 'METRICAS PRODUCTOS completado exitosamente!');
+        mostrarEstado('success', 'METRICAS PRODUCTOS ejecutado. Verifica los datos en la hoja de cálculo.');
 
         setTimeout(() => {
           progressBar.classList.remove('active');

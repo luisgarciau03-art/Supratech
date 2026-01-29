@@ -100,6 +100,31 @@
       border-top: 1px solid rgba(0,0,0,0.08);
     }
 
+    .separator {
+      width: 100%;
+      margin: 25px 0 15px 0;
+      padding: 12px;
+      background: linear-gradient(45deg, #28a745, #20c997);
+      color: white;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95em;
+      text-align: center;
+    }
+
+    .panel-link.finance {
+      color: #28a745;
+      border-color: rgba(40, 167, 69, 0.15);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.1);
+    }
+
+    .panel-link.finance:hover {
+      background: #28a745;
+      color: white;
+      border-color: #28a745;
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.25);
+    }
+
     @media (max-width: 500px) {
       .panel-card {
         padding: 30px 20px;
@@ -119,8 +144,16 @@
       <a class="panel-link" href="/stock">STOCK</a>
       <a class="panel-link" href="/ventas">VENTAS</a>
       <a class="panel-link" href="/corregir">CORREGIR</a>
+
+      <div class="separator">BASES DE DATOS PARA FINANZAS</div>
+
+      <a class="panel-link finance" href="/bd_deudas_generales">DEUDAS GENERALES</a>
+      <a class="panel-link finance" href="/bd_ventas_no_concretadas">VENTAS NO CONCRETADAS</a>
+      <a class="panel-link finance" href="/bd_ordenes_compra">ORDENES DE COMPRA</a>
+      <a class="panel-link finance" href="/bd_ordenes_pagadas">ORDENES DE COMPRA PAGADAS</a>
+      <a class="panel-link finance" href="/bd_movimientos_financieros">MOVIMIENTOS FINANCIEROS</a>
     </div>
-    
+
     <div class="back-section">
       <a class="panel-link" href="/panel" style="background: transparent; border: none; box-shadow: none; color: var(--text-light);">← Volver al Panel Principal</a>
     </div>

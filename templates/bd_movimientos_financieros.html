@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BD Movimientos Financieros</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --finance-color: #6f42c1;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .panel-card {
+      width: 100%;
+      max-width: 750px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      text-align: center;
+      margin: 0 auto 40px auto;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2em;
+      margin-bottom: 20px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, var(--finance-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .info-box {
+      background: rgba(111, 66, 193, 0.1);
+      border: 1px solid rgba(111, 66, 193, 0.2);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 25px;
+      text-align: left;
+      font-size: 0.9em;
+    }
+
+    .info-box strong { color: var(--finance-color); }
+    .info-box ul { margin: 10px 0 0 20px; }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      text-align: left;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 0.95em;
+      margin-bottom: -10px;
+    }
+
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid rgba(111, 66, 193, 0.2);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1em;
+      outline: none;
+      transition: all 0.3s ease;
+      background: white;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--finance-color);
+      box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236f42c1' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      padding-right: 40px;
+    }
+
+    button {
+      background: linear-gradient(45deg, var(--finance-color), #5a32a3);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 24px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(111, 66, 193, 0.4);
+    }
+
+    .success, .error {
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .success { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.2); }
+    .error { background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 25px;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover { color: var(--finance-color); }
+
+    .download-link {
+      display: inline-block;
+      margin: 15px 0;
+      color: var(--finance-color);
+      font-weight: 600;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      background: rgba(111, 66, 193, 0.08);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .download-link:hover { background: rgba(111, 66, 193, 0.15); transform: translateY(-2px); }
+
+    .file-upload-section {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(111, 66, 193, 0.03);
+      border-radius: 12px;
+      border: 1px dashed rgba(111, 66, 193, 0.3);
+    }
+
+    .file-upload-section h3 { font-size: 1.1em; margin-bottom: 15px; color: var(--text-dark); }
+    input[type="file"] { padding: 10px; background: white; cursor: pointer; }
+    .bulk-btn { margin-top: 15px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .panel-card { padding: 30px 20px; }
+      h2 { font-size: 1.6em; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="panel-card">
+    <a href="/Llenar_BDS" class="back-link">&larr; Volver</a>
+    <h2>Movimientos Financieros</h2>
+
+    <div class="info-box">
+      <strong>Nota importante:</strong> Los datos se guardan automaticamente segun la fecha de liberacion:
+      <ul>
+        <li><strong>Semana actual o pasada:</strong> Se guarda en BALANCES SEMANALES</li>
+        <li><strong>Mes pasado:</strong> Se guarda en BALANCES MENSUALES</li>
+      </ul>
+    </div>
+
+    <div id="status-success" class="success"></div>
+    <div id="status-error" class="error"></div>
+
+    <form id="data-form">
+      <label>FECHA DE LIBERACION</label>
+      <input type="date" name="fecha_liberacion" required>
+
+      <label>NUMERO DE IDENTIFICACION</label>
+      <input type="text" name="numero_id" placeholder="Ej: MOV-001" required>
+
+      <label>DESCRIPCION</label>
+      <select name="descripcion" id="descripcion-select" title="Seleccionar concepto de descripcion" required>
+        <option value="">-- Seleccionar concepto --</option>
+        <option value="Devolución de dinero">DEVOLUCION A CLIENTE</option>
+        <option value="Mediación">EN RECLAMOS</option>
+        <option value="Cancelación de la mediación">EN RECLAMOS (Cancelación)</option>
+        <option value="reserve_for_dispute">EN RESERVA PARA DISPUTA/ DEVOLUCION / ETC.</option>
+        <option value="Reserva para devolución en envío BBP">EN RESERVA (Devolución BBP)</option>
+        <option value="Reserva para pago de deuda">EN RESERVA (Pago de deuda)</option>
+        <option value="Reserva para pago">EN RESERVA (Pago)</option>
+        <option value="Reserva para reembolso">EN RESERVA (Reembolso)</option>
+        <option value="Pago">DINERO LIBERADO</option>
+        <option value="Pago de comisiones Adelanto de dinero">COMISIONES POR ADELANTO</option>
+        <option value="Envío">ENVIO</option>
+        <option value="Retiro de dinero">RETIROS</option>
+        <option value="cashback">PAGO MELI POR MOTIVO DESCONOCIDO</option>
+        <option value="Devolución de dinero">DEVOLUCION A VENDEDOR</option>
+        <option value="Pago">PAGO CREDITOS / DINERO PLUS</option>
+        <option value="Pago">PAGO FACTURA</option>
+      </select>
+
+      <div class="form-row">
+        <div>
+          <label>MONTO NETO ACREDITADO</label>
+          <input type="text" name="monto_acreditado" placeholder="$0.00">
+        </div>
+        <div>
+          <label>MONTO NETO DEBITADO</label>
+          <input type="text" name="monto_debitado" placeholder="$0.00">
+        </div>
+      </div>
+
+      <button type="submit">REGISTRAR MOVIMIENTO</button>
+    </form>
+
+    <div class="file-upload-section">
+      <h3>Carga Masiva</h3>
+      <a id="template-link" class="download-link">Descargar plantilla CSV</a>
+      <label for="bulk-file" style="display: block; margin-top: 10px;">Selecciona archivo CSV/XLSX:</label>
+      <input type="file" id="bulk-file" accept=".csv,.xlsx">
+      <button id="bulk-upload-btn" type="button" class="bulk-btn">Cargar archivo</button>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      setupEventListeners();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  // Mapeo de conceptos a valores de hoja de calculo
+  const descripcionMap = {
+    'DEVOLUCION A CLIENTE': 'Devolución de dinero',
+    'EN RECLAMOS': 'Mediación',
+    'EN RECLAMOS (Cancelación)': 'Cancelación de la mediación',
+    'EN RESERVA PARA DISPUTA/ DEVOLUCION / ETC.': 'reserve_for_dispute',
+    'EN RESERVA (Devolución BBP)': 'Reserva para devolución en envío BBP',
+    'EN RESERVA (Pago de deuda)': 'Reserva para pago de deuda',
+    'EN RESERVA (Pago)': 'Reserva para pago',
+    'EN RESERVA (Reembolso)': 'Reserva para reembolso',
+    'DINERO LIBERADO': 'Pago',
+    'COMISIONES POR ADELANTO': 'Pago de comisiones Adelanto de dinero',
+    'ENVIO': 'Envío',
+    'RETIROS': 'Retiro de dinero',
+    'PAGO MELI POR MOTIVO DESCONOCIDO': 'cashback',
+    'DEVOLUCION A VENDEDOR': 'Devolución de dinero',
+    'PAGO CREDITOS / DINERO PLUS': 'Pago',
+    'PAGO FACTURA': 'Pago'
+  };
+
+  // Valores validos para la hoja de calculo
+  const validDescripciones = [
+    'Devolución de dinero', 'Mediación', 'Cancelación de la mediación',
+    'reserve_for_dispute', 'Reserva para devolución en envío BBP',
+    'Reserva para pago de deuda', 'Reserva para pago', 'Reserva para reembolso',
+    'Pago', 'Pago de comisiones Adelanto de dinero', 'Envío',
+    'Retiro de dinero', 'cashback'
+  ];
+
+  function mapDescripcion(desc) {
+    if (!desc) return '';
+    const trimmed = desc.trim();
+    // Si ya es un valor valido, usarlo directamente
+    if (validDescripciones.includes(trimmed)) return trimmed;
+    // Si es un concepto, mapearlo
+    if (descripcionMap[trimmed.toUpperCase()]) return descripcionMap[trimmed.toUpperCase()];
+    if (descripcionMap[trimmed]) return descripcionMap[trimmed];
+    // Buscar coincidencia parcial
+    for (const [key, value] of Object.entries(descripcionMap)) {
+      if (trimmed.toUpperCase().includes(key) || key.includes(trimmed.toUpperCase())) {
+        return value;
+      }
+    }
+    return trimmed; // Devolver original si no hay mapeo
+  }
+
+  function setupEventListeners() {
+    document.getElementById('template-link').onclick = function(e) {
+      e.preventDefault();
+      const csvContent = 'FECHA_LIBERACION,NUMERO_ID,DESCRIPCION,MONTO_ACREDITADO,MONTO_DEBITADO\n2024-01-15,MOV-001,Pago,$1500.00,$0.00\n2024-01-16,MOV-002,Retiro de dinero,$0.00,$2000.00\n# VALORES VALIDOS PARA DESCRIPCION:\n# Devolución de dinero (DEVOLUCION A CLIENTE / DEVOLUCION A VENDEDOR)\n# Mediación (EN RECLAMOS)\n# Cancelación de la mediación (EN RECLAMOS - Cancelación)\n# reserve_for_dispute (EN RESERVA PARA DISPUTA)\n# Reserva para devolución en envío BBP\n# Reserva para pago de deuda\n# Reserva para pago\n# Reserva para reembolso\n# Pago (DINERO LIBERADO / PAGO CREDITOS / PAGO FACTURA)\n# Pago de comisiones Adelanto de dinero (COMISIONES POR ADELANTO)\n# Envío (ENVIO)\n# Retiro de dinero (RETIROS)\n# cashback (PAGO MELI POR MOTIVO DESCONOCIDO)\n';
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'plantilla_movimientos_financieros.csv';
+      a.click();
+    };
+
+    document.getElementById('data-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {
+        fecha_liberacion: formData.get('fecha_liberacion'),
+        numero_id: formData.get('numero_id'),
+        descripcion: formData.get('descripcion'),
+        monto_acreditado: formData.get('monto_acreditado') || '',
+        monto_debitado: formData.get('monto_debitado') || ''
+      };
+
+      try {
+        const res = await fetch('/api/bd_movimientos_financieros/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+          mostrarMensaje('success', result.message || 'Movimiento registrado exitosamente');
+          e.target.reset();
+        } else {
+          mostrarMensaje('error', result.error || 'Error al registrar movimiento');
+        }
+      } catch (error) {
+        mostrarMensaje('error', 'Error de conexion: ' + error.message);
+      }
+    });
+
+    document.getElementById('bulk-upload-btn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('bulk-file');
+      const file = fileInput.files[0];
+      if (!file) { mostrarMensaje('error', 'Por favor selecciona un archivo'); return; }
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          let rows = [];
+          if (file.name.endsWith('.csv')) {
+            const text = e.target.result;
+            const lines = text.split('\n');
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (line) {
+                const parts = line.split(',');
+                if (parts.length >= 5) {
+                  rows.push({
+                    fecha_liberacion: parts[0].trim(),
+                    numero_id: parts[1].trim(),
+                    descripcion: mapDescripcion(parts[2]),
+                    monto_acreditado: parts[3].trim(),
+                    monto_debitado: parts[4].trim()
+                  });
+                }
+              }
+            }
+          } else {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+            rows = jsonData.map(row => ({
+              fecha_liberacion: row['FECHA_LIBERACION'] || '',
+              numero_id: row['NUMERO_ID'] || '',
+              descripcion: mapDescripcion(row['DESCRIPCION'] || ''),
+              monto_acreditado: row['MONTO_ACREDITADO'] || '',
+              monto_debitado: row['MONTO_DEBITADO'] || ''
+            }));
+          }
+
+          if (rows.length === 0) { mostrarMensaje('error', 'No se encontraron datos validos'); return; }
+
+          const res = await fetch('/api/bd_movimientos_financieros/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+            body: JSON.stringify({ rows })
+          });
+          const result = await res.json();
+          if (res.ok) {
+            mostrarMensaje('success', `Carga completada: ${result.semanal || 0} semanales, ${result.mensual || 0} mensuales`);
+            fileInput.value = '';
+          } else {
+            mostrarMensaje('error', result.error || 'Error en carga masiva');
+          }
+        } catch (error) {
+          mostrarMensaje('error', 'Error al procesar archivo: ' + error.message);
+        }
+      };
+      if (file.name.endsWith('.csv')) reader.readAsText(file);
+      else reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function mostrarMensaje(tipo, mensaje) {
+    const successDiv = document.getElementById('status-success');
+    const errorDiv = document.getElementById('status-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    if (tipo === 'success') {
+      successDiv.textContent = mensaje;
+      successDiv.style.display = 'block';
+      setTimeout(() => successDiv.style.display = 'none', 5000);
+    } else {
+      errorDiv.textContent = mensaje;
+      errorDiv.style.display = 'block';
+      setTimeout(() => errorDiv.style.display = 'none', 5000);
+    }
+  }
+</script>
+</body>
+</html>

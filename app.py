@@ -4609,6 +4609,1080 @@ def porcentajes_update():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# ==================== RUTAS DE NAVEGACIÓN FINANZAS ====================
+
+@app.route('/finanzas')
+def finanzas():
+    return render_template('finanzas.html')
+
+@app.route('/finanzas/lineas_credito')
+def finanzas_lineas_credito():
+    return render_template('finanzas_lineas_credito.html')
+
+@app.route('/finanzas/deudas_general')
+def finanzas_deudas_general():
+    return render_template('finanzas_deudas_general.html')
+
+@app.route('/finanzas/ventas_problemas')
+def finanzas_ventas_problemas():
+    return render_template('finanzas_ventas_problemas.html')
+
+@app.route('/finanzas/estado_cuenta_proveedores')
+def finanzas_estado_cuenta_proveedores():
+    return render_template('finanzas_estado_cuenta_proveedores.html')
+
+@app.route('/finanzas/multiestados')
+def finanzas_multiestados():
+    return render_template('finanzas_multiestados.html')
+
+@app.route('/finanzas/deudas_liquidadas')
+def finanzas_deudas_liquidadas():
+    return render_template('finanzas_deudas_liquidadas.html')
+
+@app.route('/finanzas/calendario_deuda')
+def finanzas_calendario_deuda():
+    return render_template('finanzas_calendario_deuda.html')
+
+@app.route('/finanzas/calendario_pagadas')
+def finanzas_calendario_pagadas():
+    return render_template('finanzas_calendario_pagadas.html')
+
+@app.route('/finanzas/balance_semanal')
+def finanzas_balance_semanal():
+    return render_template('finanzas_balance_semanal.html')
+
+@app.route('/finanzas/balance_mensual')
+def finanzas_balance_mensual():
+    return render_template('finanzas_balance_mensual.html')
+
+@app.route('/finanzas/estado_lineas_credito')
+def finanzas_estado_lineas_credito():
+    return render_template('finanzas_estado_lineas_credito.html')
+
+@app.route('/finanzas/presupuesto')
+def finanzas_presupuesto():
+    return render_template('finanzas_presupuesto.html')
+
+@app.route('/finanzas/ventas_por_pagar')
+def finanzas_ventas_por_pagar():
+    return render_template('finanzas_ventas_por_pagar.html')
+
+# ==================== RUTAS BDS FINANZAS ====================
+
+@app.route('/bd_deudas_generales')
+def bd_deudas_generales():
+    return render_template('bd_deudas_generales.html')
+
+@app.route('/bd_ventas_no_concretadas')
+def bd_ventas_no_concretadas():
+    return render_template('bd_ventas_no_concretadas.html')
+
+@app.route('/bd_ordenes_compra')
+def bd_ordenes_compra():
+    return render_template('bd_ordenes_compra.html')
+
+@app.route('/bd_ordenes_pagadas')
+def bd_ordenes_pagadas():
+    return render_template('bd_ordenes_pagadas.html')
+
+@app.route('/bd_movimientos_financieros')
+def bd_movimientos_financieros():
+    return render_template('bd_movimientos_financieros.html')
+
+# ==================== APIs FINANZAS - LECTURA DE DATOS ====================
+
+# ID del spreadsheet de Finanzas (sincronización)
+FINANZAS_SPREADSHEET_ID = '1vTydiW9EENA9i5byUkAFPsauU-y6kCHEraCgqsC75Ck'
+
+@app.route('/api/finanzas/lineas_credito/data', methods=['GET'])
+def api_finanzas_lineas_credito_data():
+    """Lee datos de DIAS DE CREDITO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='DIAS DE CREDITO!A2:C'
+        ).execute()
+        values = result.get('values', [])
+        data = []
+        for row in values:
+            while len(row) < 3:
+                row.append('')
+            data.append({
+                'marca': row[0] if len(row) > 0 else '',
+                'dias_credito': row[1] if len(row) > 1 else '',
+                'credito': row[2] if len(row) > 2 else ''
+            })
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/lineas_credito/add', methods=['POST'])
+def api_finanzas_lineas_credito_add():
+    """Agrega un registro a DIAS DE CREDITO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='DIAS DE CREDITO!A:A'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = len(existing) + 1
+        batch_data = [
+            {'range': f'DIAS DE CREDITO!A{next_row}', 'values': [[data.get('marca', '')]]},
+            {'range': f'DIAS DE CREDITO!B{next_row}', 'values': [[data.get('dias_credito', '')]]},
+            {'range': f'DIAS DE CREDITO!C{next_row}', 'values': [[data.get('credito', '')]]}
+        ]
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': 'Registro agregado exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/lineas_credito/update', methods=['POST'])
+def api_finanzas_lineas_credito_update():
+    """Actualiza datos de DIAS DE CREDITO (solo columnas B y C)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        rows = data.get('data', [])
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        batch_data = []
+        for i, row_data in enumerate(rows):
+            row_num = i + 2
+            batch_data.append({'range': f'DIAS DE CREDITO!B{row_num}', 'values': [[row_data.get('dias_credito', '')]]})
+            batch_data.append({'range': f'DIAS DE CREDITO!C{row_num}', 'values': [[row_data.get('credito', '')]]})
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': 'Datos actualizados exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/deudas_general/data', methods=['GET'])
+def api_finanzas_deudas_general_data():
+    """Lee datos de ESTADO DE CUENTA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='ESTADO DE CUENTA!A2:F'
+        ).execute()
+        values = result.get('values', [])
+        data = []
+        for row in values:
+            while len(row) < 6:
+                row.append('')
+            data.append({
+                'concepto': row[0] if len(row) > 0 else '',
+                'nombre': row[1] if len(row) > 1 else '',
+                'monto': row[2] if len(row) > 2 else '',
+                'fecha_pago': row[3] if len(row) > 3 else '',
+                'numero_semana': row[4] if len(row) > 4 else '',
+                'task_pago': row[5] if len(row) > 5 else ''
+            })
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/ventas_problemas/data', methods=['GET'])
+def api_finanzas_ventas_problemas_data():
+    """Lee datos de DETECCIONES DE CANCELACIONES"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='DETECCIONES DE CANCELACIONES!A1:C1'
+        ).execute()
+        values = result.get('values', [])
+        row = values[0] if values else ['', '', '']
+        while len(row) < 3:
+            row.append('')
+        data = {
+            'totales': row[0] if len(row) > 0 else '0',
+            'saldo': row[1] if len(row) > 1 else '$0',
+            'cantidad': row[2] if len(row) > 2 else '0'
+        }
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/estado_cuenta_proveedores/data', methods=['GET'])
+def api_finanzas_estado_cuenta_proveedores_data():
+    """Lee datos de ESTADO DE CUENTA PROVEEDORES"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='ESTADO DE CUENTA PROVEEDORES!A2:K'
+        ).execute()
+        values = result.get('values', [])
+        data = []
+        for row in values:
+            while len(row) < 11:
+                row.append('')
+            data.append({
+                'marca': row[0] if len(row) > 0 else '',
+                'is': row[1] if len(row) > 1 else '',
+                'qty': row[2] if len(row) > 2 else '',
+                'cita': row[3] if len(row) > 3 else '',
+                'nombre_hoja': row[4] if len(row) > 4 else '',
+                'dias_vencer': row[5] if len(row) > 5 else '',
+                'fecha_cot': row[6] if len(row) > 6 else '',
+                'monto_cot': row[7] if len(row) > 7 else '',
+                'monto_factura': row[8] if len(row) > 8 else '',
+                'dia_emision': row[9] if len(row) > 9 else '',
+                'folio': row[10] if len(row) > 10 else ''
+            })
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/multiestados/data', methods=['GET'])
+def api_finanzas_multiestados_data():
+    """Lee datos de ESTADO DE CUENTA UNIFICADOS"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='ESTADO DE CUENTA UNIFICADOS!A2:F'
+        ).execute()
+        values = result.get('values', [])
+        data = []
+        for row in values:
+            while len(row) < 6:
+                row.append('')
+            data.append({
+                'concepto': row[0] if len(row) > 0 else '',
+                'nombre': row[1] if len(row) > 1 else '',
+                'monto': row[2] if len(row) > 2 else '',
+                'fecha_pago': row[3] if len(row) > 3 else '',
+                'task_pago': row[4] if len(row) > 4 else '',
+                'dias_restantes': row[5] if len(row) > 5 else ''
+            })
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/deudas_liquidadas/data', methods=['GET'])
+def api_finanzas_deudas_liquidadas_data():
+    """Lee datos de ESTADO DE CUENTA PAGADA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='ESTADO DE CUENTA PAGADA!A2:E'
+        ).execute()
+        values = result.get('values', [])
+        data = []
+        for row in values:
+            while len(row) < 5:
+                row.append('')
+            data.append({
+                'concepto': row[0] if len(row) > 0 else '',
+                'nombre': row[1] if len(row) > 1 else '',
+                'monto': row[2] if len(row) > 2 else '',
+                'fecha_pago': row[3] if len(row) > 3 else '',
+                'task_pago': row[4] if len(row) > 4 else ''
+            })
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/balance_semanal/data', methods=['GET'])
+def api_finanzas_balance_semanal_data():
+    """Lee datos de LIBERACIONES (Balance Semanal)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        # Leer semana
+        semana_result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='LIBERACIONES!A1'
+        ).execute()
+        semana = semana_result.get('values', [['']])[0][0] if semana_result.get('values') else 'SEMANA'
+        # Leer datos
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='LIBERACIONES!A2:D27'
+        ).execute()
+        values = result.get('values', [])
+        data = []
+        for row in values:
+            while len(row) < 4:
+                row.append('')
+            data.append({
+                'concepto': row[0] if len(row) > 0 else '',
+                'acreditado': row[1] if len(row) > 1 else '',
+                'debitado': row[2] if len(row) > 2 else '',
+                'porcentaje': row[3] if len(row) > 3 else ''
+            })
+        # Leer total
+        total_result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='LIBERACIONES!A28:B28'
+        ).execute()
+        total_values = total_result.get('values', [[]])[0] if total_result.get('values') else []
+        total = {
+            'concepto': total_values[0] if len(total_values) > 0 else 'TOTAL',
+            'valor': total_values[1] if len(total_values) > 1 else ''
+        }
+        return jsonify({'data': data, 'semana': semana, 'total': total}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/balance_mensual/data', methods=['GET'])
+def api_finanzas_balance_mensual_data():
+    """Lee datos de BALANCE GENERAL MENSUAL"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        # Leer mes
+        mes_result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='BALANCE GENERAL MENSUAL!A1'
+        ).execute()
+        mes = mes_result.get('values', [['']])[0][0] if mes_result.get('values') else 'MES'
+        # Leer datos
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='BALANCE GENERAL MENSUAL!A2:D29'
+        ).execute()
+        values = result.get('values', [])
+        data = []
+        for row in values:
+            while len(row) < 4:
+                row.append('')
+            data.append({
+                'concepto': row[0] if len(row) > 0 else '',
+                'acreditado': row[1] if len(row) > 1 else '',
+                'debitado': row[2] if len(row) > 2 else '',
+                'porcentaje': row[3] if len(row) > 3 else ''
+            })
+        # Leer total
+        total_result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='BALANCE GENERAL MENSUAL!A30:B30'
+        ).execute()
+        total_values = total_result.get('values', [[]])[0] if total_result.get('values') else []
+        total = {
+            'concepto': total_values[0] if len(total_values) > 0 else 'TOTAL',
+            'valor': total_values[1] if len(total_values) > 1 else ''
+        }
+        return jsonify({'data': data, 'mes': mes, 'total': total}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/calendario_deuda/data', methods=['GET'])
+def api_finanzas_calendario_deuda_data():
+    """Lee datos de DEUDA POR CONCEPTO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        meses_config = {
+            'enero': 'A2:B', 'febrero': 'D2:E', 'marzo': 'G2:H', 'abril': 'J2:K',
+            'mayo': 'M2:N', 'junio': 'P2:Q', 'julio': 'S2:T', 'agosto': 'V2:W',
+            'septiembre': 'Y2:Z', 'octubre': 'AB2:AC', 'noviembre': 'AE2:AF', 'diciembre': 'AH2:AI'
+        }
+        data = {}
+        for mes, rango in meses_config.items():
+            result = service.spreadsheets().values().get(
+                spreadsheetId=FINANZAS_SPREADSHEET_ID,
+                range=f'DEUDA POR CONCEPTO!{rango}'
+            ).execute()
+            values = result.get('values', [])
+            data[mes] = []
+            for row in values:
+                if len(row) >= 2:
+                    data[mes].append({'concepto': row[0], 'monto': row[1]})
+                elif len(row) == 1:
+                    data[mes].append({'concepto': row[0], 'monto': ''})
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/calendario_pagadas/data', methods=['GET'])
+def api_finanzas_calendario_pagadas_data():
+    """Lee datos de DEUDA PAGADA POR CONCEPTO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        meses_config = {
+            'enero': 'A2:B', 'febrero': 'D2:E', 'marzo': 'G2:H', 'abril': 'J2:K',
+            'mayo': 'M2:N', 'junio': 'P2:Q', 'julio': 'S2:T', 'agosto': 'V2:W',
+            'septiembre': 'Y2:Z', 'octubre': 'AB2:AC', 'noviembre': 'AE2:AF', 'diciembre': 'AH2:AI'
+        }
+        data = {}
+        for mes, rango in meses_config.items():
+            result = service.spreadsheets().values().get(
+                spreadsheetId=FINANZAS_SPREADSHEET_ID,
+                range=f'DEUDA PAGADA POR CONCEPTO!{rango}'
+            ).execute()
+            values = result.get('values', [])
+            data[mes] = []
+            for row in values:
+                if len(row) >= 2:
+                    data[mes].append({'concepto': row[0], 'monto': row[1]})
+                elif len(row) == 1:
+                    data[mes].append({'concepto': row[0], 'monto': ''})
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/estado_lineas_credito/data', methods=['GET'])
+def api_finanzas_estado_lineas_credito_data():
+    """Lee datos de PANEL DE ESTADO DE CUENTA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='PANEL DE ESTADO DE CUENTA!A2:E'
+        ).execute()
+        values = result.get('values', [])
+        data = []
+        for row in values:
+            while len(row) < 5:
+                row.append('')
+            data.append({
+                'marca': row[0] if len(row) > 0 else '',
+                'monto_total': row[1] if len(row) > 1 else '',
+                'linea_credito': row[2] if len(row) > 2 else '',
+                'restante': row[3] if len(row) > 3 else '',
+                'linea_usada': row[4] if len(row) > 4 else ''
+            })
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/presupuesto/data', methods=['GET'])
+def api_finanzas_presupuesto_data():
+    """Lee datos de PRESUPUESTO SEMANAL"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='PRESUPUESTO SEMANAL!A1:B1'
+        ).execute()
+        values = result.get('values', [[]])[0] if result.get('values') else []
+        data = {
+            'label': values[0] if len(values) > 0 else 'PRESUPUESTO SEMANAL',
+            'valor': values[1] if len(values) > 1 else '$0.00'
+        }
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finanzas/ventas_por_pagar/data', methods=['GET'])
+def api_finanzas_ventas_por_pagar_data():
+    """Lee datos de LIBERACIONES FUTURAS"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        # Leer resumen
+        resumen_result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='LIBERACIONES FUTURAS!A1:B3'
+        ).execute()
+        resumen_values = resumen_result.get('values', [])
+        resumen = []
+        for row in resumen_values:
+            if len(row) >= 2:
+                resumen.append({'label': row[0], 'valor': row[1]})
+        # Leer desglose
+        desglose_result = service.spreadsheets().values().get(
+            spreadsheetId=FINANZAS_SPREADSHEET_ID,
+            range='LIBERACIONES FUTURAS!D1:E'
+        ).execute()
+        desglose_values = desglose_result.get('values', [])
+        desglose = []
+        for row in desglose_values:
+            if len(row) >= 2:
+                desglose.append({'concepto': row[0], 'valor': row[1]})
+        return jsonify({'data': {'resumen': resumen, 'desglose': desglose}}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# ==================== APIs BDS FINANZAS - ESCRITURA ====================
+
+# IDs de Spreadsheets para BDs de Finanzas
+ECOTROS_SPREADSHEET_ID = '1ocxVz3X45i_aNOL-Slx2-u-wsF4E7-cyDJNmRTsM5PU'
+VENTASRETORNADAS_SPREADSHEET_ID = '1qIWn_UuOpsF4VO5QOZlDjXneZtdP1jy9PAeScJ-5O1A'
+PORLIQUIDAR_SPREADSHEET_ID = '1soUT-OcdAZX-aStHmePQatz94TjjDH1lsahs99T7pTI'
+BALANCESSEMANALES_SPREADSHEET_ID = '1YEpxA-AEjgkxl2ZsTitV9fns7aJgin4vVtF72hIjyj8'
+BALANCESMENSUALES_SPREADSHEET_ID = '1EQmljLG5U-SZQgKKm_3qX4ujs3PO9kGR_4lpW71DULg'
+
+@app.route('/api/bd_deudas_generales/add', methods=['POST'])
+def api_bd_deudas_generales_add():
+    """Agrega un registro a ECOTROS - ESTADO DE CUENTA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=ECOTROS_SPREADSHEET_ID,
+            range='ESTADO DE CUENTA!A:A'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = len(existing) + 1
+        batch_data = [
+            {'range': f'ESTADO DE CUENTA!A{next_row}', 'values': [[data.get('concepto', '')]]},
+            {'range': f'ESTADO DE CUENTA!B{next_row}', 'values': [[data.get('nombre', '')]]},
+            {'range': f'ESTADO DE CUENTA!C{next_row}', 'values': [[data.get('monto', '')]]},
+            {'range': f'ESTADO DE CUENTA!D{next_row}', 'values': [[data.get('fecha_pago', '')]]},
+            {'range': f'ESTADO DE CUENTA!E{next_row}', 'values': [[data.get('numero_semana', '')]]},
+            {'range': f'ESTADO DE CUENTA!F{next_row}', 'values': [[data.get('task_pago', '')]]}
+        ]
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=ECOTROS_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': 'Registro agregado exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_deudas_generales/bulk', methods=['POST'])
+def api_bd_deudas_generales_bulk():
+    """Carga masiva a ECOTROS - ESTADO DE CUENTA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        rows = data.get('rows', [])
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=ECOTROS_SPREADSHEET_ID,
+            range='ESTADO DE CUENTA!A:A'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = len(existing) + 1
+        batch_data = []
+        for i, row_data in enumerate(rows):
+            current_row = next_row + i
+            batch_data.append({'range': f'ESTADO DE CUENTA!A{current_row}', 'values': [[row_data.get('concepto', '')]]})
+            batch_data.append({'range': f'ESTADO DE CUENTA!B{current_row}', 'values': [[row_data.get('nombre', '')]]})
+            batch_data.append({'range': f'ESTADO DE CUENTA!C{current_row}', 'values': [[row_data.get('monto', '')]]})
+            batch_data.append({'range': f'ESTADO DE CUENTA!D{current_row}', 'values': [[row_data.get('fecha_pago', '')]]})
+            batch_data.append({'range': f'ESTADO DE CUENTA!E{current_row}', 'values': [[row_data.get('numero_semana', '')]]})
+            batch_data.append({'range': f'ESTADO DE CUENTA!F{current_row}', 'values': [[row_data.get('task_pago', '')]]})
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=ECOTROS_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': f'{len(rows)} registros agregados exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_ventas_no_concretadas/add', methods=['POST'])
+def api_bd_ventas_no_concretadas_add():
+    """Agrega un registro a VENTASRETORNADAS - BD VENTAS"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=VENTASRETORNADAS_SPREADSHEET_ID,
+            range='BD VENTAS!A:A'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = max(len(existing) + 1, 6)
+        batch_data = [
+            {'range': f'BD VENTAS!A{next_row}', 'values': [[data.get('numero_id', '')]]},
+            {'range': f'BD VENTAS!C{next_row}', 'values': [[data.get('estado', '')]]}
+        ]
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=VENTASRETORNADAS_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': 'Registro agregado exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_ventas_no_concretadas/bulk', methods=['POST'])
+def api_bd_ventas_no_concretadas_bulk():
+    """Carga masiva a VENTASRETORNADAS - BD VENTAS"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        rows = data.get('rows', [])
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=VENTASRETORNADAS_SPREADSHEET_ID,
+            range='BD VENTAS!A:A'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = max(len(existing) + 1, 6)
+        batch_data = []
+        for i, row_data in enumerate(rows):
+            current_row = next_row + i
+            batch_data.append({'range': f'BD VENTAS!A{current_row}', 'values': [[row_data.get('numero_id', '')]]})
+            batch_data.append({'range': f'BD VENTAS!C{current_row}', 'values': [[row_data.get('estado', '')]]})
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=VENTASRETORNADAS_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': f'{len(rows)} registros agregados exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_ordenes_compra/add', methods=['POST'])
+def api_bd_ordenes_compra_add():
+    """Agrega un registro a PORLIQUIDAR - BD MO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=PORLIQUIDAR_SPREADSHEET_ID,
+            range='BD MO!A:A'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = len(existing) + 1
+        batch_data = [
+            {'range': f'BD MO!A{next_row}', 'values': [[data.get('numero_id', '')]]},
+            {'range': f'BD MO!E{next_row}', 'values': [[data.get('estatus', '')]]},
+            {'range': f'BD MO!I{next_row}', 'values': [[data.get('saldo_cotizacion', '')]]}
+        ]
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=PORLIQUIDAR_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': 'Orden registrada exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_ordenes_compra/bulk', methods=['POST'])
+def api_bd_ordenes_compra_bulk():
+    """Carga masiva a PORLIQUIDAR - BD MO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        rows = data.get('rows', [])
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=PORLIQUIDAR_SPREADSHEET_ID,
+            range='BD MO!A:A'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = len(existing) + 1
+        batch_data = []
+        for i, row_data in enumerate(rows):
+            current_row = next_row + i
+            batch_data.append({'range': f'BD MO!A{current_row}', 'values': [[row_data.get('numero_id', '')]]})
+            batch_data.append({'range': f'BD MO!E{current_row}', 'values': [[row_data.get('estatus', '')]]})
+            batch_data.append({'range': f'BD MO!I{current_row}', 'values': [[row_data.get('saldo_cotizacion', '')]]})
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=PORLIQUIDAR_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': f'{len(rows)} ordenes registradas exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_ordenes_pagadas/add', methods=['POST'])
+def api_bd_ordenes_pagadas_add():
+    """Agrega un registro a PORLIQUIDAR - BD LIBERACIONES"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=PORLIQUIDAR_SPREADSHEET_ID,
+            range='BD LIBERACIONES!C:C'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = len(existing) + 1
+        batch_data = [
+            {'range': f'BD LIBERACIONES!C{next_row}', 'values': [[data.get('numero_id', '')]]}
+        ]
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=PORLIQUIDAR_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': 'Orden pagada registrada exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_ordenes_pagadas/bulk', methods=['POST'])
+def api_bd_ordenes_pagadas_bulk():
+    """Carga masiva a PORLIQUIDAR - BD LIBERACIONES"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        rows = data.get('rows', [])
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(
+            spreadsheetId=PORLIQUIDAR_SPREADSHEET_ID,
+            range='BD LIBERACIONES!C:C'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = len(existing) + 1
+        batch_data = []
+        for i, row_data in enumerate(rows):
+            current_row = next_row + i
+            batch_data.append({'range': f'BD LIBERACIONES!C{current_row}', 'values': [[row_data.get('numero_id', '')]]})
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=PORLIQUIDAR_SPREADSHEET_ID,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': f'{len(rows)} ordenes pagadas registradas exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_movimientos_financieros/add', methods=['POST'])
+def api_bd_movimientos_financieros_add():
+    """Agrega un registro a BALANCES SEMANALES o MENSUALES segun la fecha"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        from googleapiclient.discovery import build
+        from datetime import datetime, timedelta
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Determinar si es semanal o mensual
+        fecha_str = data.get('fecha_liberacion', '')
+        fecha = datetime.strptime(fecha_str, '%Y-%m-%d') if fecha_str else datetime.now()
+        today = datetime.now()
+
+        # Calcular inicio de semana actual y pasada
+        start_of_week = today - timedelta(days=today.weekday())
+        start_of_last_week = start_of_week - timedelta(days=7)
+
+        # Calcular inicio del mes pasado
+        start_of_month = today.replace(day=1)
+        start_of_last_month = (start_of_month - timedelta(days=1)).replace(day=1)
+        end_of_last_month = start_of_month - timedelta(days=1)
+
+        # Decidir destino
+        if fecha >= start_of_last_week:
+            # Semana actual o pasada -> BALANCESSEMANALES
+            spreadsheet_id = BALANCESSEMANALES_SPREADSHEET_ID
+            destino = 'semanal'
+        elif start_of_last_month <= fecha <= end_of_last_month:
+            # Mes pasado -> BALANCESMENSUALES
+            spreadsheet_id = BALANCESMENSUALES_SPREADSHEET_ID
+            destino = 'mensual'
+        else:
+            # Default: semanal
+            spreadsheet_id = BALANCESSEMANALES_SPREADSHEET_ID
+            destino = 'semanal'
+
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='BD!A:A'
+        ).execute()
+        existing = result.get('values', [])
+        next_row = len(existing) + 1
+
+        batch_data = [
+            {'range': f'BD!A{next_row}', 'values': [[data.get('fecha_liberacion', '')]]},
+            {'range': f'BD!C{next_row}', 'values': [[data.get('numero_id', '')]]},
+            {'range': f'BD!E{next_row}', 'values': [[data.get('descripcion', '')]]},
+            {'range': f'BD!F{next_row}', 'values': [[data.get('monto_acreditado', '')]]},
+            {'range': f'BD!G{next_row}', 'values': [[data.get('monto_debitado', '')]]}
+        ]
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+        ).execute()
+        return jsonify({'message': f'Movimiento registrado en balance {destino}'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/bd_movimientos_financieros/bulk', methods=['POST'])
+def api_bd_movimientos_financieros_bulk():
+    """Carga masiva a BALANCES SEMANALES o MENSUALES segun las fechas"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        rows = data.get('rows', [])
+        from googleapiclient.discovery import build
+        from datetime import datetime, timedelta
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        today = datetime.now()
+        start_of_week = today - timedelta(days=today.weekday())
+        start_of_last_week = start_of_week - timedelta(days=7)
+        start_of_month = today.replace(day=1)
+        start_of_last_month = (start_of_month - timedelta(days=1)).replace(day=1)
+        end_of_last_month = start_of_month - timedelta(days=1)
+
+        semanales = []
+        mensuales = []
+
+        for row_data in rows:
+            fecha_str = row_data.get('fecha_liberacion', '')
+            try:
+                fecha = datetime.strptime(fecha_str, '%Y-%m-%d')
+            except:
+                fecha = today
+
+            if fecha >= start_of_last_week:
+                semanales.append(row_data)
+            elif start_of_last_month <= fecha <= end_of_last_month:
+                mensuales.append(row_data)
+            else:
+                semanales.append(row_data)
+
+        # Procesar semanales
+        if semanales:
+            result = service.spreadsheets().values().get(
+                spreadsheetId=BALANCESSEMANALES_SPREADSHEET_ID,
+                range='BD!A:A'
+            ).execute()
+            existing = result.get('values', [])
+            next_row = len(existing) + 1
+            batch_data = []
+            for i, row_data in enumerate(semanales):
+                current_row = next_row + i
+                batch_data.append({'range': f'BD!A{current_row}', 'values': [[row_data.get('fecha_liberacion', '')]]})
+                batch_data.append({'range': f'BD!C{current_row}', 'values': [[row_data.get('numero_id', '')]]})
+                batch_data.append({'range': f'BD!E{current_row}', 'values': [[row_data.get('descripcion', '')]]})
+                batch_data.append({'range': f'BD!F{current_row}', 'values': [[row_data.get('monto_acreditado', '')]]})
+                batch_data.append({'range': f'BD!G{current_row}', 'values': [[row_data.get('monto_debitado', '')]]})
+            service.spreadsheets().values().batchUpdate(
+                spreadsheetId=BALANCESSEMANALES_SPREADSHEET_ID,
+                body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+            ).execute()
+
+        # Procesar mensuales
+        if mensuales:
+            result = service.spreadsheets().values().get(
+                spreadsheetId=BALANCESMENSUALES_SPREADSHEET_ID,
+                range='BD!A:A'
+            ).execute()
+            existing = result.get('values', [])
+            next_row = len(existing) + 1
+            batch_data = []
+            for i, row_data in enumerate(mensuales):
+                current_row = next_row + i
+                batch_data.append({'range': f'BD!A{current_row}', 'values': [[row_data.get('fecha_liberacion', '')]]})
+                batch_data.append({'range': f'BD!C{current_row}', 'values': [[row_data.get('numero_id', '')]]})
+                batch_data.append({'range': f'BD!E{current_row}', 'values': [[row_data.get('descripcion', '')]]})
+                batch_data.append({'range': f'BD!F{current_row}', 'values': [[row_data.get('monto_acreditado', '')]]})
+                batch_data.append({'range': f'BD!G{current_row}', 'values': [[row_data.get('monto_debitado', '')]]})
+            service.spreadsheets().values().batchUpdate(
+                spreadsheetId=BALANCESMENSUALES_SPREADSHEET_ID,
+                body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+            ).execute()
+
+        return jsonify({
+            'message': 'Carga completada',
+            'semanal': len(semanales),
+            'mensual': len(mensuales)
+        }), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5001))

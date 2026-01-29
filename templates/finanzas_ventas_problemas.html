@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ventas con Problemas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --warning-color: #ffc107;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2em;
+      margin: 0 0 30px 0;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, var(--warning-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+    }
+
+    .back-link {
+      display: inline-block;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+      margin-bottom: 20px;
+    }
+
+    .back-link:hover { color: var(--primary-color); }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 193, 7, 0.2);
+    }
+
+    .summary-card .label {
+      font-size: 0.9em;
+      color: var(--text-light);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .summary-card .value {
+      font-size: 2em;
+      font-weight: 700;
+      color: var(--warning-color);
+    }
+
+    .summary-card.saldo .value { color: #dc3545; }
+    .summary-card.cantidad .value { color: #17a2b8; }
+
+    .loading { text-align: center; padding: 40px; color: var(--text-light); font-size: 1.1em; }
+    .error { padding: 20px; border-radius: 12px; background: rgba(220, 53, 69, 0.1); color: #dc3545; text-align: center; margin: 20px 0; }
+
+    @media (max-width: 600px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.6em; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <a href="/finanzas" class="back-link">&larr; Volver</a>
+    <h2>Ventas con Problemas</h2>
+
+    <div id="error-container"></div>
+    <div id="loading" class="loading">Cargando datos...</div>
+
+    <div id="content" style="display: none;">
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="label">TOTALES</div>
+          <div class="value" id="totales">0</div>
+        </div>
+        <div class="summary-card saldo">
+          <div class="label">SALDO</div>
+          <div class="value" id="saldo">$0</div>
+        </div>
+        <div class="summary-card cantidad">
+          <div class="label">CANTIDAD</div>
+          <div class="value" id="cantidad">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      cargarDatos();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  async function cargarDatos() {
+    try {
+      const res = await fetch('/api/finanzas/ventas_problemas/data', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      const result = await res.json();
+      if (res.ok) {
+        document.getElementById('totales').textContent = result.data.totales || '0';
+        document.getElementById('saldo').textContent = result.data.saldo || '$0';
+        document.getElementById('cantidad').textContent = result.data.cantidad || '0';
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+      } else {
+        mostrarError(result.error || 'Error al cargar datos');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarError(mensaje) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-container').innerHTML = `<div class="error">${mensaje}</div>`;
+  }
+</script>
+</body>
+</html>
