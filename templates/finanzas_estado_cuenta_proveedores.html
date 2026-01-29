@@ -160,7 +160,6 @@
             <th>MARCA</th>
             <th>IS</th>
             <th>QTY</th>
-            <th>CITA</th>
             <th>NOMBRE HOJA</th>
             <th>DIAS PARA VENCER</th>
             <th>FECHA COT</th>
@@ -211,17 +210,20 @@
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = '';
     if (data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
       return;
     }
     data.forEach(row => {
       const tr = document.createElement('tr');
+      // Crear link para nombre_hoja usando cita como URL
+      const nombreHoja = row.nombre_hoja || '';
+      const citaUrl = row.cita || '';
+      const nombreHojaCell = citaUrl ? `<a href="${citaUrl}" target="_blank" style="color: #4361ee; text-decoration: none;">${nombreHoja}</a>` : nombreHoja;
       tr.innerHTML = `
         <td>${row.marca || ''}</td>
         <td>${row.is || ''}</td>
         <td>${row.qty || ''}</td>
-        <td>${row.cita || ''}</td>
-        <td>${row.nombre_hoja || ''}</td>
+        <td>${nombreHojaCell}</td>
         <td>${row.dias_vencer || ''}</td>
         <td>${row.fecha_cot || ''}</td>
         <td>${row.monto_cot || ''}</td>
@@ -240,10 +242,10 @@
 
   function descargarCSV() {
     if (tableData.length === 0) { alert('No hay datos'); return; }
-    const headers = ['MARCA','IS','QTY','CITA','NOMBRE HOJA','DIAS PARA VENCER','FECHA COT','MONTO COT','MONTO FACTURA','DIA EMISION FACTURA','FOLIO'];
+    const headers = ['MARCA','IS','QTY','NOMBRE HOJA','DIAS PARA VENCER','FECHA COT','MONTO COT','MONTO FACTURA','DIA EMISION FACTURA','FOLIO'];
     let csv = headers.join(',') + '\n';
     tableData.forEach(row => {
-      csv += [row.marca||'',row.is||'',row.qty||'',row.cita||'',row.nombre_hoja||'',row.dias_vencer||'',row.fecha_cot||'',row.monto_cot||'',row.monto_factura||'',row.dia_emision||'',row.folio||''].join(',') + '\n';
+      csv += [row.marca||'',row.is||'',row.qty||'',row.nombre_hoja||'',row.dias_vencer||'',row.fecha_cot||'',row.monto_cot||'',row.monto_factura||'',row.dia_emision||'',row.folio||''].join(',') + '\n';
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
@@ -254,9 +256,9 @@
 
   function descargarExcel() {
     if (tableData.length === 0) { alert('No hay datos'); return; }
-    const ws_data = [['MARCA','IS','QTY','CITA','NOMBRE HOJA','DIAS PARA VENCER','FECHA COT','MONTO COT','MONTO FACTURA','DIA EMISION FACTURA','FOLIO']];
+    const ws_data = [['MARCA','IS','QTY','NOMBRE HOJA','DIAS PARA VENCER','FECHA COT','MONTO COT','MONTO FACTURA','DIA EMISION FACTURA','FOLIO']];
     tableData.forEach(row => {
-      ws_data.push([row.marca||'',row.is||'',row.qty||'',row.cita||'',row.nombre_hoja||'',row.dias_vencer||'',row.fecha_cot||'',row.monto_cot||'',row.monto_factura||'',row.dia_emision||'',row.folio||'']);
+      ws_data.push([row.marca||'',row.is||'',row.qty||'',row.nombre_hoja||'',row.dias_vencer||'',row.fecha_cot||'',row.monto_cot||'',row.monto_factura||'',row.dia_emision||'',row.folio||'']);
     });
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(ws_data);

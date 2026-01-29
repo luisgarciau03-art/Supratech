@@ -5150,19 +5150,19 @@ def api_finanzas_estado_lineas_credito_data():
         service = build('sheets', 'v4', credentials=creds)
         result = service.spreadsheets().values().get(
             spreadsheetId=FINANZAS_SPREADSHEET_ID,
-            range='PANEL DE ESTADO DE CUENTA!A2:E'
+            range='PANEL DE ESTADO DE CUENTA!A2:F'
         ).execute()
         values = result.get('values', [])
         data = []
         for row in values:
-            while len(row) < 5:
+            while len(row) < 6:
                 row.append('')
             data.append({
                 'marca': row[0] if len(row) > 0 else '',
                 'monto_total': row[1] if len(row) > 1 else '',
                 'linea_credito': row[2] if len(row) > 2 else '',
                 'restante': row[3] if len(row) > 3 else '',
-                'linea_usada': row[4] if len(row) > 4 else ''
+                'linea_usada': row[5] if len(row) > 5 else ''
             })
         return jsonify({'data': data}), 200
     except Exception as e:
@@ -5219,10 +5219,10 @@ def api_finanzas_ventas_por_pagar_data():
         for row in resumen_values:
             if len(row) >= 2:
                 resumen.append({'label': row[0], 'valor': row[1]})
-        # Leer desglose
+        # Leer desglose (desde fila 3)
         desglose_result = service.spreadsheets().values().get(
             spreadsheetId=FINANZAS_SPREADSHEET_ID,
-            range='LIBERACIONES FUTURAS!D1:E'
+            range='LIBERACIONES FUTURAS!D3:E'
         ).execute()
         desglose_values = desglose_result.get('values', [])
         desglose = []

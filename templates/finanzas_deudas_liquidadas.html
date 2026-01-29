@@ -161,7 +161,7 @@
             <th>NOMBRE</th>
             <th>MONTO</th>
             <th>FECHA DE PAGO</th>
-            <th>TASK PAGO</th>
+            <th>PAGADO</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -204,18 +204,25 @@
   function mostrarTabla(data) {
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = '';
-    if (data.length === 0) {
+    // Filtrar filas con valores vacios en las primeras columnas
+    const filteredData = data.filter(row => row.concepto && row.concepto.trim() !== '');
+    if (filteredData.length === 0) {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
       return;
     }
-    data.forEach(row => {
+    filteredData.forEach(row => {
       const tr = document.createElement('tr');
+      // Determinar estado de pago
+      const pagadoValue = row.task_pago || '';
+      const isPagado = pagadoValue.toUpperCase() === 'TRUE' || pagadoValue.toUpperCase() === 'PAGADO';
+      const estadoPago = isPagado ? 'PAGADO' : 'POR PAGAR';
+      const estadoColor = isPagado ? 'color: #28a745; font-weight: 600;' : 'color: #dc3545; font-weight: 600;';
       tr.innerHTML = `
         <td>${row.concepto || ''}</td>
         <td>${row.nombre || ''}</td>
         <td>${row.monto || ''}</td>
         <td>${row.fecha_pago || ''}</td>
-        <td>${row.task_pago || ''}</td>
+        <td style="${estadoColor}">${estadoPago}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -227,11 +234,13 @@
   }
 
   function descargarCSV() {
-    if (tableData.length === 0) { alert('No hay datos'); return; }
-    const headers = ['CONCEPTO', 'NOMBRE', 'MONTO', 'FECHA DE PAGO', 'TASK PAGO'];
+    const filteredData = tableData.filter(row => row.concepto && row.concepto.trim() !== '');
+    if (filteredData.length === 0) { alert('No hay datos'); return; }
+    const headers = ['CONCEPTO', 'NOMBRE', 'MONTO', 'FECHA DE PAGO', 'PAGADO'];
     let csv = headers.join(',') + '\n';
-    tableData.forEach(row => {
-      csv += [row.concepto||'',row.nombre||'',row.monto||'',row.fecha_pago||'',row.task_pago||''].join(',') + '\n';
+    filteredData.forEach(row => {
+      const isPagado = (row.task_pago || '').toUpperCase() === 'TRUE' || (row.task_pago || '').toUpperCase() === 'PAGADO';
+      csv += [row.concepto||'',row.nombre||'',row.monto||'',row.fecha_pago||'', isPagado ? 'PAGADO' : 'POR PAGAR'].join(',') + '\n';
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
@@ -241,10 +250,12 @@
   }
 
   function descargarExcel() {
-    if (tableData.length === 0) { alert('No hay datos'); return; }
-    const ws_data = [['CONCEPTO', 'NOMBRE', 'MONTO', 'FECHA DE PAGO', 'TASK PAGO']];
-    tableData.forEach(row => {
-      ws_data.push([row.concepto||'',row.nombre||'',row.monto||'',row.fecha_pago||'',row.task_pago||'']);
+    const filteredData = tableData.filter(row => row.concepto && row.concepto.trim() !== '');
+    if (filteredData.length === 0) { alert('No hay datos'); return; }
+    const ws_data = [['CONCEPTO', 'NOMBRE', 'MONTO', 'FECHA DE PAGO', 'PAGADO']];
+    filteredData.forEach(row => {
+      const isPagado = (row.task_pago || '').toUpperCase() === 'TRUE' || (row.task_pago || '').toUpperCase() === 'PAGADO';
+      ws_data.push([row.concepto||'',row.nombre||'',row.monto||'',row.fecha_pago||'', isPagado ? 'PAGADO' : 'POR PAGAR']);
     });
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
