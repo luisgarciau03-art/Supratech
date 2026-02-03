@@ -5243,6 +5243,7 @@ VENTASRETORNADAS_SPREADSHEET_ID = '1qIWn_UuOpsF4VO5QOZlDjXneZtdP1jy9PAeScJ-5O1A'
 PORLIQUIDAR_SPREADSHEET_ID = '1soUT-OcdAZX-aStHmePQatz94TjjDH1lsahs99T7pTI'
 BALANCESSEMANALES_SPREADSHEET_ID = '1YEpxA-AEjgkxl2ZsTitV9fns7aJgin4vVtF72hIjyj8'
 BALANCESMENSUALES_SPREADSHEET_ID = '1EQmljLG5U-SZQgKKm_3qX4ujs3PO9kGR_4lpW71DULg'
+ESTADO_PRECIOS_SPREADSHEET_ID = '1hnRkPS2LlWXTcFyBaTqgmP7WGV8Fk-k9nLAFkNqP_kU'
 
 @app.route('/api/bd_deudas_generales/add', methods=['POST'])
 def api_bd_deudas_generales_add():
@@ -5738,6 +5739,186 @@ def api_bd_movimientos_financieros_bulk():
             'semanal': len(semanales),
             'mensual': len(mensuales)
         }), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# --- ENDPOINTS PARA ESTADO DE PRECIOS ---
+@app.route('/estado_precios')
+def estado_precios():
+    return render_template('estado_precios.html')
+
+@app.route('/api/estado_precios/data', methods=['GET'])
+def api_estado_precios_data():
+    """Lee datos de LISTA L - Estado de Precios"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Leer todas las columnas necesarias: A, B, C, D, F, G, H, K, L, M, N
+        result = service.spreadsheets().values().batchGet(
+            spreadsheetId=ESTADO_PRECIOS_SPREADSHEET_ID,
+            ranges=[
+                'LISTA L!A2:A',  # CATEGORIA
+                'LISTA L!B2:B',  # ID (editable)
+                'LISTA L!C2:C',  # MARCA
+                'LISTA L!D2:D',  # SKU
+                'LISTA L!F2:F',  # CLASIFICACION
+                'LISTA L!G2:G',  # ACTUAL PRICE
+                'LISTA L!H2:H',  # NEW PRECIO
+                'LISTA L!K2:K',  # DESCUENTO O INCREMENTO (editable)
+                'LISTA L!L2:L',  # UTILIDAD
+                'LISTA L!M2:M',  # UTILIDAD %
+                'LISTA L!N2:N',  # RANGO
+            ]
+        ).execute()
+
+        value_ranges = result.get('valueRanges', [])
+
+        # Extraer valores de cada columna
+        col_categoria = [row[0] if row else '' for row in value_ranges[0].get('values', [])]
+        col_id = [row[0] if row else '' for row in value_ranges[1].get('values', [])]
+        col_marca = [row[0] if row else '' for row in value_ranges[2].get('values', [])]
+        col_sku = [row[0] if row else '' for row in value_ranges[3].get('values', [])]
+        col_clasificacion = [row[0] if row else '' for row in value_ranges[4].get('values', [])]
+        col_actual_price = [row[0] if row else '' for row in value_ranges[5].get('values', [])]
+        col_new_precio = [row[0] if row else '' for row in value_ranges[6].get('values', [])]
+        col_descuento = [row[0] if row else '' for row in value_ranges[7].get('values', [])]
+        col_utilidad = [row[0] if row else '' for row in value_ranges[8].get('values', [])]
+        col_utilidad_pct = [row[0] if row else '' for row in value_ranges[9].get('values', [])]
+        col_rango = [row[0] if row else '' for row in value_ranges[10].get('values', [])]
+
+        # Encontrar la longitud máxima
+        max_len = max(len(col_categoria), len(col_id), len(col_marca), len(col_sku),
+                      len(col_clasificacion), len(col_actual_price), len(col_new_precio),
+                      len(col_descuento), len(col_utilidad), len(col_utilidad_pct), len(col_rango))
+
+        # Construir datos
+        data = []
+        for i in range(max_len):
+            data.append({
+                'row_index': i + 2,
+                'categoria': col_categoria[i] if i < len(col_categoria) else '',
+                'id': col_id[i] if i < len(col_id) else '',
+                'marca': col_marca[i] if i < len(col_marca) else '',
+                'sku': col_sku[i] if i < len(col_sku) else '',
+                'clasificacion': col_clasificacion[i] if i < len(col_clasificacion) else '',
+                'actual_price': col_actual_price[i] if i < len(col_actual_price) else '',
+                'new_precio': col_new_precio[i] if i < len(col_new_precio) else '',
+                'descuento_incremento': col_descuento[i] if i < len(col_descuento) else '',
+                'utilidad': col_utilidad[i] if i < len(col_utilidad) else '',
+                'utilidad_pct': col_utilidad_pct[i] if i < len(col_utilidad_pct) else '',
+                'rango': col_rango[i] if i < len(col_rango) else ''
+            })
+
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/estado_precios/update', methods=['POST'])
+def api_estado_precios_update():
+    """Actualiza datos de LISTA L - Solo columnas B (ID) y K (DESCUENTO O INCREMENTO)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        data = request.get_json()
+        rows = data.get('data', [])
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        batch_data = []
+        for row_data in rows:
+            row_num = row_data.get('row_index', 0)
+            if row_num > 0:
+                # Solo actualizar columnas B (ID) y K (DESCUENTO O INCREMENTO)
+                batch_data.append({'range': f'LISTA L!B{row_num}', 'values': [[row_data.get('id', '')]]})
+                batch_data.append({'range': f'LISTA L!K{row_num}', 'values': [[row_data.get('descuento_incremento', '')]]})
+
+        if batch_data:
+            service.spreadsheets().values().batchUpdate(
+                spreadsheetId=ESTADO_PRECIOS_SPREADSHEET_ID,
+                body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+            ).execute()
+
+        return jsonify({'message': 'Datos actualizados exitosamente'}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/estado_precios/bulk', methods=['POST'])
+def api_estado_precios_bulk():
+    """Carga masiva CSV - Solo columnas ID y DESCUENTO O INCREMENTO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        import io, csv
+
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+
+        file = request.files['file']
+        filename = file.filename.lower()
+
+        if not filename.endswith('.csv'):
+            return jsonify({'error': 'Solo se permiten archivos CSV'}), 400
+
+        # Leer CSV
+        try:
+            stream = io.StringIO(file.stream.read().decode('utf-8'))
+        except Exception:
+            stream = io.StringIO(file.stream.read().decode('latin-1'))
+
+        reader = csv.DictReader(stream)
+
+        if reader.fieldnames is None:
+            return jsonify({'error': 'El archivo CSV no tiene encabezados.'}), 400
+
+        # Verificar columnas requeridas (ID y DESCUENTO O INCREMENTO)
+        required_cols = ['ID', 'DESCUENTO O INCREMENTO']
+        missing = [col for col in required_cols if col not in reader.fieldnames]
+        if missing:
+            return jsonify({'error': f'Faltan columnas requeridas: {missing}. El CSV debe tener: ID, DESCUENTO O INCREMENTO'}), 400
+
+        rows = list(reader)
+
+        if not rows:
+            return jsonify({'error': 'El archivo CSV está vacío'}), 400
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Preparar datos para actualizar
+        batch_data = []
+        for i, row in enumerate(rows):
+            row_num = i + 2  # Empezar desde fila 2
+            batch_data.append({'range': f'LISTA L!B{row_num}', 'values': [[row.get('ID', '')]]})
+            batch_data.append({'range': f'LISTA L!K{row_num}', 'values': [[row.get('DESCUENTO O INCREMENTO', '')]]})
+
+        if batch_data:
+            service.spreadsheets().values().batchUpdate(
+                spreadsheetId=ESTADO_PRECIOS_SPREADSHEET_ID,
+                body={'valueInputOption': 'USER_ENTERED', 'data': batch_data}
+            ).execute()
+
+        return jsonify({'message': f'Se actualizaron {len(rows)} registros exitosamente'}), 200
     except Exception as e:
         import traceback
         traceback.print_exc()

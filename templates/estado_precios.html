@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Estado de Precios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --price-color: #6f42c1;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2em;
+      margin: 0;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, var(--price-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .back-link {
+      display: inline-block;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+    }
+
+    .back-link:hover {
+      color: var(--primary-color);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .save-btn, .upload-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .save-btn {
+      background: linear-gradient(45deg, #28a745, #20c997);
+      color: white;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .upload-btn {
+      background: linear-gradient(45deg, var(--price-color), #9b59b6);
+      color: white;
+      box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+    }
+
+    .save-btn:hover, .upload-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px 20px;
+      border: 2px solid rgba(111, 66, 193, 0.2);
+      border-radius: 12px;
+      font-size: 1em;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--price-color);
+      box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.1);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 1200px;
+    }
+
+    thead {
+      background: linear-gradient(45deg, var(--price-color), #9b59b6);
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+
+    th {
+      padding: 15px 10px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85em;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.85em;
+      text-align: center;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(111, 66, 193, 0.05);
+    }
+
+    .editable {
+      background-color: rgba(111, 66, 193, 0.08);
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .editable:hover {
+      background-color: rgba(111, 66, 193, 0.15);
+    }
+
+    .editable input {
+      width: 100%;
+      border: 2px solid var(--price-color);
+      border-radius: 6px;
+      padding: 6px;
+      font-size: 0.85em;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-light);
+      font-size: 1.1em;
+    }
+
+    .error, .success {
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .error {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .success {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+      border: 1px solid rgba(40, 167, 69, 0.2);
+      display: none;
+    }
+
+    .upload-section {
+      background: rgba(111, 66, 193, 0.03);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .upload-section.active {
+      display: block;
+    }
+
+    .upload-section h4 {
+      margin: 0 0 15px 0;
+      color: var(--price-color);
+    }
+
+    .upload-section p {
+      font-size: 0.9em;
+      color: var(--text-light);
+      margin: 10px 0;
+    }
+
+    .file-input-wrapper {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--price-color), #9b59b6);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-card .number {
+      font-size: 1.8em;
+      font-weight: 700;
+    }
+
+    .stat-card .label {
+      font-size: 0.85em;
+      opacity: 0.9;
+    }
+
+    .modified-badge {
+      background: #ffc107;
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      margin-left: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.6em; }
+      .btn-group { width: 100%; }
+      .save-btn, .upload-btn { flex: 1; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <a href="/panel" class="back-link">&larr; Volver al Panel</a>
+
+    <div class="header">
+      <h2>Estado de Precios</h2>
+      <div class="btn-group">
+        <button class="upload-btn" onclick="toggleUploadSection()">Cargar CSV</button>
+        <button class="save-btn" onclick="guardarCambios()">Guardar Cambios</button>
+      </div>
+    </div>
+
+    <div id="upload-section" class="upload-section">
+      <h4>Carga Masiva por CSV</h4>
+      <p>El archivo CSV debe contener las columnas: <strong>ID</strong> y <strong>DESCUENTO O INCREMENTO</strong></p>
+      <div class="file-input-wrapper">
+        <input type="file" id="csv-file" accept=".csv">
+        <button class="upload-btn" onclick="cargarCSV()">Subir y Procesar</button>
+      </div>
+    </div>
+
+    <div class="stats" id="stats-container" style="display: none;">
+      <div class="stat-card">
+        <div class="number" id="total-registros">0</div>
+        <div class="label">Total Registros</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="modificados">0</div>
+        <div class="label">Modificados</div>
+      </div>
+    </div>
+
+    <div class="search-container">
+      <input type="text" class="search-input" id="search-input" placeholder="Buscar por SKU, Marca, Categoria..." onkeyup="filtrarTabla()">
+    </div>
+
+    <div id="error-container"></div>
+    <div id="success-container" class="success">Cambios guardados exitosamente</div>
+    <div id="loading" class="loading">Cargando datos...</div>
+
+    <div class="table-container" id="table-container" style="display: none;">
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>CATEGORIA</th>
+            <th>ID</th>
+            <th>MARCA</th>
+            <th>SKU</th>
+            <th>CLASIFICACION</th>
+            <th>ACTUAL PRICE</th>
+            <th>NEW PRECIO</th>
+            <th>DESCUENTO/INCREMENTO</th>
+            <th>UTILIDAD</th>
+            <th>UTILIDAD %</th>
+            <th>RANGO</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+  let tableData = [];
+  let originalData = [];
+  let modifiedRows = new Set();
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      cargarDatos();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  function toggleUploadSection() {
+    document.getElementById('upload-section').classList.toggle('active');
+  }
+
+  async function cargarDatos() {
+    try {
+      const res = await fetch('/api/estado_precios/data', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        tableData = result.data || [];
+        originalData = JSON.parse(JSON.stringify(tableData));
+        modifiedRows.clear();
+        mostrarTabla(tableData);
+        actualizarEstadisticas();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('table-container').style.display = 'block';
+        document.getElementById('stats-container').style.display = 'flex';
+      } else {
+        mostrarError(result.error || 'Error al cargar datos');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarTabla(data) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
+      return;
+    }
+
+    data.forEach((row, index) => {
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-index', index);
+      const isModified = modifiedRows.has(index);
+      tr.innerHTML = `
+        <td>${row.categoria || ''}</td>
+        <td class="editable" onclick="editarCelda(this, ${index}, 'id')">${row.id || ''}${isModified ? '<span class="modified-badge">*</span>' : ''}</td>
+        <td>${row.marca || ''}</td>
+        <td>${row.sku || ''}</td>
+        <td>${row.clasificacion || ''}</td>
+        <td>${row.actual_price || ''}</td>
+        <td>${row.new_precio || ''}</td>
+        <td class="editable" onclick="editarCelda(this, ${index}, 'descuento_incremento')">${row.descuento_incremento || ''}</td>
+        <td>${row.utilidad || ''}</td>
+        <td>${row.utilidad_pct || ''}</td>
+        <td>${row.rango || ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function editarCelda(td, rowIndex, field) {
+    if (td.querySelector('input')) return;
+    const valorActual = tableData[rowIndex][field] || '';
+    td.innerHTML = `<input type="text" value="${valorActual}" onblur="finalizarEdicion(this, ${rowIndex}, '${field}')" onkeypress="if(event.key==='Enter') this.blur()">`;
+    td.querySelector('input').focus();
+    td.querySelector('input').select();
+  }
+
+  function finalizarEdicion(input, rowIndex, field) {
+    const nuevoValor = input.value.trim();
+    const originalValue = originalData[rowIndex] ? originalData[rowIndex][field] || '' : '';
+
+    tableData[rowIndex][field] = nuevoValor;
+
+    // Verificar si hay cambios respecto al original
+    if (nuevoValor !== originalValue) {
+      modifiedRows.add(rowIndex);
+    } else {
+      // Verificar si la otra columna editable tambien esta sin cambios
+      const otherField = field === 'id' ? 'descuento_incremento' : 'id';
+      const otherOriginal = originalData[rowIndex] ? originalData[rowIndex][otherField] || '' : '';
+      const otherCurrent = tableData[rowIndex][otherField] || '';
+      if (otherOriginal === otherCurrent) {
+        modifiedRows.delete(rowIndex);
+      }
+    }
+
+    const isModified = modifiedRows.has(rowIndex);
+    input.parentElement.innerHTML = nuevoValor + (isModified ? '<span class="modified-badge">*</span>' : '');
+    actualizarEstadisticas();
+  }
+
+  function filtrarTabla() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const filteredData = tableData.filter(row => {
+      return (row.categoria || '').toLowerCase().includes(searchTerm) ||
+             (row.marca || '').toLowerCase().includes(searchTerm) ||
+             (row.sku || '').toLowerCase().includes(searchTerm) ||
+             (row.clasificacion || '').toLowerCase().includes(searchTerm) ||
+             (row.id || '').toLowerCase().includes(searchTerm);
+    });
+    mostrarTabla(filteredData);
+  }
+
+  function actualizarEstadisticas() {
+    document.getElementById('total-registros').textContent = tableData.length;
+    document.getElementById('modificados').textContent = modifiedRows.size;
+  }
+
+  async function guardarCambios() {
+    if (modifiedRows.size === 0) {
+      mostrarError('No hay cambios para guardar');
+      return;
+    }
+
+    try {
+      // Solo enviar filas modificadas
+      const dataToSend = Array.from(modifiedRows).map(index => tableData[index]);
+
+      const res = await fetch('/api/estado_precios/update', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + idToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: dataToSend })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        mostrarExito();
+        // Actualizar datos originales
+        originalData = JSON.parse(JSON.stringify(tableData));
+        modifiedRows.clear();
+        mostrarTabla(tableData);
+        actualizarEstadisticas();
+      } else {
+        mostrarError(result.error || 'Error al guardar cambios');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  async function cargarCSV() {
+    const fileInput = document.getElementById('csv-file');
+    if (!fileInput.files.length) {
+      mostrarError('Selecciona un archivo CSV');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    try {
+      const res = await fetch('/api/estado_precios/bulk', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + idToken
+        },
+        body: formData
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        mostrarExito();
+        fileInput.value = '';
+        toggleUploadSection();
+        cargarDatos(); // Recargar datos
+      } else {
+        mostrarError(result.error || 'Error al cargar CSV');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarError(mensaje) {
+    document.getElementById('loading').style.display = 'none';
+    const errorContainer = document.getElementById('error-container');
+    errorContainer.innerHTML = `<div class="error">${mensaje}</div>`;
+    setTimeout(() => errorContainer.innerHTML = '', 5000);
+  }
+
+  function mostrarExito() {
+    const successContainer = document.getElementById('success-container');
+    successContainer.style.display = 'block';
+    setTimeout(() => successContainer.style.display = 'none', 3000);
+  }
+</script>
+</body>
+</html>
