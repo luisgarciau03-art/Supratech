@@ -414,9 +414,47 @@
       font-size: 0.8em;
       opacity: 0.9;
     }
+
+    /* Estilos para botones de descarga */
+    .download-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .download-btn.csv {
+      background: linear-gradient(45deg, #17a2b8, #138496);
+      color: white;
+      box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+    }
+
+    .download-btn.xls {
+      background: linear-gradient(45deg, #28a745, #20c997);
+      color: white;
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .download-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
@@ -436,6 +474,8 @@
     <div class="header">
       <h2>Estado de Precios</h2>
       <div class="btn-group">
+        <button class="download-btn csv" onclick="descargarPreciosCSV()">CSV</button>
+        <button class="download-btn xls" onclick="descargarPreciosXLS()">Excel</button>
         <button class="upload-btn" onclick="toggleUploadSection()">Cargar CSV</button>
         <button class="save-btn" onclick="guardarCambios()">Guardar Cambios</button>
       </div>
@@ -493,7 +533,13 @@
 
     <!-- Seccion de Errores -->
     <div class="errores-section" id="errores-section" style="display: none;">
-      <h3>Errores Estado de Precios</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+        <h3 style="margin: 0;">Errores Estado de Precios</h3>
+        <div class="download-group">
+          <button class="download-btn csv" onclick="descargarErroresCSV()">CSV</button>
+          <button class="download-btn xls" onclick="descargarErroresXLS()">Excel</button>
+        </div>
+      </div>
 
       <div class="errores-stats">
         <div class="errores-stat-card">
@@ -774,6 +820,128 @@
       `;
       tbody.appendChild(tr);
     });
+  }
+
+  // === FUNCIONES DE DESCARGA ESTADO DE PRECIOS ===
+  function descargarPreciosCSV() {
+    if (tableData.length === 0) {
+      mostrarError('No hay datos para descargar');
+      return;
+    }
+
+    const headers = ['CATEGORIA', 'ID(MLM)', 'MARCA', 'SKU', 'CLASIFICACION', 'ACTUAL PRICE', 'NEW PRECIO', 'DESCUENTO/INCREMENTO', 'UTILIDAD', 'UTILIDAD %', 'RANGO'];
+    const csvContent = [
+      headers.join(','),
+      ...tableData.map(row => [
+        `"${(row.categoria || '').replace(/"/g, '""')}"`,
+        `"${(row.id || '').replace(/"/g, '""')}"`,
+        `"${(row.marca || '').replace(/"/g, '""')}"`,
+        `"${(row.sku || '').replace(/"/g, '""')}"`,
+        `"${(row.clasificacion || '').replace(/"/g, '""')}"`,
+        `"${(row.actual_price || '').replace(/"/g, '""')}"`,
+        `"${(row.new_precio || '').replace(/"/g, '""')}"`,
+        `"${(row.descuento_incremento || '').replace(/"/g, '""')}"`,
+        `"${(row.utilidad || '').replace(/"/g, '""')}"`,
+        `"${(row.utilidad_pct || '').replace(/"/g, '""')}"`,
+        `"${(row.rango || '').replace(/"/g, '""')}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `estado_precios_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function descargarPreciosXLS() {
+    if (tableData.length === 0) {
+      mostrarError('No hay datos para descargar');
+      return;
+    }
+
+    const headers = ['CATEGORIA', 'ID(MLM)', 'MARCA', 'SKU', 'CLASIFICACION', 'ACTUAL PRICE', 'NEW PRECIO', 'DESCUENTO/INCREMENTO', 'UTILIDAD', 'UTILIDAD %', 'RANGO'];
+    const wsData = [
+      headers,
+      ...tableData.map(row => [
+        row.categoria || '',
+        row.id || '',
+        row.marca || '',
+        row.sku || '',
+        row.clasificacion || '',
+        row.actual_price || '',
+        row.new_precio || '',
+        row.descuento_incremento || '',
+        row.utilidad || '',
+        row.utilidad_pct || '',
+        row.rango || ''
+      ])
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Estado de Precios');
+    XLSX.writeFile(wb, `estado_precios_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  // === FUNCIONES DE DESCARGA ERRORES ===
+  function descargarErroresCSV() {
+    if (erroresData.length === 0) {
+      mostrarError('No hay errores para descargar');
+      return;
+    }
+
+    const headers = ['ID', 'SKU', 'ERROR DETECTADO', 'SOLUCION MARCA', 'SOLUCION COSTO', 'SOLUCION ENVIO'];
+    const csvContent = [
+      headers.join(','),
+      ...erroresData.map(row => [
+        `"${(row.id || '').replace(/"/g, '""')}"`,
+        `"${(row.sku || '').replace(/"/g, '""')}"`,
+        `"${(row.error_detectado || '').replace(/"/g, '""')}"`,
+        `"${(row.solucion_marca || '').replace(/"/g, '""')}"`,
+        `"${(row.solucion_costo || '').replace(/"/g, '""')}"`,
+        `"${(row.solucion_envio || '').replace(/"/g, '""')}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `errores_estado_precios_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function descargarErroresXLS() {
+    if (erroresData.length === 0) {
+      mostrarError('No hay errores para descargar');
+      return;
+    }
+
+    const headers = ['ID', 'SKU', 'ERROR DETECTADO', 'SOLUCION MARCA', 'SOLUCION COSTO', 'SOLUCION ENVIO'];
+    const wsData = [
+      headers,
+      ...erroresData.map(row => [
+        row.id || '',
+        row.sku || '',
+        row.error_detectado || '',
+        row.solucion_marca || '',
+        row.solucion_costo || '',
+        row.solucion_envio || ''
+      ])
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Errores');
+    XLSX.writeFile(wb, `errores_estado_precios_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 </script>
 </body>
