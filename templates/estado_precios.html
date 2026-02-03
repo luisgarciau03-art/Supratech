@@ -629,7 +629,8 @@
       tr.setAttribute('data-index', index);
       const isModified = modifiedRows.has(index);
       const descuentoVal = row.descuento_incremento || '';
-      const descuentoDisplay = descuentoVal ? descuentoVal + '%' : '';
+      // Solo agregar % si tiene valor y no termina ya en %
+      const descuentoDisplay = descuentoVal ? (descuentoVal.toString().endsWith('%') ? descuentoVal : descuentoVal + '%') : '';
       tr.innerHTML = `
         <td>${row.categoria || ''}</td>
         <td class="editable" onclick="editarCelda(this, ${index}, 'id')">${row.id || ''}${isModified ? '<span class="modified-badge">*</span>' : ''}</td>
@@ -675,8 +676,11 @@
     }
 
     const isModified = modifiedRows.has(rowIndex);
-    // Agregar % al final si es descuento_incremento y tiene valor
-    const displayValue = (field === 'descuento_incremento' && nuevoValor) ? nuevoValor + '%' : nuevoValor;
+    // Agregar % al final si es descuento_incremento, tiene valor, y no termina ya en %
+    let displayValue = nuevoValor;
+    if (field === 'descuento_incremento' && nuevoValor && !nuevoValor.toString().endsWith('%')) {
+      displayValue = nuevoValor + '%';
+    }
     input.parentElement.innerHTML = displayValue + (isModified ? '<span class="modified-badge">*</span>' : '');
     actualizarEstadisticas();
   }
