@@ -5800,23 +5800,26 @@ def api_estado_precios_data():
                       len(col_clasificacion), len(col_actual_price), len(col_new_precio),
                       len(col_descuento), len(col_utilidad), len(col_utilidad_pct), len(col_rango))
 
-        # Construir datos
+        # Construir datos (solo filas donde ID no esté vacío)
         data = []
         for i in range(max_len):
-            data.append({
-                'row_index': i + 2,
-                'categoria': col_categoria[i] if i < len(col_categoria) else '',
-                'id': col_id[i] if i < len(col_id) else '',
-                'marca': col_marca[i] if i < len(col_marca) else '',
-                'sku': col_sku[i] if i < len(col_sku) else '',
-                'clasificacion': col_clasificacion[i] if i < len(col_clasificacion) else '',
-                'actual_price': col_actual_price[i] if i < len(col_actual_price) else '',
-                'new_precio': col_new_precio[i] if i < len(col_new_precio) else '',
-                'descuento_incremento': col_descuento[i] if i < len(col_descuento) else '',
-                'utilidad': col_utilidad[i] if i < len(col_utilidad) else '',
-                'utilidad_pct': col_utilidad_pct[i] if i < len(col_utilidad_pct) else '',
-                'rango': col_rango[i] if i < len(col_rango) else ''
-            })
+            id_value = col_id[i] if i < len(col_id) else ''
+            # Solo incluir filas donde el ID no esté vacío
+            if id_value and id_value.strip():
+                data.append({
+                    'row_index': i + 2,
+                    'categoria': col_categoria[i] if i < len(col_categoria) else '',
+                    'id': id_value,
+                    'marca': col_marca[i] if i < len(col_marca) else '',
+                    'sku': col_sku[i] if i < len(col_sku) else '',
+                    'clasificacion': col_clasificacion[i] if i < len(col_clasificacion) else '',
+                    'actual_price': col_actual_price[i] if i < len(col_actual_price) else '',
+                    'new_precio': col_new_precio[i] if i < len(col_new_precio) else '',
+                    'descuento_incremento': col_descuento[i] if i < len(col_descuento) else '',
+                    'utilidad': col_utilidad[i] if i < len(col_utilidad) else '',
+                    'utilidad_pct': col_utilidad_pct[i] if i < len(col_utilidad_pct) else '',
+                    'rango': col_rango[i] if i < len(col_rango) else ''
+                })
 
         return jsonify({'data': data}), 200
     except Exception as e:
