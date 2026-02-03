@@ -297,6 +297,123 @@
       .btn-group { width: 100%; }
       .save-btn, .upload-btn { flex: 1; }
     }
+
+    /* Estilos para sección de errores */
+    .errores-section {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .errores-section h3 {
+      color: #dc3545;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .errores-table-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1);
+    }
+
+    .errores-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 900px;
+    }
+
+    .errores-table thead {
+      background: linear-gradient(45deg, #dc3545, #c82333);
+      color: white;
+    }
+
+    .errores-table th {
+      padding: 15px 10px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85em;
+    }
+
+    .errores-table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.85em;
+      text-align: center;
+    }
+
+    .errores-table tbody tr:hover {
+      background-color: rgba(220, 53, 69, 0.05);
+    }
+
+    .solucion-btn {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .solucion-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    }
+
+    .solucion-btn.marca {
+      background: linear-gradient(45deg, #17a2b8, #138496);
+    }
+
+    .solucion-btn.costo {
+      background: linear-gradient(45deg, #28a745, #20c997);
+    }
+
+    .solucion-btn.envio {
+      background: linear-gradient(45deg, #fd7e14, #e55300);
+    }
+
+    .error-badge {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.8em;
+    }
+
+    .errores-stats {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .errores-stat-card {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .errores-stat-card .number {
+      font-size: 1.5em;
+      font-weight: 700;
+    }
+
+    .errores-stat-card .label {
+      font-size: 0.8em;
+      opacity: 0.9;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -373,6 +490,37 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Seccion de Errores -->
+    <div class="errores-section" id="errores-section" style="display: none;">
+      <h3>Errores Estado de Precios</h3>
+
+      <div class="errores-stats">
+        <div class="errores-stat-card">
+          <div class="number" id="total-errores">0</div>
+          <div class="label">Errores Detectados</div>
+        </div>
+      </div>
+
+      <div id="errores-loading" class="loading">Cargando errores...</div>
+
+      <div class="errores-table-container" id="errores-table-container" style="display: none;">
+        <table class="errores-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>SKU</th>
+              <th>ERROR DETECTADO</th>
+              <th>SOLUCION MARCA</th>
+              <th>SOLUCION COSTO</th>
+              <th>SOLUCION ENVIO</th>
+            </tr>
+          </thead>
+          <tbody id="errores-table-body">
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
 <script>
@@ -380,11 +528,13 @@
   let tableData = [];
   let originalData = [];
   let modifiedRows = new Set();
+  let erroresData = [];
 
   firebase.auth().onAuthStateChanged(async function(user) {
     if (user) {
       idToken = await user.getIdToken();
       cargarDatos();
+      cargarErrores();
     } else {
       window.location.href = '/';
     }
@@ -521,11 +671,8 @@
 
       if (res.ok) {
         mostrarExito();
-        // Actualizar datos originales
-        originalData = JSON.parse(JSON.stringify(tableData));
-        modifiedRows.clear();
-        mostrarTabla(tableData);
-        actualizarEstadisticas();
+        // Recargar datos desde el servidor para reflejar cambios
+        await cargarDatos();
       } else {
         mostrarError(result.error || 'Error al guardar cambios');
       }
@@ -579,6 +726,54 @@
     const successContainer = document.getElementById('success-container');
     successContainer.style.display = 'block';
     setTimeout(() => successContainer.style.display = 'none', 3000);
+  }
+
+  // === FUNCIONES PARA ERRORES ===
+  async function cargarErrores() {
+    try {
+      const res = await fetch('/api/estado_precios/errores', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        erroresData = result.data || [];
+        mostrarErroresTabla(erroresData);
+        document.getElementById('errores-loading').style.display = 'none';
+        document.getElementById('errores-section').style.display = 'block';
+        if (erroresData.length > 0) {
+          document.getElementById('errores-table-container').style.display = 'block';
+        }
+        document.getElementById('total-errores').textContent = erroresData.length;
+      }
+    } catch (error) {
+      console.error('Error al cargar errores:', error);
+      document.getElementById('errores-loading').style.display = 'none';
+    }
+  }
+
+  function mostrarErroresTabla(data) {
+    const tbody = document.getElementById('errores-table-body');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #28a745;">No hay errores detectados</td></tr>';
+      return;
+    }
+
+    data.forEach((row) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.id || ''}</td>
+        <td>${row.sku || ''}</td>
+        <td><span class="error-badge">${row.error_detectado || ''}</span></td>
+        <td>${row.solucion_marca ? `<a href="/corregir" class="solucion-btn marca">Corregir Marca</a>` : '-'}</td>
+        <td>${row.solucion_costo ? `<a href="/corregir" class="solucion-btn costo">Corregir Costo</a>` : '-'}</td>
+        <td>${row.solucion_envio ? `<a href="/corregir" class="solucion-btn envio">Corregir Envio</a>` : '-'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 </script>
 </body>

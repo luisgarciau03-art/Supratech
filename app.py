@@ -5927,6 +5927,70 @@ def api_estado_precios_bulk():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/estado_precios/errores', methods=['GET'])
+def api_estado_precios_errores():
+    """Lee datos de ID ERRORES - Errores Estado de Precios"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Leer columnas: A (ID), B (SKU), C (ERROR DETECTADO), D (SOLUCION MARCA), E (SOLUCION COSTO), F (SOLUCION ENVIO)
+        result = service.spreadsheets().values().batchGet(
+            spreadsheetId=ESTADO_PRECIOS_SPREADSHEET_ID,
+            ranges=[
+                'ID ERRORES!A2:A',  # ID
+                'ID ERRORES!B2:B',  # SKU
+                'ID ERRORES!C2:C',  # ERROR DETECTADO
+                'ID ERRORES!D2:D',  # SOLUCION PARA MARCA
+                'ID ERRORES!E2:E',  # SOLUCION PARA COSTO
+                'ID ERRORES!F2:F',  # SOLUCION PARA ENVIO
+            ]
+        ).execute()
+
+        value_ranges = result.get('valueRanges', [])
+
+        # Extraer valores de cada columna
+        col_id = [row[0] if row else '' for row in value_ranges[0].get('values', [])]
+        col_sku = [row[0] if row else '' for row in value_ranges[1].get('values', [])]
+        col_error = [row[0] if row else '' for row in value_ranges[2].get('values', [])]
+        col_sol_marca = [row[0] if row else '' for row in value_ranges[3].get('values', [])]
+        col_sol_costo = [row[0] if row else '' for row in value_ranges[4].get('values', [])]
+        col_sol_envio = [row[0] if row else '' for row in value_ranges[5].get('values', [])]
+
+        # Encontrar la longitud máxima
+        max_len = max(len(col_id), len(col_sku), len(col_error),
+                      len(col_sol_marca), len(col_sol_costo), len(col_sol_envio), 1) if any([col_id, col_sku, col_error]) else 0
+
+        # Construir datos (solo filas donde hay algún dato)
+        data = []
+        for i in range(max_len):
+            id_val = col_id[i] if i < len(col_id) else ''
+            sku_val = col_sku[i] if i < len(col_sku) else ''
+            error_val = col_error[i] if i < len(col_error) else ''
+            # Solo incluir si hay al menos ID o SKU o ERROR
+            if id_val or sku_val or error_val:
+                data.append({
+                    'row_index': i + 2,
+                    'id': id_val,
+                    'sku': sku_val,
+                    'error_detectado': error_val,
+                    'solucion_marca': col_sol_marca[i] if i < len(col_sol_marca) else '',
+                    'solucion_costo': col_sol_costo[i] if i < len(col_sol_costo) else '',
+                    'solucion_envio': col_sol_envio[i] if i < len(col_sol_envio) else ''
+                })
+
+        return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5001))
