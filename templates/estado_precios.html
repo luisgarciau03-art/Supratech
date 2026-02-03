@@ -705,8 +705,15 @@
     }
 
     try {
-      // Solo enviar filas modificadas
-      const dataToSend = Array.from(modifiedRows).map(index => tableData[index]);
+      // Solo enviar filas modificadas, agregando % a descuento_incremento si no lo tiene
+      const dataToSend = Array.from(modifiedRows).map(index => {
+        const row = { ...tableData[index] };
+        // Agregar % al valor de descuento_incremento si tiene valor y no termina en %
+        if (row.descuento_incremento && !row.descuento_incremento.toString().endsWith('%')) {
+          row.descuento_incremento = row.descuento_incremento + '%';
+        }
+        return row;
+      });
 
       const res = await fetch('/api/estado_precios/update', {
         method: 'POST',

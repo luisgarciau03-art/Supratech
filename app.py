@@ -5846,9 +5846,13 @@ def api_estado_precios_update():
         for row_data in rows:
             row_num = row_data.get('row_index', 0)
             if row_num > 0:
+                # Agregar % al descuento si tiene valor y no termina en %
+                descuento_val = row_data.get('descuento_incremento', '')
+                if descuento_val and not str(descuento_val).endswith('%'):
+                    descuento_val = str(descuento_val) + '%'
                 # Solo actualizar columnas B (ID) y K (DESCUENTO O INCREMENTO)
                 batch_data.append({'range': f'LISTA L!B{row_num}', 'values': [[row_data.get('id', '')]]})
-                batch_data.append({'range': f'LISTA L!K{row_num}', 'values': [[row_data.get('descuento_incremento', '')]]})
+                batch_data.append({'range': f'LISTA L!K{row_num}', 'values': [[descuento_val]]})
 
         if batch_data:
             service.spreadsheets().values().batchUpdate(
@@ -5912,8 +5916,12 @@ def api_estado_precios_bulk():
         batch_data = []
         for i, row in enumerate(rows):
             row_num = i + 2  # Empezar desde fila 2
+            # Agregar % al descuento si tiene valor y no termina en %
+            descuento_val = row.get('DESCUENTO O INCREMENTO', '')
+            if descuento_val and not str(descuento_val).endswith('%'):
+                descuento_val = str(descuento_val) + '%'
             batch_data.append({'range': f'LISTA L!B{row_num}', 'values': [[row.get('ID', '')]]})
-            batch_data.append({'range': f'LISTA L!K{row_num}', 'values': [[row.get('DESCUENTO O INCREMENTO', '')]]})
+            batch_data.append({'range': f'LISTA L!K{row_num}', 'values': [[descuento_val]]})
 
         if batch_data:
             service.spreadsheets().values().batchUpdate(
