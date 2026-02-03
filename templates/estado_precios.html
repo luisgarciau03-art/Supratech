@@ -628,6 +628,8 @@
       const tr = document.createElement('tr');
       tr.setAttribute('data-index', index);
       const isModified = modifiedRows.has(index);
+      const descuentoVal = row.descuento_incremento || '';
+      const descuentoDisplay = descuentoVal ? descuentoVal + '%' : '';
       tr.innerHTML = `
         <td>${row.categoria || ''}</td>
         <td class="editable" onclick="editarCelda(this, ${index}, 'id')">${row.id || ''}${isModified ? '<span class="modified-badge">*</span>' : ''}</td>
@@ -636,7 +638,7 @@
         <td>${row.clasificacion || ''}</td>
         <td>${row.actual_price || ''}</td>
         <td>${row.new_precio || ''}</td>
-        <td class="editable" onclick="editarCelda(this, ${index}, 'descuento_incremento')">${row.descuento_incremento || ''}</td>
+        <td class="editable" onclick="editarCelda(this, ${index}, 'descuento_incremento')">${descuentoDisplay}</td>
         <td>${row.utilidad || ''}</td>
         <td>${row.utilidad_pct || ''}</td>
         <td>${row.rango || ''}</td>
@@ -673,7 +675,9 @@
     }
 
     const isModified = modifiedRows.has(rowIndex);
-    input.parentElement.innerHTML = nuevoValor + (isModified ? '<span class="modified-badge">*</span>' : '');
+    // Agregar % al final si es descuento_incremento y tiene valor
+    const displayValue = (field === 'descuento_incremento' && nuevoValor) ? nuevoValor + '%' : nuevoValor;
+    input.parentElement.innerHTML = displayValue + (isModified ? '<span class="modified-badge">*</span>' : '');
     actualizarEstadisticas();
   }
 
