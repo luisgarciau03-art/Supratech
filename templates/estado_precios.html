@@ -514,13 +514,13 @@
         <thead>
           <tr>
             <th>CATEGORIA</th>
-            <th>ID(MLM)</th>
+            <th>ID</th>
             <th>MARCA</th>
             <th>SKU</th>
             <th>CLASIFICACION</th>
             <th>ACTUAL PRICE</th>
             <th>NEW PRECIO</th>
-            <th>DESCUENTO/INCREMENTO</th>
+            <th>DESCUENTO O INCREMENTO</th>
             <th>UTILIDAD</th>
             <th>UTILIDAD %</th>
             <th>RANGO</th>
@@ -829,7 +829,7 @@
       return;
     }
 
-    const headers = ['CATEGORIA', 'ID(MLM)', 'MARCA', 'SKU', 'CLASIFICACION', 'ACTUAL PRICE', 'NEW PRECIO', 'DESCUENTO/INCREMENTO', 'UTILIDAD', 'UTILIDAD %', 'RANGO'];
+    const headers = ['CATEGORIA', 'ID', 'MARCA', 'SKU', 'CLASIFICACION', 'ACTUAL PRICE', 'NEW PRECIO', 'DESCUENTO O INCREMENTO', 'UTILIDAD', 'UTILIDAD %', 'RANGO'];
     const csvContent = [
       headers.join(','),
       ...tableData.map(row => [
@@ -864,7 +864,7 @@
       return;
     }
 
-    const headers = ['CATEGORIA', 'ID(MLM)', 'MARCA', 'SKU', 'CLASIFICACION', 'ACTUAL PRICE', 'NEW PRECIO', 'DESCUENTO/INCREMENTO', 'UTILIDAD', 'UTILIDAD %', 'RANGO'];
+    const headers = ['CATEGORIA', 'ID', 'MARCA', 'SKU', 'CLASIFICACION', 'ACTUAL PRICE', 'NEW PRECIO', 'DESCUENTO O INCREMENTO', 'UTILIDAD', 'UTILIDAD %', 'RANGO'];
     const wsData = [
       headers,
       ...tableData.map(row => [
