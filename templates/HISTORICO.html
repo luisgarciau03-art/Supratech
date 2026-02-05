@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HISTORICO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .panel-card {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      text-align: center;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin-bottom: 35px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 0.95em;
+      margin-bottom: 5px;
+      text-align: left;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 1em;
+      outline: none;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.8);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary-color);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+    }
+
+    button {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(67, 97, 238, 0.3);
+    }
+
+    .success {
+      color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid rgba(40, 167, 69, 0.2);
+      display: none;
+    }
+
+    .error {
+      color: #ef233c;
+      background: rgba(239, 35, 60, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid rgba(239, 35, 60, 0.2);
+      display: none;
+    }
+
+    .back-link {
+      background: white;
+      color: var(--primary-color);
+      text-decoration: underline;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.15);
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.95em;
+      border: 1px solid rgba(67, 97, 238, 0.2);
+      margin-bottom: 30px;
+    }
+
+    .back-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .download-link {
+        display: block;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .download-link:hover {
+        color: var(--secondary-color);
+        text-decoration: underline;
+    }
+
+    @media (max-width: 540px) {
+      .panel-card {
+        padding: 30px 20px;
+      }
+      h2 { font-size: 1.5em; }
+    }
+  </style>
+  <!-- Firebase App (core) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <!-- Firebase Auth -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83",
+      measurementId: "G-JC8Y89CPQH"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+<script>
+function setLastUpdate() {
+  const now = new Date();
+  const formatted = now.toLocaleString('es-MX', { hour12: false });
+  const div = document.getElementById('last-update');
+  if (div) {
+    div.textContent = 'Ultima actualizacion: ' + formatted;
+  }
+}
+</script>
+</head>
+<body>
+  <div class="panel-card">
+    <a href="/Llenar_BDS" class="back-link">&larr; Volver</a>
+    <h2>HISTORICO</h2>
+    <form id="historico-form">
+      <!-- Campos dinamicos aqui -->
+    </form>
+    <div style="margin: 18px 0;">
+        <a href="/static/plantilla_historico.csv" download class="download-link">📥 Descargar plantilla CSV</a>
+      <label for="bulk-file" style="color:var(--text-dark);font-weight:600;margin-bottom:10px;display:block;">Carga masiva (CSV):</label>
+      <input type="file" id="bulk-file" accept=".csv" style="margin-bottom:8px;">
+      <button id="bulk-upload-btn" type="button">Cargar archivo</button>
+    </div>
+    <div id="last-update" style="color:#555;font-size:0.98em;margin-bottom:10px;"></div>
+    <div id="historico-success" class="success"></div>
+    <div id="historico-error" class="error"></div>
+    <div id="bulk-preview" style="margin-top:18px;text-align:left;max-height:300px;overflow:auto;"></div>
+  </div>
+</body>
+<script>
+  setLastUpdate();
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      try {
+        const idToken = await user.getIdToken();
+        cargarCamposDinamicos(idToken);
+      } catch (e) {
+        window.location.href = '/';
+      }
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  async function cargarCamposDinamicos(idToken) {
+    if (!idToken) {
+      window.location.href = '/';
+      return;
+    }
+    const res = await fetch('/api/historico_campos', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + idToken }
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById('historico-error').textContent = data.error || 'Error al obtener campos';
+      document.getElementById('historico-error').style.display = 'block';
+      return;
+    }
+    const campos = data.campos;
+    const form = document.getElementById('historico-form');
+    form.innerHTML = '';
+    for (const campo of campos) {
+      const label = document.createElement('label');
+      label.setAttribute('for', campo);
+      label.textContent = campo.replace(/_/g, ' ').toUpperCase();
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = campo;
+      input.name = campo;
+      input.required = true;
+      form.appendChild(label);
+      form.appendChild(input);
+    }
+    const btn = document.createElement('button');
+    btn.type = 'submit';
+    btn.textContent = 'Registrar';
+    form.appendChild(btn);
+    form.dataset.idToken = idToken;
+    document.getElementById('bulk-upload-btn').dataset.idToken = idToken;
+  }
+
+  document.getElementById('historico-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = document.getElementById('historico-form');
+    const idToken = form.dataset.idToken;
+    if (!idToken) {
+      window.location.href = '/';
+      return;
+    }
+    const formData = {};
+    for (const el of form.elements) {
+      if (el.tagName === 'INPUT') {
+        formData[el.name] = el.value;
+      }
+    }
+    const successDiv = document.getElementById('historico-success');
+    const errorDiv = document.getElementById('historico-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    try {
+      const response = await fetch('/api/historico_registro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + idToken
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        successDiv.textContent = 'Registro exitoso en Spreadsheet';
+        successDiv.style.display = 'block';
+        form.reset();
+        setLastUpdate();
+      } else {
+        errorDiv.textContent = data.error || 'Error al registrar en Spreadsheet';
+        errorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      errorDiv.textContent = error.message || 'Error inesperado';
+      errorDiv.style.display = 'block';
+    }
+  });
+
+  document.getElementById('bulk-upload-btn').addEventListener('click', async function() {
+    const fileInput = document.getElementById('bulk-file');
+    const idToken = this.dataset.idToken;
+    const successDiv = document.getElementById('historico-success');
+    const errorDiv = document.getElementById('historico-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    if (!fileInput.files.length) {
+      errorDiv.textContent = 'Selecciona un archivo CSV.';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await fetch('/api/historico_bulk', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + idToken },
+        body: formData
+      });
+      const previewDiv = document.getElementById('bulk-preview');
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        errorDiv.textContent = 'Error inesperado en el servidor. Intenta de nuevo o contacta soporte.';
+        errorDiv.style.display = 'block';
+        previewDiv.innerHTML = '';
+        return;
+      }
+      if (response.ok) {
+        successDiv.textContent = `Carga masiva exitosa: ${data.rows} filas`;
+        successDiv.style.display = 'block';
+        setLastUpdate();
+        if (data.preview && data.preview.length > 0) {
+          const keys = Object.keys(data.preview[0]);
+          let html = '<table style="border-collapse:collapse;width:100%;font-size:0.97em;">';
+          html += '<thead><tr>' + keys.map(k => `<th style='border:1px solid #b3c6e6;padding:4px 8px;background:#eaf0fa;'>${k}</th>`).join('') + '</tr></thead>';
+          html += '<tbody>' + data.preview.map(row => '<tr>' + keys.map(k => `<td style='border:1px solid #b3c6e6;padding:4px 8px;'>${row[k] ?? ''}</td>`).join('') + '</tr>').join('') + '</tbody>';
+          html += '</table>';
+          previewDiv.innerHTML = html;
+        } else {
+          previewDiv.innerHTML = '<em>No hay datos para mostrar.</em>';
+        }
+      } else {
+        errorDiv.textContent = data.error || 'Error en carga masiva';
+        errorDiv.style.display = 'block';
+        previewDiv.innerHTML = '';
+      }
+    } catch (error) {
+      errorDiv.textContent = error.message || 'Error inesperado en carga masiva';
+      errorDiv.style.display = 'block';
+      document.getElementById('bulk-preview').innerHTML = '';
+    }
+  });
+</script>
+</html>

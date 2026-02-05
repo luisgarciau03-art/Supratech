@@ -329,6 +329,11 @@ def llenar_bds():
 def bdmarcas():
     return render_template('BDMARCAS.html')
 
+# Ruta para HISTORICO
+@app.route('/historico')
+def historico():
+    return render_template('HISTORICO.html')
+
 @app.route('/api/userinfo', methods=['GET'])
 def userinfo():
     auth_header = request.headers.get('Authorization')
@@ -3424,6 +3429,174 @@ def metricas_productos_data():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# --- ENDPOINTS PARA HISTORICO ---
+@app.route('/api/historico_campos', methods=['GET'])
+def historico_campos():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('HISTORICO')
+        hoja_doc = hoja_ref.get()
+        if not hoja_doc.exists:
+            return jsonify({'error': 'No se encontro la configuracion de hoja/rango'}), 404
+        hoja_data = hoja_doc.to_dict()
+        campos = [k for k in hoja_data.keys() if k != 'Hoja']
+        return jsonify({'campos': campos})
+    except Exception as e:
+        return jsonify({'error': 'Error al obtener campos', 'details': str(e)}), 500
+
+@app.route('/api/historico_registro', methods=['POST'])
+def historico_registro():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    import re
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        data = request.get_json()
+        area_doc = db.collection('Areas').document(uid).get()
+        if not area_doc.exists:
+            return jsonify({'error': 'No se encontro el area para este usuario'}), 404
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('HISTORICO')
+        if not spreadsheet_url:
+            return jsonify({'error': 'No se encontro la URL del spreadsheet'}), 404
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('HISTORICO')
+        hoja_doc = hoja_ref.get()
+        if not hoja_doc.exists:
+            return jsonify({'error': 'No se encontro la configuracion de hoja/rango'}), 404
+        hoja_data = hoja_doc.to_dict()
+        nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
+        ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        sheet = service.spreadsheets()
+        for campo, rango in ubicaciones.items():
+            rango_col = f"{nombre_hoja}!{rango}"
+            sheet.values().clear(
+                spreadsheetId=spreadsheet_id,
+                range=rango_col,
+                body={}
+            ).execute()
+        for campo, rango in ubicaciones.items():
+            partes = rango.split(':')[0]
+            col_match = re.match(r"^([A-Z]+)([0-9]+)?$", partes)
+            if col_match:
+                col = col_match.group(1)
+                fila_inicial = int(col_match.group(2)) if col_match.group(2) else 1
+            else:
+                col = partes
+                fila_inicial = 1
+            values = [[data.get(campo, '')]]
+            rango_celda = f"{nombre_hoja}!{col}{fila_inicial}:{col}{fila_inicial}"
+            sheet.values().update(
+                spreadsheetId=spreadsheet_id,
+                range=rango_celda,
+                valueInputOption='USER_ENTERED',
+                body={'values': values}
+            ).execute()
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/historico_bulk', methods=['POST'])
+def historico_bulk():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    import re, io, csv, openpyxl
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('HISTORICO')
+        hoja_doc = hoja_ref.get()
+        if not hoja_doc.exists:
+            return jsonify({'error': 'No se encontro la configuracion de hoja/rango'}), 404
+        hoja_data = hoja_doc.to_dict()
+        nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
+        ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
+        area_doc = db.collection('Areas').document(uid).get()
+        if not area_doc.exists:
+            return jsonify({'error': 'No se encontro el area para este usuario'}), 404
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('HISTORICO')
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        file = request.files['file']
+        filename = file.filename.lower()
+        campos_config = list(ubicaciones.keys())
+        rows = []
+        if filename.endswith('.csv'):
+            try:
+                stream = io.StringIO(file.stream.read().decode('utf-8'))
+            except Exception:
+                stream = io.StringIO(file.stream.read().decode('latin-1'))
+            reader = csv.DictReader(stream)
+            if reader.fieldnames is None:
+                return jsonify({'error': 'El archivo CSV no tiene encabezados.'}), 400
+            missing = [campo for campo in campos_config if campo not in reader.fieldnames]
+            if missing:
+                return jsonify({'error': f'Faltan columnas requeridas: {missing}'}), 400
+            rows = list(reader)
+        elif filename.endswith('.xlsx'):
+            wb = openpyxl.load_workbook(file, read_only=True)
+            ws = wb.active
+            headers = [cell.value for cell in next(ws.iter_rows(min_row=1, max_row=1))]
+            missing = [campo for campo in campos_config if campo not in headers]
+            if missing:
+                return jsonify({'error': f'Faltan columnas requeridas: {missing}'}), 400
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                rows.append(dict(zip(headers, row)))
+        else:
+            return jsonify({'error': 'Solo se permiten archivos CSV o XLSX'}), 400
+        rows_preview = rows[:100]
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+        sheet = service.spreadsheets()
+        for campo, rango in ubicaciones.items():
+            rango_col = f"{nombre_hoja}!{rango}"
+            sheet.values().clear(
+                spreadsheetId=spreadsheet_id,
+                range=rango_col,
+                body={}
+            ).execute()
+        for campo, rango in ubicaciones.items():
+            match = re.match(r"([A-Z]+)(\d+):", rango)
+            if match:
+                col = match.group(1)
+                fila_inicial = int(match.group(2))
+            else:
+                col = rango.split(':')[0]
+                fila_inicial = 1
+            values = [[row.get(campo, '')] for row in rows]
+            fila_final = fila_inicial + len(values) - 1
+            sheet.values().update(
+                spreadsheetId=spreadsheet_id,
+                range=f"{nombre_hoja}!{col}{fila_inicial}:{col}{fila_final}",
+                valueInputOption='USER_ENTERED',
+                body={'values': values}
+            ).execute()
+        return jsonify({'status': 'ok', 'rows': len(rows), 'preview': rows_preview})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # --- Sub-rutas para BD Descuentos ---
 @app.route('/<page_name>')
 def bd_descuentos_page(page_name):
@@ -5994,6 +6167,219 @@ def api_estado_precios_errores():
                 })
 
         return jsonify({'data': data}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# --- ENDPOINTS PARA PRODUCTOS OLVIDADOS ---
+@app.route('/productos_olvidados')
+def productos_olvidados():
+    return render_template('productos_olvidados.html')
+
+@app.route('/api/productos_olvidados/data', methods=['GET'])
+def api_productos_olvidados_data():
+    """Lee datos de IMPULSO - Productos Olvidados"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        # Obtener configuracion de Firebase
+        area_doc = db.collection('Areas').document(uid).get()
+        if not area_doc.exists:
+            return jsonify({'error': 'No se encontro el area para este usuario'}), 404
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('IMPULSO')
+        if not spreadsheet_url:
+            return jsonify({'error': 'No se encontro la URL del spreadsheet IMPULSO'}), 404
+
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        # Obtener configuracion de hojas
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('IMPULSO')
+        hoja_doc = hoja_ref.get()
+        if not hoja_doc.exists:
+            return jsonify({'error': 'No se encontro la configuracion de IMPULSO'}), 404
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('HOJA', 'IMPULSE ORDER')
+        celda_marca = hoja_data.get('MARCA', 'A1')
+        celda_porcentaje = hoja_data.get('PORCENTAJE', 'E1')
+        rango_tabla = hoja_data.get('TABLA', 'A3:F')
+        celda_truper = hoja_data.get('TRUPER', 'C1')
+        celda_valor = hoja_data.get('0.1', 'F1')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Leer todos los datos necesarios en batch
+        ranges = [
+            f"{nombre_hoja}!{celda_marca}",
+            f"{nombre_hoja}!{celda_porcentaje}",
+            f"{nombre_hoja}!{rango_tabla}",
+            f"{nombre_hoja}!{celda_truper}",
+            f"{nombre_hoja}!{celda_valor}",
+        ]
+
+        result = service.spreadsheets().values().batchGet(
+            spreadsheetId=spreadsheet_id,
+            ranges=ranges
+        ).execute()
+
+        value_ranges = result.get('valueRanges', [])
+
+        marca = ''
+        if len(value_ranges) > 0 and value_ranges[0].get('values'):
+            marca = value_ranges[0]['values'][0][0] if value_ranges[0]['values'][0] else ''
+
+        porcentaje = ''
+        if len(value_ranges) > 1 and value_ranges[1].get('values'):
+            porcentaje = value_ranges[1]['values'][0][0] if value_ranges[1]['values'][0] else ''
+
+        tabla = []
+        tabla_headers = []
+        if len(value_ranges) > 2 and value_ranges[2].get('values'):
+            all_rows = value_ranges[2]['values']
+            if len(all_rows) > 0:
+                tabla_headers = all_rows[0]
+                tabla = all_rows[1:] if len(all_rows) > 1 else []
+
+        truper_actual = ''
+        if len(value_ranges) > 3 and value_ranges[3].get('values'):
+            truper_actual = value_ranges[3]['values'][0][0] if value_ranges[3]['values'][0] else ''
+
+        valor_f1 = ''
+        if len(value_ranges) > 4 and value_ranges[4].get('values'):
+            valor_f1 = value_ranges[4]['values'][0][0] if value_ranges[4]['values'][0] else ''
+
+        # Obtener opciones de validacion de datos para celda C1 (TRUPER)
+        truper_opciones = []
+        try:
+            # Obtener la fila y columna de celda_truper
+            sheet_meta = service.spreadsheets().get(
+                spreadsheetId=spreadsheet_id,
+                ranges=[f"{nombre_hoja}!{celda_truper}"],
+                fields='sheets.data.rowData.values.dataValidation'
+            ).execute()
+
+            sheets = sheet_meta.get('sheets', [])
+            if sheets:
+                data_list = sheets[0].get('data', [])
+                if data_list:
+                    row_data = data_list[0].get('rowData', [])
+                    if row_data:
+                        values = row_data[0].get('values', [])
+                        if values:
+                            dv = values[0].get('dataValidation', {})
+                            condition = dv.get('condition', {})
+                            if condition.get('type') == 'ONE_OF_LIST':
+                                cond_values = condition.get('values', [])
+                                truper_opciones = [v.get('userEnteredValue', '') for v in cond_values if v.get('userEnteredValue')]
+                            elif condition.get('type') == 'ONE_OF_RANGE':
+                                # Si la validacion es un rango, leer ese rango
+                                cond_values = condition.get('values', [])
+                                if cond_values:
+                                    ref_range = cond_values[0].get('userEnteredValue', '')
+                                    if ref_range.startswith('='):
+                                        ref_range = ref_range[1:]
+                                    ref_result = service.spreadsheets().values().get(
+                                        spreadsheetId=spreadsheet_id,
+                                        range=ref_range
+                                    ).execute()
+                                    ref_values = ref_result.get('values', [])
+                                    truper_opciones = [row[0] for row in ref_values if row]
+        except Exception:
+            pass
+
+        return jsonify({
+            'marca': marca,
+            'porcentaje': porcentaje,
+            'tabla': tabla,
+            'tabla_headers': tabla_headers,
+            'truper_actual': truper_actual,
+            'truper_opciones': truper_opciones,
+            'valor_f1': valor_f1
+        }), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/productos_olvidados/update', methods=['POST'])
+def api_productos_olvidados_update():
+    """Actualiza valores editables en IMPULSO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        data = request.get_json()
+
+        area_doc = db.collection('Areas').document(uid).get()
+        if not area_doc.exists:
+            return jsonify({'error': 'No se encontro el area para este usuario'}), 404
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('IMPULSO')
+        if not spreadsheet_url:
+            return jsonify({'error': 'No se encontro la URL del spreadsheet IMPULSO'}), 404
+
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('IMPULSO')
+        hoja_doc = hoja_ref.get()
+        if not hoja_doc.exists:
+            return jsonify({'error': 'No se encontro la configuracion de IMPULSO'}), 404
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('HOJA', 'IMPULSE ORDER')
+        celda_truper = hoja_data.get('TRUPER', 'C1')
+        celda_valor = hoja_data.get('0.1', 'F1')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        batch_data = []
+
+        if 'truper' in data:
+            batch_data.append({
+                'range': f"{nombre_hoja}!{celda_truper}",
+                'values': [[data['truper']]]
+            })
+
+        if 'valor_f1' in data:
+            batch_data.append({
+                'range': f"{nombre_hoja}!{celda_valor}",
+                'values': [[data['valor_f1']]]
+            })
+
+        if batch_data:
+            service.spreadsheets().values().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body={
+                    'valueInputOption': 'USER_ENTERED',
+                    'data': batch_data
+                }
+            ).execute()
+
+        return jsonify({'status': 'ok'}), 200
+
     except Exception as e:
         import traceback
         traceback.print_exc()
