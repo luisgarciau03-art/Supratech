@@ -3430,6 +3430,30 @@ def metricas_productos_data():
         return jsonify({'error': str(e)}), 500
 
 # --- ENDPOINTS PARA HISTORICO ---
+
+# Configuracion por defecto de HISTORICO
+HISTORICO_DEFAULT_URL = 'https://docs.google.com/spreadsheets/d/13tQ5dqMGuT7M9cYOQdvQozNu7fxW4RUc2-1LNR_nHB0/edit?gid=549893191#gid=549893191'
+HISTORICO_DEFAULT_HOJA = {
+    'Hoja': 'BD PUBLICACIONES',
+    'ID': 'A:A',
+    'VENTAS TOTALES': 'H:H'
+}
+
+def _init_historico_config(uid):
+    """Auto-crea la configuracion de HISTORICO en Firebase si no existe"""
+    area_ref = db.collection('Areas').document(uid)
+    area_doc = area_ref.get()
+    if not area_doc.exists:
+        area_ref.set({'HISTORICO': HISTORICO_DEFAULT_URL})
+    else:
+        area_data = area_doc.to_dict()
+        if not area_data.get('HISTORICO'):
+            area_ref.update({'HISTORICO': HISTORICO_DEFAULT_URL})
+    hoja_ref = area_ref.collection('Hojas').document('BDPUBLICACIONES')
+    hoja_doc = hoja_ref.get()
+    if not hoja_doc.exists:
+        hoja_ref.set(HISTORICO_DEFAULT_HOJA)
+
 @app.route('/api/historico_campos', methods=['GET'])
 def historico_campos():
     auth_header = request.headers.get('Authorization')
@@ -3439,10 +3463,9 @@ def historico_campos():
     try:
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
-        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('HISTORICO')
+        _init_historico_config(uid)
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('BDPUBLICACIONES')
         hoja_doc = hoja_ref.get()
-        if not hoja_doc.exists:
-            return jsonify({'error': 'No se encontro la configuracion de hoja/rango'}), 404
         hoja_data = hoja_doc.to_dict()
         campos = [k for k in hoja_data.keys() if k != 'Hoja']
         return jsonify({'campos': campos})
@@ -3459,52 +3482,45 @@ def historico_registro():
     try:
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
+        _init_historico_config(uid)
         data = request.get_json()
         area_doc = db.collection('Areas').document(uid).get()
-        if not area_doc.exists:
-            return jsonify({'error': 'No se encontro el area para este usuario'}), 404
         area_data = area_doc.to_dict()
         spreadsheet_url = area_data.get('HISTORICO')
-        if not spreadsheet_url:
-            return jsonify({'error': 'No se encontro la URL del spreadsheet'}), 404
         match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
         if not match:
             return jsonify({'error': 'URL de spreadsheet invalida'}), 400
         spreadsheet_id = match.group(1)
-        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('HISTORICO')
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('BDPUBLICACIONES')
         hoja_doc = hoja_ref.get()
-        if not hoja_doc.exists:
-            return jsonify({'error': 'No se encontro la configuracion de hoja/rango'}), 404
         hoja_data = hoja_doc.to_dict()
-        nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
+        nombre_hoja = hoja_data.get('Hoja', 'BD PUBLICACIONES')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
         from googleapiclient.discovery import build
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
+        # Obtener la ultima fila usada para agregar datos al final
+        first_campo = list(ubicaciones.keys())[0]
+        first_rango = ubicaciones[first_campo]
+        col_letter = first_rango.split(':')[0]
+        col_only = ''.join(filter(str.isalpha, col_letter))
+        result_range = sheet.values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!{col_only}:{col_only}"
+        ).execute()
+        existing_rows = result_range.get('values', [])
+        next_row = len(existing_rows) + 1
+        # Escribir cada campo en la siguiente fila disponible
         for campo, rango in ubicaciones.items():
-            rango_col = f"{nombre_hoja}!{rango}"
-            sheet.values().clear(
-                spreadsheetId=spreadsheet_id,
-                range=rango_col,
-                body={}
-            ).execute()
-        for campo, rango in ubicaciones.items():
-            partes = rango.split(':')[0]
-            col_match = re.match(r"^([A-Z]+)([0-9]+)?$", partes)
-            if col_match:
-                col = col_match.group(1)
-                fila_inicial = int(col_match.group(2)) if col_match.group(2) else 1
-            else:
-                col = partes
-                fila_inicial = 1
-            values = [[data.get(campo, '')]]
-            rango_celda = f"{nombre_hoja}!{col}{fila_inicial}:{col}{fila_inicial}"
+            col = ''.join(filter(str.isalpha, rango.split(':')[0]))
+            valor = data.get(campo, '')
+            rango_celda = f"{nombre_hoja}!{col}{next_row}"
             sheet.values().update(
                 spreadsheetId=spreadsheet_id,
                 range=rango_celda,
                 valueInputOption='USER_ENTERED',
-                body={'values': values}
+                body={'values': [[valor]]}
             ).execute()
         return jsonify({'status': 'ok'})
     except Exception as e:
@@ -3520,16 +3536,13 @@ def historico_bulk():
     try:
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
-        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('HISTORICO')
+        _init_historico_config(uid)
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('BDPUBLICACIONES')
         hoja_doc = hoja_ref.get()
-        if not hoja_doc.exists:
-            return jsonify({'error': 'No se encontro la configuracion de hoja/rango'}), 404
         hoja_data = hoja_doc.to_dict()
-        nombre_hoja = hoja_data.get('Hoja', 'Sheet1')
+        nombre_hoja = hoja_data.get('Hoja', 'BD PUBLICACIONES')
         ubicaciones = {k: v for k, v in hoja_data.items() if k != 'Hoja'}
         area_doc = db.collection('Areas').document(uid).get()
-        if not area_doc.exists:
-            return jsonify({'error': 'No se encontro el area para este usuario'}), 404
         area_data = area_doc.to_dict()
         spreadsheet_url = area_data.get('HISTORICO')
         match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
@@ -6173,6 +6186,33 @@ def api_estado_precios_errores():
         return jsonify({'error': str(e)}), 500
 
 # --- ENDPOINTS PARA PRODUCTOS OLVIDADOS ---
+
+# Configuracion por defecto de IMPULSO
+IMPULSO_DEFAULT_URL = 'https://docs.google.com/spreadsheets/d/1LDZasT6HhRheM-IYWbw_tZLNZ5cDZgwNamk84UsIdIY/edit?gid=2034740744#gid=2034740744'
+IMPULSO_DEFAULT_HOJA = {
+    'HOJA': 'IMPULSE ORDER',
+    'MARCA': 'A1',
+    'PORCENTAJE': 'E1',
+    'TABLA': 'A3:F',
+    'TRUPER': 'C1',
+    '0.1': 'F1'
+}
+
+def _init_impulso_config(uid):
+    """Auto-crea la configuracion de IMPULSO en Firebase si no existe"""
+    area_ref = db.collection('Areas').document(uid)
+    area_doc = area_ref.get()
+    if not area_doc.exists:
+        area_ref.set({'IMPULSO': IMPULSO_DEFAULT_URL})
+    else:
+        area_data = area_doc.to_dict()
+        if not area_data.get('IMPULSO'):
+            area_ref.update({'IMPULSO': IMPULSO_DEFAULT_URL})
+    hoja_ref = area_ref.collection('Hojas').document('impulse')
+    hoja_doc = hoja_ref.get()
+    if not hoja_doc.exists:
+        hoja_ref.set(IMPULSO_DEFAULT_HOJA)
+
 @app.route('/productos_olvidados')
 def productos_olvidados():
     return render_template('productos_olvidados.html')
@@ -6187,15 +6227,12 @@ def api_productos_olvidados_data():
     try:
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
+        _init_impulso_config(uid)
 
         # Obtener configuracion de Firebase
         area_doc = db.collection('Areas').document(uid).get()
-        if not area_doc.exists:
-            return jsonify({'error': 'No se encontro el area para este usuario'}), 404
         area_data = area_doc.to_dict()
         spreadsheet_url = area_data.get('IMPULSO')
-        if not spreadsheet_url:
-            return jsonify({'error': 'No se encontro la URL del spreadsheet IMPULSO'}), 404
 
         import re
         match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
@@ -6204,10 +6241,8 @@ def api_productos_olvidados_data():
         spreadsheet_id = match.group(1)
 
         # Obtener configuracion de hojas
-        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('IMPULSO')
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('impulse')
         hoja_doc = hoja_ref.get()
-        if not hoja_doc.exists:
-            return jsonify({'error': 'No se encontro la configuracion de IMPULSO'}), 404
         hoja_data = hoja_doc.to_dict()
 
         nombre_hoja = hoja_data.get('HOJA', 'IMPULSE ORDER')
@@ -6326,14 +6361,11 @@ def api_productos_olvidados_update():
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
         data = request.get_json()
+        _init_impulso_config(uid)
 
         area_doc = db.collection('Areas').document(uid).get()
-        if not area_doc.exists:
-            return jsonify({'error': 'No se encontro el area para este usuario'}), 404
         area_data = area_doc.to_dict()
         spreadsheet_url = area_data.get('IMPULSO')
-        if not spreadsheet_url:
-            return jsonify({'error': 'No se encontro la URL del spreadsheet IMPULSO'}), 404
 
         import re
         match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
@@ -6341,10 +6373,8 @@ def api_productos_olvidados_update():
             return jsonify({'error': 'URL de spreadsheet invalida'}), 400
         spreadsheet_id = match.group(1)
 
-        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('IMPULSO')
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('impulse')
         hoja_doc = hoja_ref.get()
-        if not hoja_doc.exists:
-            return jsonify({'error': 'No se encontro la configuracion de IMPULSO'}), 404
         hoja_data = hoja_doc.to_dict()
 
         nombre_hoja = hoja_data.get('HOJA', 'IMPULSE ORDER')
