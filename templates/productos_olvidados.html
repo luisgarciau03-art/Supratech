@@ -283,13 +283,13 @@
       <h3>Configuracion Editable</h3>
       <div class="edit-row">
         <div>
-          <label for="truper-select">TRUPER (C1)</label>
+          <label for="truper-select">Marca</label>
           <select id="truper-select">
             <option value="">Cargando opciones...</option>
           </select>
         </div>
         <div>
-          <label for="valor-input">Valor (F1)</label>
+          <label for="valor-input">Porcentaje</label>
           <input type="text" id="valor-input" placeholder="Ej: 0.1">
         </div>
         <div>
@@ -333,9 +333,9 @@
       const result = await res.json();
 
       if (res.ok) {
-        // Mostrar MARCA y PORCENTAJE
-        document.getElementById('marca-value').textContent = result.marca || '--';
-        document.getElementById('porcentaje-value').textContent = result.porcentaje || '--';
+        // Mostrar MARCA (C1) y PORCENTAJE (F1)
+        document.getElementById('marca-value').textContent = result.truper_actual || '--';
+        document.getElementById('porcentaje-value').textContent = result.valor_f1 || '--';
 
         // Llenar dropdown TRUPER con opciones de la hoja
         const select = document.getElementById('truper-select');
