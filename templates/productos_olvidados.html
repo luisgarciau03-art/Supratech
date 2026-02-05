@@ -337,11 +337,12 @@
         document.getElementById('marca-value').textContent = result.truper_actual || '--';
         document.getElementById('porcentaje-value').textContent = result.valor_f1 || '--';
 
-        // Llenar dropdown TRUPER con opciones de la hoja
+        // Llenar dropdown TRUPER con opciones de la hoja (sin duplicados)
         const select = document.getElementById('truper-select');
         select.innerHTML = '';
-        if (result.truper_opciones && result.truper_opciones.length > 0) {
-          result.truper_opciones.forEach(op => {
+        const opcionesUnicas = [...new Set(result.truper_opciones || [])];
+        if (opcionesUnicas.length > 0) {
+          opcionesUnicas.forEach(op => {
             const option = document.createElement('option');
             option.value = op;
             option.textContent = op;
