@@ -6415,6 +6415,147 @@ def api_productos_olvidados_update():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# --- CAPACIDAD MENSUAL ---
+CAPACIDADM_DEFAULT_URL = 'https://docs.google.com/spreadsheets/d/1O4zTDXcstdTwLubGtAKArPaJD9T1uOz0viSkHbZuZcA/edit?gid=0#gid=0'
+CAPACIDADM_DEFAULT_HOJA = {
+    'Hoja': 'CAPACIDAD MENSUAL',
+    'Marca': 'A:A',
+    'Costo': 'B:B',
+    'SKU': 'D:D',
+    'TOTAL STOCK': 'G:G',
+    'Ventas': 'H:H',
+    'Capacidad mensual': 'I:I',
+    'Estatus': 'J:J',
+    '%': 'K:K',
+    'Clasificacion': 'Q:Q'
+}
+
+def _init_capacidadm_config(uid):
+    """Auto-crea la configuracion de CAPACIDAD MENSUAL en Firebase si no existe"""
+    area_ref = db.collection('Areas').document(uid)
+    area_doc = area_ref.get()
+    if not area_doc.exists:
+        area_ref.set({'CAPACIDADM': CAPACIDADM_DEFAULT_URL})
+    else:
+        area_data = area_doc.to_dict()
+        if not area_data.get('CAPACIDADM'):
+            area_ref.update({'CAPACIDADM': CAPACIDADM_DEFAULT_URL})
+    hoja_ref = area_ref.collection('Hojas').document('capacidad_mensual')
+    hoja_doc = hoja_ref.get()
+    if not hoja_doc.exists:
+        hoja_ref.set(CAPACIDADM_DEFAULT_HOJA)
+
+@app.route('/capacidad_mensual')
+def capacidad_mensual():
+    return render_template('capacidad_mensual.html')
+
+@app.route('/api/capacidad_mensual/data', methods=['GET'])
+def api_capacidad_mensual_data():
+    """Lee datos de CAPACIDAD MENSUAL"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        _init_capacidadm_config(uid)
+
+        # Obtener configuracion de Firebase
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('CAPACIDADM')
+
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        # Obtener configuracion de hojas
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('capacidad_mensual')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'CAPACIDAD MENSUAL')
+        col_marca = hoja_data.get('Marca', 'A:A').replace(':A', '').replace('A', '')
+        col_costo = hoja_data.get('Costo', 'B:B').replace(':B', '').replace('B', '')
+        col_sku = hoja_data.get('SKU', 'D:D').replace(':D', '').replace('D', '')
+        col_stock = hoja_data.get('TOTAL STOCK', 'G:G').replace(':G', '').replace('G', '')
+        col_ventas = hoja_data.get('Ventas', 'H:H').replace(':H', '').replace('H', '')
+        col_capacidad = hoja_data.get('Capacidad mensual', 'I:I').replace(':I', '').replace('I', '')
+        col_estatus = hoja_data.get('Estatus', 'J:J').replace(':J', '').replace('J', '')
+        col_porcentaje = hoja_data.get('%', 'K:K').replace(':K', '').replace('K', '')
+        col_clasificacion = hoja_data.get('Clasificacion', 'Q:Q').replace(':Q', '').replace('Q', '')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Leer todas las columnas necesarias
+        result = service.spreadsheets().values().batchGet(
+            spreadsheetId=spreadsheet_id,
+            ranges=[
+                f"{nombre_hoja}!A2:A",  # Marca
+                f"{nombre_hoja}!B2:B",  # Costo
+                f"{nombre_hoja}!D2:D",  # SKU
+                f"{nombre_hoja}!G2:G",  # TOTAL STOCK
+                f"{nombre_hoja}!H2:H",  # Ventas
+                f"{nombre_hoja}!I2:I",  # Capacidad mensual
+                f"{nombre_hoja}!J2:J",  # Estatus
+                f"{nombre_hoja}!K2:K",  # %
+                f"{nombre_hoja}!Q2:Q",  # Clasificacion
+            ]
+        ).execute()
+
+        value_ranges = result.get('valueRanges', [])
+
+        # Procesar cada columna
+        def get_col_values(idx):
+            if idx < len(value_ranges) and value_ranges[idx].get('values'):
+                return [row[0] if row else '' for row in value_ranges[idx]['values']]
+            return []
+
+        marca_vals = get_col_values(0)
+        costo_vals = get_col_values(1)
+        sku_vals = get_col_values(2)
+        stock_vals = get_col_values(3)
+        ventas_vals = get_col_values(4)
+        capacidad_vals = get_col_values(5)
+        estatus_vals = get_col_values(6)
+        porcentaje_vals = get_col_values(7)
+        clasificacion_vals = get_col_values(8)
+
+        # Determinar el numero maximo de filas
+        max_rows = max(len(marca_vals), len(costo_vals), len(sku_vals), len(stock_vals),
+                      len(ventas_vals), len(capacidad_vals), len(estatus_vals),
+                      len(porcentaje_vals), len(clasificacion_vals))
+
+        # Construir tabla combinada
+        tabla = []
+        for i in range(max_rows):
+            row = [
+                marca_vals[i] if i < len(marca_vals) else '',
+                costo_vals[i] if i < len(costo_vals) else '',
+                sku_vals[i] if i < len(sku_vals) else '',
+                stock_vals[i] if i < len(stock_vals) else '',
+                ventas_vals[i] if i < len(ventas_vals) else '',
+                capacidad_vals[i] if i < len(capacidad_vals) else '',
+                estatus_vals[i] if i < len(estatus_vals) else '',
+                porcentaje_vals[i] if i < len(porcentaje_vals) else '',
+                clasificacion_vals[i] if i < len(clasificacion_vals) else '',
+            ]
+            tabla.append(row)
+
+        return jsonify({
+            'tabla': tabla
+        }), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5001))

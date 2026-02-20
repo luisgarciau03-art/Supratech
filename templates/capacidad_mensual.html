@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Capacidad Mensual</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --accent-color: #2ecc71;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2em;
+      margin: 0;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .back-link {
+      display: inline-block;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+    }
+
+    .back-link:hover {
+      color: var(--primary-color);
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-container input {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1em;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search-container input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background: linear-gradient(45deg, var(--accent-color), #27ae60);
+      color: white;
+    }
+
+    th {
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.85em;
+      text-align: center;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(46, 204, 113, 0.05);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-light);
+      font-size: 1.1em;
+    }
+
+    .error {
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 20px 0;
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .info-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .info-badge {
+      background: rgba(46, 204, 113, 0.1);
+      border: 1px solid rgba(46, 204, 113, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      color: #27ae60;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.6em; }
+      th, td { padding: 8px 10px; font-size: 0.8em; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <a href="/panel" class="back-link">&larr; Volver al Panel</a>
+
+    <div class="header">
+      <h2>Capacidad Mensual</h2>
+    </div>
+
+    <div class="info-row">
+      <span class="info-badge" id="total-registros">Total: --</span>
+    </div>
+
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Buscar por Marca, SKU, Estatus...">
+    </div>
+
+    <div id="error-container"></div>
+    <div id="loading" class="loading">Cargando datos...</div>
+
+    <div class="table-container" id="table-container" style="display: none;">
+      <table id="data-table">
+        <thead id="table-head">
+          <tr>
+            <th>Marca</th>
+            <th>Costo</th>
+            <th>SKU</th>
+            <th>TOTAL STOCK</th>
+            <th>Ventas</th>
+            <th>Capacidad mensual</th>
+            <th>Estatus</th>
+            <th>%</th>
+            <th>Clasificacion</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+  let allData = [];
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      cargarDatos();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  async function cargarDatos() {
+    try {
+      const res = await fetch('/api/capacidad_mensual/data', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        allData = result.tabla || [];
+        document.getElementById('total-registros').textContent = 'Total: ' + allData.length + ' registros';
+        mostrarTabla(allData);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('table-container').style.display = 'block';
+      } else {
+        mostrarError(result.error || 'Error al cargar datos');
+      }
+    } catch (error) {
+      mostrarError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarTabla(data) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
+      return;
+    }
+
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      // Orden: Marca, Costo, SKU, TOTAL STOCK, Ventas, Capacidad mensual, Estatus, %, Clasificacion
+      // Indices: 0=Marca, 1=Costo, 2=SKU, 3=TOTAL STOCK, 4=Ventas, 5=Capacidad mensual, 6=Estatus, 7=%, 8=Clasificacion
+      for (let i = 0; i < 9; i++) {
+        const td = document.createElement('td');
+        td.textContent = row[i] || '';
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Filtro de busqueda
+  document.getElementById('search-input').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    if (!searchTerm) {
+      mostrarTabla(allData);
+      document.getElementById('total-registros').textContent = 'Total: ' + allData.length + ' registros';
+      return;
+    }
+
+    const filtered = allData.filter(row => {
+      return row.some(cell => (cell || '').toString().toLowerCase().includes(searchTerm));
+    });
+
+    mostrarTabla(filtered);
+    document.getElementById('total-registros').textContent = 'Mostrando: ' + filtered.length + ' de ' + allData.length + ' registros';
+  });
+
+  function mostrarError(mensaje) {
+    document.getElementById('loading').style.display = 'none';
+    const errorContainer = document.getElementById('error-container');
+    errorContainer.innerHTML = '<div class="error">' + mensaje + '</div>';
+  }
+</script>
+</body>
+</html>
