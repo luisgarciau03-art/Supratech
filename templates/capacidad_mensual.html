@@ -221,10 +221,12 @@
           <tr>
             <th>Marca</th>
             <th>Costo</th>
+            <th>Nombre</th>
             <th>SKU</th>
             <th>TOTAL STOCK</th>
             <th>Ventas</th>
             <th>Capacidad mensual</th>
+            <th>Codigo de barras</th>
             <th>Estatus</th>
             <th>%</th>
             <th>Clasificacion</th>
@@ -276,15 +278,14 @@
     tbody.innerHTML = '';
 
     if (data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 30px;">No hay datos disponibles</td></tr>';
       return;
     }
 
     data.forEach(row => {
       const tr = document.createElement('tr');
-      // Orden: Marca, Costo, SKU, TOTAL STOCK, Ventas, Capacidad mensual, Estatus, %, Clasificacion
-      // Indices: 0=Marca, 1=Costo, 2=SKU, 3=TOTAL STOCK, 4=Ventas, 5=Capacidad mensual, 6=Estatus, 7=%, 8=Clasificacion
-      for (let i = 0; i < 9; i++) {
+      // Orden: Marca, Costo, Nombre, SKU, TOTAL STOCK, Ventas, Capacidad mensual, Codigo de barras, Estatus, %, Clasificacion
+      for (let i = 0; i < 11; i++) {
         const td = document.createElement('td');
         td.textContent = row[i] || '';
         tr.appendChild(td);

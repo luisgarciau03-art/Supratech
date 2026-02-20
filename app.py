@@ -6421,10 +6421,12 @@ CAPACIDADM_DEFAULT_HOJA = {
     'Hoja': 'CAPACIDAD MENSUAL',
     'Marca': 'A:A',
     'Costo': 'B:B',
+    'Nombre': 'D:D',
     'SKU': 'D:D',
     'TOTAL STOCK': 'G:G',
     'Ventas': 'H:H',
     'Capacidad mensual': 'I:I',
+    'Codigo de barras': 'I:I',
     'Estatus': 'J:J',
     '%': 'K:K',
     'Clasificacion': 'Q:Q'
@@ -6532,15 +6534,18 @@ def api_capacidad_mensual_data():
                       len(porcentaje_vals), len(clasificacion_vals))
 
         # Construir tabla combinada
+        # Orden: Marca, Costo, Nombre(D), SKU(D), TOTAL STOCK, Ventas, Capacidad mensual(I), Codigo de barras(I), Estatus, %, Clasificacion
         tabla = []
         for i in range(max_rows):
             row = [
                 marca_vals[i] if i < len(marca_vals) else '',
                 costo_vals[i] if i < len(costo_vals) else '',
-                sku_vals[i] if i < len(sku_vals) else '',
+                sku_vals[i] if i < len(sku_vals) else '',  # Nombre (columna D)
+                sku_vals[i] if i < len(sku_vals) else '',  # SKU (columna D)
                 stock_vals[i] if i < len(stock_vals) else '',
                 ventas_vals[i] if i < len(ventas_vals) else '',
-                capacidad_vals[i] if i < len(capacidad_vals) else '',
+                capacidad_vals[i] if i < len(capacidad_vals) else '',  # Capacidad mensual (columna I)
+                capacidad_vals[i] if i < len(capacidad_vals) else '',  # Codigo de barras (columna I)
                 estatus_vals[i] if i < len(estatus_vals) else '',
                 porcentaje_vals[i] if i < len(porcentaje_vals) else '',
                 clasificacion_vals[i] if i < len(clasificacion_vals) else '',
