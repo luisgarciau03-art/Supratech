@@ -7689,6 +7689,108 @@ def api_inventarios_surtible_data():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/inventarios/pickear', methods=['POST'])
+def api_inventarios_pickear():
+    """Marca items en INVENTARIO para pickeo basado en SKUs de BD"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        _init_inventarios_config(uid)
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('NEWINVINGRESO')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        # Obtener nombres de hojas
+        hoja_inv_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_inventario')
+        hoja_inv_doc = hoja_inv_ref.get()
+        hoja_inv_data = hoja_inv_doc.to_dict()
+        nombre_hoja_inv = hoja_inv_data.get('Hoja', 'INVENTARIO')
+
+        hoja_bd_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_surtible')
+        hoja_bd_doc = hoja_bd_ref.get()
+        hoja_bd_data = hoja_bd_doc.to_dict()
+        nombre_hoja_bd = hoja_bd_data.get('Hoja', 'BD IMPULSO 2')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Obtener SKUs de BD (columna B)
+        bd_result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja_bd}!B:B"
+        ).execute()
+        bd_values = bd_result.get('values', [])
+
+        # Crear set de SKUs a pickear (ignorando header)
+        skus_a_pickear = set()
+        for i in range(1, len(bd_values)):
+            if bd_values[i] and bd_values[i][0]:
+                skus_a_pickear.add(str(bd_values[i][0]).strip())
+
+        # Obtener datos de INVENTARIO (columnas G y H)
+        inv_result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja_inv}!G:H"
+        ).execute()
+        inv_values = inv_result.get('values', [])
+
+        # Preparar valores para columna H
+        nuevos_valores_h = []
+        items_marcados = 0
+
+        for i in range(len(inv_values)):
+            if i == 0:
+                # Mantener header si existe
+                nuevos_valores_h.append(['PICKEAR'] if inv_values[i] else ['PICKEAR'])
+                continue
+
+            sku_inventario = ''
+            if inv_values[i] and len(inv_values[i]) > 0:
+                sku_inventario = str(inv_values[i][0]).strip()
+
+            # Verificar si el SKU esta en la lista de pickeo
+            if sku_inventario and sku_inventario in skus_a_pickear:
+                nuevos_valores_h.append(['true'])
+                items_marcados += 1
+            else:
+                nuevos_valores_h.append(['false'])
+
+        # Si no hay datos en inventario, terminar
+        if len(nuevos_valores_h) <= 1:
+            return jsonify({'status': 'ok', 'message': 'No hay items en inventario', 'marcados': 0}), 200
+
+        # Actualizar columna H de INVENTARIO
+        service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja_inv}!H1:H{len(nuevos_valores_h)}",
+            valueInputOption='USER_ENTERED',
+            body={'values': nuevos_valores_h}
+        ).execute()
+
+        return jsonify({
+            'status': 'ok',
+            'message': f'Pickeo actualizado: {items_marcados} items marcados de {len(skus_a_pickear)} SKUs en BD',
+            'marcados': items_marcados,
+            'skus_bd': len(skus_a_pickear)
+        }), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5001))

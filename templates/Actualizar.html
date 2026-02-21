@@ -205,6 +205,19 @@
       h2 { font-size: 1.8em; }
     }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
   <div class="panel-card">
@@ -237,6 +250,14 @@
       <h3>📊 Metricas Productos</h3>
       <div class="panel-links">
         <button class="panel-link" onclick="ejecutarMetricasProductos()">📈 METRICAS PRODUCTOS</button>
+      </div>
+    </div>
+
+    <!-- Sección INVENTARIOS -->
+    <div class="automation-section">
+      <h3>📦 Inventarios</h3>
+      <div class="panel-links">
+        <button class="panel-link" onclick="ejecutarPickearInventario()">🎯 PICKEAR INVENTARIO DESDE BD</button>
       </div>
     </div>
 
@@ -421,6 +442,46 @@
         progressFill.style.width = '100%';
         progressFill.textContent = '100%';
         mostrarEstado('success', 'METRICAS PRODUCTOS ejecutado. Verifica los datos en la hoja de cálculo.');
+
+        setTimeout(() => {
+          progressBar.classList.remove('active');
+        }, 3000);
+
+      } catch (error) {
+        mostrarEstado('error', 'Error: ' + error.message);
+        progressBar.classList.remove('active');
+      } finally {
+        ejecutando = false;
+      }
+    }
+
+    async function ejecutarPickearInventario() {
+      if (ejecutando) {
+        alert('Ya hay un proceso en ejecución. Por favor espera.');
+        return;
+      }
+
+      if (!confirm('¿Deseas marcar items para pickeo? Esto actualizará la columna H de INVENTARIO basándose en los SKUs de BD.')) {
+        return;
+      }
+
+      ejecutando = true;
+      const progressBar = document.getElementById('progress-bar');
+      const progressFill = document.getElementById('progress-fill');
+      progressBar.classList.add('active');
+
+      progressFill.style.width = '50%';
+      progressFill.textContent = 'Procesando...';
+      mostrarEstado('info', 'Ejecutando PICKEAR INVENTARIO... Por favor espera.');
+
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycbxjNa6p-KaF65ahexdxyOcucwS8vEnlx2xbtdZgxsXDN6ZKFXaKT55NS9NNu8MaCjOnLg/exec';
+
+      try {
+        await fetch(scriptUrl, { method: 'GET', mode: 'no-cors' });
+
+        progressFill.style.width = '100%';
+        progressFill.textContent = '100%';
+        mostrarEstado('success', 'PICKEAR INVENTARIO ejecutado. Verifica los datos en la hoja de cálculo.');
 
         setTimeout(() => {
           progressBar.classList.remove('active');
