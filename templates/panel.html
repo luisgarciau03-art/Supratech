@@ -88,36 +88,14 @@
       font-size: 0.9em;
     }
 
-    .header-actions {
-      margin-left: auto;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
     .user-badge {
+      margin-left: auto;
       background: rgba(67, 97, 238, 0.1);
       padding: 8px 16px;
       border-radius: 20px;
       font-size: 0.85em;
       color: var(--primary-color);
       font-weight: 600;
-    }
-
-    .reset-btn {
-      background: rgba(220, 53, 69, 0.1);
-      color: #dc3545;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 0.75em;
-      cursor: pointer;
-      font-family: inherit;
-      font-weight: 500;
-    }
-
-    .reset-btn:hover {
-      background: rgba(220, 53, 69, 0.2);
     }
 
     /* Secciones */
@@ -296,10 +274,7 @@
         <h2>Bienvenido, {{ user['nombre'] }}</h2>
         <p>{{ user['email'] }}</p>
       </div>
-      <div class="header-actions">
-        <div class="user-badge">{{ user.get('rol', 'Usuario') }}</div>
-        <button class="reset-btn" onclick="resetLayout()">Restaurar</button>
-      </div>
+      <div class="user-badge">{{ user.get('rol', 'Usuario') }}</div>
     </div>
 
     <!-- Acciones Principales (drop zone) -->
@@ -493,13 +468,6 @@
       });
     });
   }
-
-  // Reset layout
-  window.resetLayout = function() {
-    mainButtons = ['actualizar', 'finanzas', 'inventarios'];
-    saveState();
-    render();
-  };
 
   // Inicializar
   loadState();
