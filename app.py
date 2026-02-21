@@ -7461,18 +7461,36 @@ def api_inventarios_registro():
         creds = get_google_credentials()
         service = build('sheets', 'v4', credentials=creds)
 
-        # Agregar fila con Estante(A), Nivel(B), Codigo(C)
-        # Las demas columnas (D-H) se dejaran vacias o con valores por defecto
-        values = [[estante, nivel, codigo, 'false', '', '', '', 'false']]
-        service.spreadsheets().values().append(
+        # Buscar la primera celda vacia en columna A (empezando desde A2)
+        result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range=f"{nombre_hoja}!A2:H2",
+            range=f"{nombre_hoja}!A:A"
+        ).execute()
+
+        existing_values = result.get('values', [])
+
+        # Encontrar primera fila vacia (A1 es header, empezamos desde fila 2)
+        first_empty_row = 2  # Default si no hay datos
+        for i in range(1, 10000):  # Buscar desde fila 2 (indice 1)
+            if i >= len(existing_values):
+                # Ya no hay mas datos, esta es la primera vacia
+                first_empty_row = i + 1
+                break
+            if not existing_values[i] or not existing_values[i][0] or str(existing_values[i][0]).strip() == '':
+                # Celda vacia encontrada
+                first_empty_row = i + 1
+                break
+
+        # Escribir en la primera celda vacia encontrada
+        values = [[estante, nivel, codigo, 'false', '', '', '', 'false']]
+        service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!A{first_empty_row}:H{first_empty_row}",
             valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
             body={'values': values}
         ).execute()
 
-        return jsonify({'status': 'ok'}), 200
+        return jsonify({'status': 'ok', 'row': first_empty_row}), 200
 
     except Exception as e:
         import traceback
