@@ -160,6 +160,36 @@
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
     }
 
+    .section-title {
+      width: 100%;
+      text-align: left;
+      font-size: 0.85em;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 20px 0 10px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
+    }
+
+    .panel-link.orange {
+      color: #e67e22;
+      border-color: rgba(230, 126, 34, 0.15);
+      box-shadow: 0 4px 15px rgba(230, 126, 34, 0.1);
+    }
+
+    .panel-link.orange:hover {
+      background: #e67e22;
+      color: white;
+      border-color: #e67e22;
+      box-shadow: 0 8px 25px rgba(230, 126, 34, 0.25);
+    }
+
     @media (max-width: 600px) {
       .panel-card {
         padding: 30px 20px;
@@ -183,44 +213,61 @@
       <p><span>Esquema actual:</span> <b>{{ esquema_raw }}</b></p>
     </div>
     <div class="panel-links">
-      <a class="panel-link" href="/compras">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f6d2.svg" alt="Carrito" style="height:1.2em;vertical-align:middle;margin-right:7px;">Compras
-      </a>
-      <a class="panel-link" href="/Llenar_BDS">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4ca.svg" alt="Bases de datos" style="height:1.2em;vertical-align:middle;margin-right:7px;">Bases de datos
-      </a>
-      <a class="panel-link" href="/pedidos">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4ca.svg" alt="BD Pedidos" style="height:1.2em;vertical-align:middle;margin-right:7px;">BD Pedidos 9.0
-      </a>
-      <a class="panel-link" href="/descuentos">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4b8.svg" alt="Descuentos" style="height:1.2em;vertical-align:middle;margin-right:7px;">DESCUENTOS
-      </a>
-      <a class="panel-link" href="/bd_descuentos">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4d1.svg" alt="BD Descuentos" style="height:1.2em;vertical-align:middle;margin-right:7px;">BD DESCUENTOS
-      </a>
+      <!-- ACCIONES PRINCIPALES -->
+      <div class="section-title">Acciones Principales</div>
       <a class="panel-link green" href="/actualizar">
         <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f504.svg" alt="Actualizar" style="height:1.2em;vertical-align:middle;margin-right:7px;">ACTUALIZAR
-      </a>
-      <a class="panel-link" href="/metricas_productos">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4c8.svg" alt="Metricas" style="height:1.2em;vertical-align:middle;margin-right:7px;">Metricas Por Producto
       </a>
       <a class="panel-link green" href="/finanzas">
         <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4b0.svg" alt="Finanzas" style="height:1.2em;vertical-align:middle;margin-right:7px;">FINANZAS
       </a>
+      <a class="panel-link green" href="/inventarios">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4e6.svg" alt="Inventarios" style="height:1.2em;vertical-align:middle;margin-right:7px;">INVENTARIOS
+      </a>
+
+      <!-- COMPRAS Y PEDIDOS -->
+      <div class="section-title">Compras y Pedidos</div>
+      <a class="panel-link" href="/compras">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f6d2.svg" alt="Carrito" style="height:1.2em;vertical-align:middle;margin-right:7px;">Compras
+      </a>
+      <a class="panel-link" href="/pedidos">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4ca.svg" alt="BD Pedidos" style="height:1.2em;vertical-align:middle;margin-right:7px;">BD Pedidos 9.0
+      </a>
+
+      <!-- BASES DE DATOS -->
+      <div class="section-title">Bases de Datos</div>
+      <a class="panel-link" href="/Llenar_BDS">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4ca.svg" alt="Bases de datos" style="height:1.2em;vertical-align:middle;margin-right:7px;">Bases de datos
+      </a>
+      <a class="panel-link" href="/bd_descuentos">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4d1.svg" alt="BD Descuentos" style="height:1.2em;vertical-align:middle;margin-right:7px;">BD DESCUENTOS
+      </a>
+
+      <!-- DESCUENTOS Y PRECIOS -->
+      <div class="section-title">Descuentos y Precios</div>
+      <a class="panel-link" href="/descuentos">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4b8.svg" alt="Descuentos" style="height:1.2em;vertical-align:middle;margin-right:7px;">DESCUENTOS
+      </a>
       <a class="panel-link" href="/estado_precios">
         <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4b2.svg" alt="Precios" style="height:1.2em;vertical-align:middle;margin-right:7px;">Estado de Precios
       </a>
-      <a class="panel-link" href="/productos_olvidados">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4e6.svg" alt="Productos Olvidados" style="height:1.2em;vertical-align:middle;margin-right:7px;">Productos Olvidados
+
+      <!-- ANALISIS Y METRICAS -->
+      <div class="section-title">Analisis y Metricas</div>
+      <a class="panel-link" href="/metricas_productos">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4c8.svg" alt="Metricas" style="height:1.2em;vertical-align:middle;margin-right:7px;">Metricas Por Producto
       </a>
       <a class="panel-link" href="/capacidad_mensual">
         <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4c5.svg" alt="Capacidad Mensual" style="height:1.2em;vertical-align:middle;margin-right:7px;">CAPACIDAD MENSUAL
       </a>
-      <a class="panel-link" href="/prospeccion_productos">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f50d.svg" alt="Prospeccion" style="height:1.2em;vertical-align:middle;margin-right:7px;">Prospeccion Productos
+      <a class="panel-link" href="/productos_olvidados">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4e6.svg" alt="Productos Olvidados" style="height:1.2em;vertical-align:middle;margin-right:7px;">Productos Olvidados
       </a>
-      <a class="panel-link green" href="/inventarios">
-        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4e6.svg" alt="Inventarios" style="height:1.2em;vertical-align:middle;margin-right:7px;">INVENTARIOS
+
+      <!-- PROSPECCION -->
+      <div class="section-title">Prospeccion</div>
+      <a class="panel-link orange" href="/prospeccion_productos">
+        <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f50d.svg" alt="Prospeccion" style="height:1.2em;vertical-align:middle;margin-right:7px;">Prospeccion Productos
       </a>
     </div>
   </div>
