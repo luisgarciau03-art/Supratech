@@ -79,6 +79,7 @@
       background: linear-gradient(45deg, #1a1a1a, #4361ee);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .header-info p {
@@ -87,8 +88,14 @@
       font-size: 0.9em;
     }
 
-    .user-badge {
+    .header-actions {
       margin-left: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .user-badge {
       background: rgba(67, 97, 238, 0.1);
       padding: 8px 16px;
       border-radius: 20px;
@@ -97,13 +104,41 @@
       font-weight: 600;
     }
 
+    .reset-btn {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+    }
+
+    .reset-btn:hover {
+      background: rgba(220, 53, 69, 0.2);
+    }
+
     /* Secciones */
     .section {
       margin-bottom: 25px;
+      transition: opacity 0.3s, max-height 0.3s;
+    }
+
+    .section.hidden {
+      display: none;
     }
 
     .section:last-child {
       margin-bottom: 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .section-title {
@@ -112,8 +147,13 @@
       color: var(--text-light);
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      margin-bottom: 12px;
       padding-left: 5px;
+    }
+
+    .section-hint {
+      font-size: 0.7em;
+      color: #aaa;
+      font-weight: 400;
     }
 
     /* Grid de botones */
@@ -121,6 +161,26 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 12px;
+      min-height: 50px;
+      padding: 8px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .btn-grid.drag-over {
+      background: rgba(67, 97, 238, 0.08);
+      border: 2px dashed rgba(67, 97, 238, 0.3);
+    }
+
+    .btn-grid.main-grid {
+      background: rgba(40, 167, 69, 0.03);
+      border: 1px dashed rgba(40, 167, 69, 0.2);
+      min-height: 60px;
+    }
+
+    .btn-grid.main-grid.drag-over {
+      background: rgba(40, 167, 69, 0.1);
+      border-color: rgba(40, 167, 69, 0.4);
     }
 
     .panel-link {
@@ -137,14 +197,23 @@
       gap: 10px;
       font-size: 0.9em;
       border: 1px solid rgba(67, 97, 238, 0.12);
+      cursor: grab;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .panel-link:active {
+      cursor: grabbing;
+    }
+
+    .panel-link.dragging {
+      opacity: 0.5;
+      transform: scale(0.95);
     }
 
     .panel-link:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(67, 97, 238, 0.15);
-      background: var(--primary-color);
-      color: white;
-      border-color: var(--primary-color);
     }
 
     .panel-link .icon {
@@ -153,29 +222,36 @@
       text-align: center;
     }
 
-    /* Variantes de color */
-    .panel-link.green {
-      color: var(--green);
-      border-color: rgba(40, 167, 69, 0.15);
-    }
-
-    .panel-link.green:hover {
-      background: var(--green);
+    /* En seccion principal */
+    .main-grid .panel-link {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
       color: white;
-      border-color: var(--green);
-      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.2);
+      border-color: transparent;
     }
 
-    .panel-link.orange {
-      color: var(--orange);
-      border-color: rgba(230, 126, 34, 0.15);
+    .main-grid .panel-link:hover {
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
     }
 
-    .panel-link.orange:hover {
-      background: var(--orange);
-      color: white;
-      border-color: var(--orange);
-      box-shadow: 0 6px 20px rgba(230, 126, 34, 0.2);
+    /* Variantes de color para categoria original */
+    .panel-link[data-category="compras"] { border-left: 3px solid var(--primary-color); }
+    .panel-link[data-category="bases"] { border-left: 3px solid #8b5cf6; }
+    .panel-link[data-category="descuentos"] { border-left: 3px solid #ec4899; }
+    .panel-link[data-category="metricas"] { border-left: 3px solid #06b6d4; }
+    .panel-link[data-category="prospeccion"] { border-left: 3px solid var(--orange); }
+
+    .main-grid .panel-link {
+      border-left: none;
+    }
+
+    /* Placeholder cuando esta vacio */
+    .empty-placeholder {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 20px;
+      color: #bbb;
+      font-size: 0.85em;
+      font-style: italic;
     }
 
     /* Responsive */
@@ -189,8 +265,9 @@
         text-align: center;
       }
 
-      .user-badge {
+      .header-actions {
         margin-left: 0;
+        flex-direction: column;
       }
 
       .btn-grid {
@@ -219,90 +296,216 @@
         <h2>Bienvenido, {{ user['nombre'] }}</h2>
         <p>{{ user['email'] }}</p>
       </div>
-      <div class="user-badge">{{ user.get('rol', 'Usuario') }}</div>
+      <div class="header-actions">
+        <div class="user-badge">{{ user.get('rol', 'Usuario') }}</div>
+        <button class="reset-btn" onclick="resetLayout()">Restaurar</button>
+      </div>
     </div>
 
-    <!-- Acciones Principales -->
-    <div class="section">
-      <div class="section-title">Acciones Principales</div>
-      <div class="btn-grid">
-        <a class="panel-link green" href="/actualizar">
-          <span class="icon">&#128260;</span>Actualizar
-        </a>
-        <a class="panel-link green" href="/finanzas">
-          <span class="icon">&#128176;</span>Finanzas
-        </a>
-        <a class="panel-link green" href="/inventarios">
-          <span class="icon">&#128230;</span>Inventarios
-        </a>
+    <!-- Acciones Principales (drop zone) -->
+    <div class="section" id="section-main">
+      <div class="section-header">
+        <span class="section-title">Acciones Principales</span>
+        <span class="section-hint">Arrastra aqui tus favoritos</span>
       </div>
+      <div class="btn-grid main-grid" id="grid-main" data-section="main"></div>
     </div>
 
     <!-- Compras y Pedidos -->
-    <div class="section">
+    <div class="section" id="section-compras">
       <div class="section-title">Compras y Pedidos</div>
-      <div class="btn-grid">
-        <a class="panel-link" href="/compras">
-          <span class="icon">&#128722;</span>Compras
-        </a>
-        <a class="panel-link" href="/pedidos">
-          <span class="icon">&#128203;</span>BD Pedidos 9.0
-        </a>
-      </div>
+      <div class="btn-grid" id="grid-compras" data-section="compras"></div>
     </div>
 
     <!-- Bases de Datos -->
-    <div class="section">
+    <div class="section" id="section-bases">
       <div class="section-title">Bases de Datos</div>
-      <div class="btn-grid">
-        <a class="panel-link" href="/Llenar_BDS">
-          <span class="icon">&#128202;</span>Llenar BDS
-        </a>
-        <a class="panel-link" href="/bd_descuentos">
-          <span class="icon">&#128209;</span>BD Descuentos
-        </a>
-      </div>
+      <div class="btn-grid" id="grid-bases" data-section="bases"></div>
     </div>
 
     <!-- Descuentos y Precios -->
-    <div class="section">
+    <div class="section" id="section-descuentos">
       <div class="section-title">Descuentos y Precios</div>
-      <div class="btn-grid">
-        <a class="panel-link" href="/descuentos">
-          <span class="icon">&#128184;</span>Descuentos
-        </a>
-        <a class="panel-link" href="/estado_precios">
-          <span class="icon">&#128178;</span>Estado de Precios
-        </a>
-      </div>
+      <div class="btn-grid" id="grid-descuentos" data-section="descuentos"></div>
     </div>
 
     <!-- Analisis y Metricas -->
-    <div class="section">
+    <div class="section" id="section-metricas">
       <div class="section-title">Analisis y Metricas</div>
-      <div class="btn-grid">
-        <a class="panel-link" href="/metricas_productos">
-          <span class="icon">&#128200;</span>Metricas Productos
-        </a>
-        <a class="panel-link" href="/capacidad_mensual">
-          <span class="icon">&#128197;</span>Capacidad Mensual
-        </a>
-        <a class="panel-link" href="/productos_olvidados">
-          <span class="icon">&#128230;</span>Productos Olvidados
-        </a>
-      </div>
+      <div class="btn-grid" id="grid-metricas" data-section="metricas"></div>
     </div>
 
     <!-- Prospeccion -->
-    <div class="section">
+    <div class="section" id="section-prospeccion">
       <div class="section-title">Prospeccion</div>
-      <div class="btn-grid">
-        <a class="panel-link orange" href="/prospeccion_productos">
-          <span class="icon">&#128269;</span>Prospeccion Productos
-        </a>
-      </div>
+      <div class="btn-grid" id="grid-prospeccion" data-section="prospeccion"></div>
     </div>
 
   </div>
+
+<script>
+(function() {
+  // Definicion de todos los botones con su categoria original
+  const allButtons = [
+    { id: 'actualizar', icon: '&#128260;', text: 'Actualizar', href: '/actualizar', category: 'main' },
+    { id: 'finanzas', icon: '&#128176;', text: 'Finanzas', href: '/finanzas', category: 'main' },
+    { id: 'inventarios', icon: '&#128230;', text: 'Inventarios', href: '/inventarios', category: 'main' },
+    { id: 'compras', icon: '&#128722;', text: 'Compras', href: '/compras', category: 'compras' },
+    { id: 'pedidos', icon: '&#128203;', text: 'BD Pedidos 9.0', href: '/pedidos', category: 'compras' },
+    { id: 'llenar_bds', icon: '&#128202;', text: 'Llenar BDS', href: '/Llenar_BDS', category: 'bases' },
+    { id: 'bd_descuentos', icon: '&#128209;', text: 'BD Descuentos', href: '/bd_descuentos', category: 'bases' },
+    { id: 'descuentos', icon: '&#128184;', text: 'Descuentos', href: '/descuentos', category: 'descuentos' },
+    { id: 'estado_precios', icon: '&#128178;', text: 'Estado de Precios', href: '/estado_precios', category: 'descuentos' },
+    { id: 'metricas_productos', icon: '&#128200;', text: 'Metricas Productos', href: '/metricas_productos', category: 'metricas' },
+    { id: 'capacidad_mensual', icon: '&#128197;', text: 'Capacidad Mensual', href: '/capacidad_mensual', category: 'metricas' },
+    { id: 'productos_olvidados', icon: '&#128230;', text: 'Productos Olvidados', href: '/productos_olvidados', category: 'metricas' },
+    { id: 'prospeccion_productos', icon: '&#128269;', text: 'Prospeccion Productos', href: '/prospeccion_productos', category: 'prospeccion' }
+  ];
+
+  // Estado: que botones estan en main
+  let mainButtons = [];
+  const STORAGE_KEY = 'panel_main_buttons';
+
+  // Cargar estado guardado
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        mainButtons = JSON.parse(saved);
+      } else {
+        // Default: los primeros 3 en main
+        mainButtons = ['actualizar', 'finanzas', 'inventarios'];
+      }
+    } catch (e) {
+      mainButtons = ['actualizar', 'finanzas', 'inventarios'];
+    }
+  }
+
+  // Guardar estado
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mainButtons));
+  }
+
+  // Crear elemento de boton
+  function createButton(btn) {
+    const a = document.createElement('a');
+    a.className = 'panel-link';
+    a.href = btn.href;
+    a.draggable = true;
+    a.dataset.id = btn.id;
+    a.dataset.category = btn.category;
+    a.innerHTML = `<span class="icon">${btn.icon}</span>${btn.text}`;
+
+    // Eventos de drag
+    a.addEventListener('dragstart', handleDragStart);
+    a.addEventListener('dragend', handleDragEnd);
+
+    // Click normal
+    a.addEventListener('click', function(e) {
+      if (this.classList.contains('dragging')) {
+        e.preventDefault();
+      }
+    });
+
+    return a;
+  }
+
+  // Renderizar todos los botones
+  function render() {
+    // Limpiar grids
+    document.querySelectorAll('.btn-grid').forEach(grid => grid.innerHTML = '');
+
+    // Separar botones
+    const inMain = allButtons.filter(b => mainButtons.includes(b.id));
+    const notInMain = allButtons.filter(b => !mainButtons.includes(b.id));
+
+    // Renderizar main
+    const mainGrid = document.getElementById('grid-main');
+    if (inMain.length === 0) {
+      mainGrid.innerHTML = '<div class="empty-placeholder">Arrastra botones aqui</div>';
+    } else {
+      inMain.forEach(btn => mainGrid.appendChild(createButton(btn)));
+    }
+
+    // Renderizar otras secciones
+    const sections = ['compras', 'bases', 'descuentos', 'metricas', 'prospeccion'];
+    sections.forEach(section => {
+      const grid = document.getElementById('grid-' + section);
+      const sectionEl = document.getElementById('section-' + section);
+      const btns = notInMain.filter(b => b.category === section);
+
+      if (btns.length === 0) {
+        sectionEl.classList.add('hidden');
+      } else {
+        sectionEl.classList.remove('hidden');
+        btns.forEach(btn => grid.appendChild(createButton(btn)));
+      }
+    });
+  }
+
+  // Drag handlers
+  let draggedId = null;
+
+  function handleDragStart(e) {
+    draggedId = this.dataset.id;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', this.dataset.id);
+  }
+
+  function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.btn-grid').forEach(g => g.classList.remove('drag-over'));
+  }
+
+  // Setup drop zones
+  function setupDropZones() {
+    document.querySelectorAll('.btn-grid').forEach(grid => {
+      grid.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        this.classList.add('drag-over');
+      });
+
+      grid.addEventListener('dragleave', function(e) {
+        this.classList.remove('drag-over');
+      });
+
+      grid.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+
+        const id = e.dataTransfer.getData('text/plain');
+        const targetSection = this.dataset.section;
+
+        if (targetSection === 'main') {
+          // Agregar a main si no esta
+          if (!mainButtons.includes(id)) {
+            mainButtons.push(id);
+          }
+        } else {
+          // Quitar de main
+          mainButtons = mainButtons.filter(b => b !== id);
+        }
+
+        saveState();
+        render();
+      });
+    });
+  }
+
+  // Reset layout
+  window.resetLayout = function() {
+    mainButtons = ['actualizar', 'finanzas', 'inventarios'];
+    saveState();
+    render();
+  };
+
+  // Inicializar
+  loadState();
+  render();
+  setupDropZones();
+})();
+</script>
 </body>
 </html>
