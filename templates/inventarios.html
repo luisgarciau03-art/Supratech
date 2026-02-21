@@ -339,7 +339,7 @@
     if (!window.ZXing) {
       showMsg('Cargando escaner...', 'success');
       const script = document.createElement('script');
-      script.src = 'https://unpkg.com/@zxing/library@latest';
+      script.src = 'https://unpkg.com/@zxing/library@0.20.0';
       script.onload = startCam;
       document.head.appendChild(script);
     } else startCam();
@@ -347,20 +347,82 @@
 
   async function startCam() {
     try {
-      codeReader = new ZXing.BrowserMultiFormatReader();
       const video = $('scanner-video');
       video.style.display = 'block';
       $('start-scanner').style.display = 'none';
       $('stop-scanner').style.display = 'inline-block';
-      const devices = await codeReader.listVideoInputDevices();
-      if (!devices.length) { showMsg('No hay camaras', 'error'); return; }
-      codeReader.decodeFromVideoDevice(devices[0].deviceId, 'scanner-video', (result) => {
-        if (result) {
-          $('scan-codigo').value = result.getText();
-          showMsg('Escaneado: ' + result.getText(), 'success');
+
+      // Configurar hints para formatos de codigo de barras comunes
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.EAN_13,
+        ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A,
+        ZXing.BarcodeFormat.UPC_E,
+        ZXing.BarcodeFormat.CODE_128,
+        ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.CODE_93,
+        ZXing.BarcodeFormat.ITF,
+        ZXing.BarcodeFormat.CODABAR
+      ]);
+      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+
+      codeReader = new ZXing.BrowserMultiFormatReader(hints);
+
+      // Constraints para camara trasera con alta resolucion
+      const constraints = {
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          focusMode: { ideal: 'continuous' }
         }
-      });
-    } catch (e) { showMsg('Error camara', 'error'); }
+      };
+
+      // Callback cuando detecta codigo
+      const onResult = (result, error) => {
+        if (result) {
+          const code = result.getText();
+          $('scan-codigo').value = code;
+          showMsg('Codigo: ' + code, 'success');
+          // Vibrar si es posible
+          if (navigator.vibrate) navigator.vibrate(100);
+        }
+      };
+
+      try {
+        // Intentar usar constraints directamente
+        await codeReader.decodeFromConstraints(constraints, 'scanner-video', onResult);
+      } catch (e) {
+        console.log('Fallback a seleccion de camara');
+        // Fallback: listar camaras y elegir la trasera
+        const devices = await codeReader.listVideoInputDevices();
+        if (!devices.length) { showMsg('No hay camaras', 'error'); return; }
+
+        // Buscar camara trasera
+        let backCamera = devices.find(d => {
+          const label = d.label.toLowerCase();
+          return label.includes('back') || label.includes('rear') ||
+                 label.includes('environment') || label.includes('trasera') ||
+                 label.includes('posterior');
+        });
+
+        // Si no encuentra por nombre, usar la ultima (suele ser trasera en moviles)
+        if (!backCamera && devices.length > 1) backCamera = devices[devices.length - 1];
+        if (!backCamera) backCamera = devices[0];
+
+        await codeReader.decodeFromVideoDevice(backCamera.deviceId, 'scanner-video', onResult);
+      }
+
+      showMsg('Escaner listo - apunta al codigo de barras', 'success');
+
+    } catch (e) {
+      console.error('Error scanner:', e);
+      showMsg('Error camara: ' + e.message, 'error');
+      $('scanner-video').style.display = 'none';
+      $('start-scanner').style.display = 'inline-block';
+      $('stop-scanner').style.display = 'none';
+    }
   }
 
   $('stop-scanner').onclick = function() {
