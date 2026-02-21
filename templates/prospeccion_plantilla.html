@@ -55,15 +55,23 @@
       gap: 20px;
     }
 
-    h2 {
+    h2, h3 {
       color: #1a1a1a;
+      font-weight: 700;
+    }
+
+    h2 {
       font-size: 2em;
       margin: 0;
-      font-weight: 700;
       background: linear-gradient(45deg, #1a1a1a, var(--accent-color));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+    }
+
+    h3 {
+      font-size: 1.3em;
+      margin: 0 0 20px 0;
     }
 
     .back-link {
@@ -78,6 +86,130 @@
 
     .back-link:hover {
       color: var(--primary-color);
+    }
+
+    .form-section {
+      background: rgba(67, 97, 238, 0.05);
+      border: 1px solid rgba(67, 97, 238, 0.15);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .form-grid label {
+      font-weight: 600;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+      display: block;
+      color: var(--text-dark);
+    }
+
+    .form-grid input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+      background: white;
+    }
+
+    .form-grid input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(67, 97, 238, 0.3);
+    }
+
+    button.danger {
+      background: linear-gradient(45deg, #dc3545, #c82333);
+      box-shadow: 0 10px 20px rgba(220, 53, 69, 0.2);
+    }
+
+    button.danger:hover {
+      box-shadow: 0 15px 30px rgba(220, 53, 69, 0.3);
+    }
+
+    .upload-section {
+      background: rgba(40, 167, 69, 0.05);
+      border: 1px solid rgba(40, 167, 69, 0.15);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+
+    .upload-section h3 {
+      color: #28a745;
+    }
+
+    .download-link {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .download-link:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+
+    .success {
+      color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid rgba(40, 167, 69, 0.2);
+      display: none;
+    }
+
+    .error {
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 15px 0;
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+      display: none;
     }
 
     .search-container {
@@ -149,16 +281,6 @@
       font-size: 1.1em;
     }
 
-    .error {
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      margin: 20px 0;
-      background: rgba(220, 53, 69, 0.1);
-      color: #dc3545;
-      border: 1px solid rgba(220, 53, 69, 0.2);
-    }
-
     .info-row {
       display: flex;
       gap: 15px;
@@ -180,6 +302,7 @@
       .container { padding: 20px; }
       h2 { font-size: 1.6em; }
       th, td { padding: 8px 10px; font-size: 0.8em; }
+      .form-grid { grid-template-columns: 1fr; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -204,6 +327,55 @@
       <h2>Plantilla</h2>
     </div>
 
+    <!-- Formulario de registro -->
+    <div class="form-section">
+      <h3>Registrar Producto</h3>
+      <form id="plantilla-form">
+        <div class="form-grid">
+          <div>
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="Nombre" required placeholder="Nombre del producto">
+          </div>
+          <div>
+            <label for="marca">Marca</label>
+            <input type="text" id="marca" name="Marca" required placeholder="Marca">
+          </div>
+          <div>
+            <label for="modelo">Modelo/SKU/Codigo</label>
+            <input type="text" id="modelo" name="Modelo/SKU/Codigo" required placeholder="Modelo o SKU">
+          </div>
+          <div>
+            <label for="precio">Precio</label>
+            <input type="text" id="precio" name="Precio" required placeholder="Precio">
+          </div>
+          <div>
+            <label for="costos_extra">Costos Extra</label>
+            <input type="text" id="costos_extra" name="COSTOS EXTRA" placeholder="Costos extra (opcional)">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit">Registrar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Carga masiva -->
+    <div class="upload-section">
+      <h3>Carga Masiva</h3>
+      <a href="/static/plantilla_prospeccion.csv" download class="download-link">Descargar plantilla CSV</a>
+      <div style="margin-top: 10px;">
+        <input type="file" id="bulk-file" accept=".csv" style="margin-bottom:8px;">
+        <div class="btn-row" style="margin-top: 10px;">
+          <button id="bulk-upload-btn" type="button">Cargar archivo</button>
+          <button id="clear-btn" type="button" class="danger">Borrar todos los datos</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="success-msg" class="success"></div>
+    <div id="error-msg" class="error"></div>
+
+    <!-- Visualizacion -->
     <div class="info-row">
       <span class="info-badge" id="total-registros">Total: --</span>
     </div>
@@ -306,8 +478,110 @@
   function mostrarError(mensaje) {
     document.getElementById('loading').style.display = 'none';
     const errorContainer = document.getElementById('error-container');
-    errorContainer.innerHTML = '<div class="error">' + mensaje + '</div>';
+    errorContainer.innerHTML = '<div class="error" style="display:block;">' + mensaje + '</div>';
   }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('success-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('error-msg').style.display = 'none';
+    setTimeout(() => el.style.display = 'none', 4000);
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('success-msg').style.display = 'none';
+    setTimeout(() => el.style.display = 'none', 4000);
+  }
+
+  // Registro individual
+  document.getElementById('plantilla-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = {
+      'Nombre': document.getElementById('nombre').value,
+      'Marca': document.getElementById('marca').value,
+      'Modelo/SKU/Codigo': document.getElementById('modelo').value,
+      'Precio': document.getElementById('precio').value,
+      'COSTOS EXTRA': document.getElementById('costos_extra').value
+    };
+
+    try {
+      const response = await fetch('/api/prospeccion_plantilla/registro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + idToken
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        showSuccess('Registro exitoso');
+        document.getElementById('plantilla-form').reset();
+        cargarDatos();
+      } else {
+        showError(data.error || 'Error al registrar');
+      }
+    } catch (error) {
+      showError(error.message || 'Error inesperado');
+    }
+  });
+
+  // Carga masiva
+  document.getElementById('bulk-upload-btn').addEventListener('click', async function() {
+    const fileInput = document.getElementById('bulk-file');
+    if (!fileInput.files.length) {
+      showError('Selecciona un archivo CSV.');
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/prospeccion_plantilla/bulk', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + idToken },
+        body: formData
+      });
+      const data = await response.json();
+      if (response.ok) {
+        showSuccess('Carga masiva exitosa: ' + data.rows + ' filas');
+        cargarDatos();
+      } else {
+        showError(data.error || 'Error en carga masiva');
+      }
+    } catch (error) {
+      showError(error.message || 'Error inesperado');
+    }
+  });
+
+  // Borrar datos
+  document.getElementById('clear-btn').addEventListener('click', async function() {
+    if (!confirm('¿Estas seguro de borrar todos los datos? Esta accion no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/prospeccion_plantilla/clear', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        showSuccess('Datos borrados exitosamente');
+        cargarDatos();
+      } else {
+        showError(data.error || 'Error al borrar datos');
+      }
+    } catch (error) {
+      showError(error.message || 'Error inesperado');
+    }
+  });
 </script>
 </body>
 </html>

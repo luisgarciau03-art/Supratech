@@ -6757,6 +6757,185 @@ def api_prospeccion_plantilla_data():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/prospeccion_plantilla/registro', methods=['POST'])
+def api_prospeccion_plantilla_registro():
+    """Registra datos en PLANTILLA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        data = request.get_json()
+        _init_prospeccion_config(uid)
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('COTPLANT')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('prospeccion_plantilla')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'PLANTILLA')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Agregar fila: Nombre(D), Marca(E), Modelo(F), Precio(H), Costos Extra(I)
+        # Necesitamos dejar columna G vacia
+        values = [[
+            '',  # A
+            '',  # B
+            '',  # C
+            data.get('Nombre', ''),  # D
+            data.get('Marca', ''),  # E
+            data.get('Modelo/SKU/Codigo', ''),  # F
+            '',  # G
+            data.get('Precio', ''),  # H
+            data.get('COSTOS EXTRA', '')  # I
+        ]]
+        service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!A2:I2",
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body={'values': values}
+        ).execute()
+
+        return jsonify({'status': 'ok'}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/prospeccion_plantilla/bulk', methods=['POST'])
+def api_prospeccion_plantilla_bulk():
+    """Carga masiva en PLANTILLA"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re, csv, io
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        _init_prospeccion_config(uid)
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('COTPLANT')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('prospeccion_plantilla')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'PLANTILLA')
+
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        file = request.files['file']
+
+        try:
+            content = file.stream.read().decode('utf-8')
+        except UnicodeDecodeError:
+            file.stream.seek(0)
+            content = file.stream.read().decode('latin-1')
+
+        stream = io.StringIO(content)
+        reader = csv.DictReader(stream)
+
+        rows = []
+        for row in reader:
+            nombre = row.get('Nombre', row.get('nombre', ''))
+            marca = row.get('Marca', row.get('marca', ''))
+            modelo = row.get('Modelo/SKU/Codigo', row.get('modelo', row.get('SKU', row.get('sku', ''))))
+            precio = row.get('Precio', row.get('precio', ''))
+            costos = row.get('COSTOS EXTRA', row.get('costos_extra', row.get('Costos Extra', '')))
+            rows.append(['', '', '', nombre, marca, modelo, '', precio, costos])
+
+        if not rows:
+            return jsonify({'error': 'No se encontraron filas validas'}), 400
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!A2:I",
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body={'values': rows}
+        ).execute()
+
+        return jsonify({'status': 'ok', 'rows': len(rows)}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/prospeccion_plantilla/clear', methods=['POST'])
+def api_prospeccion_plantilla_clear():
+    """Borra datos de PLANTILLA a partir de fila 2"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        _init_prospeccion_config(uid)
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('COTPLANT')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('prospeccion_plantilla')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'PLANTILLA')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Borrar datos de D2:I1000
+        service.spreadsheets().values().clear(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!D2:I1000",
+            body={}
+        ).execute()
+
+        return jsonify({'status': 'ok'}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/prospeccion_resultados/data', methods=['GET'])
 def api_prospeccion_resultados_data():
     """Lee datos de COTIZADOR PLANTILLA"""
