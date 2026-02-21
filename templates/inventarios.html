@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventarios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <style>
+    :root {
+      --primary-color: #28a745;
+      --secondary-color: #218838;
+      --accent-color: #28a745;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2em;
+      margin: 0;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .back-link {
+      display: inline-block;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 16px;
+    }
+
+    .back-link:hover { color: var(--primary-color); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      border: none;
+      background: #f0f0f0;
+      border-radius: 12px 12px 0 0;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: #e0e0e0;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Scanner Section */
+    .scanner-section {
+      background: rgba(40, 167, 69, 0.05);
+      border: 1px solid rgba(40, 167, 69, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .scanner-section h3 {
+      margin: 0 0 15px 0;
+      color: var(--primary-color);
+      font-size: 1.1em;
+    }
+
+    .scanner-controls {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    #scanner-video {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .scan-inputs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .scan-inputs label {
+      font-weight: 600;
+      font-size: 0.9em;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .scan-inputs input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+    }
+
+    .scan-inputs input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    /* Buttons */
+    button {
+      background: linear-gradient(45deg, #28a745, #218838);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+    }
+
+    button.secondary {
+      background: linear-gradient(45deg, #4361ee, #3f37c9);
+    }
+
+    button.danger {
+      background: linear-gradient(45deg, #dc3545, #c82333);
+    }
+
+    button.toggle-true {
+      background: #28a745;
+      padding: 5px 12px;
+      font-size: 0.85em;
+    }
+
+    button.toggle-false {
+      background: #dc3545;
+      padding: 5px 12px;
+      font-size: 0.85em;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+      color: white;
+    }
+
+    th {
+      padding: 12px 10px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85em;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.85em;
+      text-align: center;
+    }
+
+    td input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9em;
+      box-sizing: border-box;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(40, 167, 69, 0.05);
+    }
+
+    /* Messages */
+    .success, .error {
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+
+    .success {
+      color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+      border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+
+    .error {
+      color: #dc3545;
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-light);
+      font-size: 1.1em;
+    }
+
+    .info-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .info-badge {
+      background: rgba(40, 167, 69, 0.1);
+      border: 1px solid rgba(40, 167, 69, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1em;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .search-container input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .download-link {
+      display: inline-block;
+      color: var(--primary-color);
+      font-weight: 600;
+      text-decoration: none;
+      padding: 10px 20px;
+      border: 2px solid var(--primary-color);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .download-link:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.6em; }
+      th, td { padding: 8px 6px; font-size: 0.75em; }
+      .tabs { flex-direction: column; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+      authDomain: "supratechweb.firebaseapp.com",
+      projectId: "supratechweb",
+      storageBucket: "supratechweb.firebasestorage.app",
+      messagingSenderId: "828253545658",
+      appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <a href="/panel" class="back-link">&larr; Volver al Panel</a>
+
+    <div class="header">
+      <h2>Inventarios</h2>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('inventario')">Inventario</button>
+      <button class="tab-btn" onclick="showTab('surtible')">Surtible</button>
+    </div>
+
+    <div id="success-msg" class="success"></div>
+    <div id="error-msg" class="error"></div>
+
+    <!-- Tab 1: Inventario -->
+    <div id="tab-inventario" class="tab-content active">
+      <!-- Scanner Section -->
+      <div class="scanner-section">
+        <h3>Escanear Codigo de Barras</h3>
+        <div class="scanner-controls">
+          <button id="start-scanner" onclick="startScanner()">Iniciar Camara</button>
+          <button id="stop-scanner" onclick="stopScanner()" style="display:none;">Detener Camara</button>
+          <span style="color:#666;font-size:0.9em;">o usa un escaner USB (enfoca el campo de codigo)</span>
+        </div>
+        <video id="scanner-video" autoplay playsinline></video>
+        <div class="scan-inputs">
+          <div>
+            <label for="scan-estante">Estante</label>
+            <input type="text" id="scan-estante" placeholder="Ej: A1">
+          </div>
+          <div>
+            <label for="scan-nivel">Nivel</label>
+            <input type="text" id="scan-nivel" placeholder="Ej: 1">
+          </div>
+          <div>
+            <label for="scan-codigo">Codigo de Barras</label>
+            <input type="text" id="scan-codigo" placeholder="Escanea o escribe" autofocus>
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button onclick="guardarEscaneo()">Guardar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CSV Upload -->
+      <div class="action-row">
+        <a href="/static/plantilla_inventario.csv" download class="download-link">Descargar plantilla CSV</a>
+        <input type="file" id="csv-file" accept=".csv" style="display:none;">
+        <button class="secondary" onclick="document.getElementById('csv-file').click()">Cargar CSV</button>
+        <button class="danger" onclick="borrarInventario()">Borrar datos</button>
+      </div>
+
+      <div class="info-row">
+        <span class="info-badge" id="total-inventario">Total: --</span>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="search-inventario" placeholder="Buscar por SKU, Marca, Codigo...">
+      </div>
+
+      <div id="loading-inventario" class="loading">Cargando datos...</div>
+
+      <div class="table-container" id="table-inventario" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Estante</th>
+              <th>Nivel</th>
+              <th>Codigo Barras</th>
+              <th>PICKING</th>
+              <th>SKU</th>
+              <th>Titulo</th>
+              <th>Marca</th>
+              <th>MOSTRADOR</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-inventario"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 2: Surtible -->
+    <div id="tab-surtible" class="tab-content">
+      <div class="action-row">
+        <button class="secondary" onclick="descargarSurtibleExcel()">Descargar Excel</button>
+      </div>
+
+      <div class="info-row">
+        <span class="info-badge" id="total-surtible">Total: --</span>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="search-surtible" placeholder="Buscar por SKU, Marca...">
+      </div>
+
+      <div id="loading-surtible" class="loading">Cargando datos...</div>
+
+      <div class="table-container" id="table-surtible" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Unidades a Surtir</th>
+              <th>Unidades a Surtir 2</th>
+              <th>SKU Original</th>
+              <th>Marca</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-surtible"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let idToken = null;
+  let inventarioData = [];
+  let surtibleData = [];
+  let codeReader = null;
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (user) {
+      idToken = await user.getIdToken();
+      cargarInventario();
+      cargarSurtible();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  function showTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('success-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('error-msg').style.display = 'none';
+    setTimeout(() => el.style.display = 'none', 4000);
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('success-msg').style.display = 'none';
+    setTimeout(() => el.style.display = 'none', 4000);
+  }
+
+  // ===== INVENTARIO =====
+  async function cargarInventario() {
+    try {
+      const res = await fetch('/api/inventarios/inventario/data', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      const result = await res.json();
+      if (res.ok) {
+        inventarioData = result.tabla || [];
+        document.getElementById('total-inventario').textContent = 'Total: ' + inventarioData.length + ' registros';
+        mostrarInventario(inventarioData);
+        document.getElementById('loading-inventario').style.display = 'none';
+        document.getElementById('table-inventario').style.display = 'block';
+      } else {
+        showError(result.error || 'Error al cargar inventario');
+      }
+    } catch (error) {
+      showError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarInventario(data) {
+    const tbody = document.getElementById('tbody-inventario');
+    tbody.innerHTML = '';
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;">No hay datos</td></tr>';
+      return;
+    }
+    data.forEach((row, idx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" value="${row[0] || ''}" data-row="${idx}" data-col="0"></td>
+        <td><input type="text" value="${row[1] || ''}" data-row="${idx}" data-col="1"></td>
+        <td><input type="text" value="${row[2] || ''}" data-row="${idx}" data-col="2"></td>
+        <td><button class="${row[3] === 'true' || row[3] === true ? 'toggle-true' : 'toggle-false'}" onclick="togglePicking(${idx})">${row[3] === 'true' || row[3] === true ? 'TRUE' : 'FALSE'}</button></td>
+        <td>${row[4] || ''}</td>
+        <td>${row[5] || ''}</td>
+        <td>${row[6] || ''}</td>
+        <td><button class="${row[7] === 'true' || row[7] === true ? 'toggle-true' : 'toggle-false'}" onclick="toggleMostrador(${idx})">${row[7] === 'true' || row[7] === true ? 'TRUE' : 'FALSE'}</button></td>
+        <td><button onclick="guardarFila(${idx})">Guardar</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function togglePicking(idx) {
+    const currentVal = inventarioData[idx][3];
+    const newVal = (currentVal === 'true' || currentVal === true) ? 'false' : 'true';
+    await actualizarCelda(idx, 'D', newVal);
+    inventarioData[idx][3] = newVal;
+    mostrarInventario(inventarioData);
+  }
+
+  async function toggleMostrador(idx) {
+    const currentVal = inventarioData[idx][7];
+    const newVal = (currentVal === 'true' || currentVal === true) ? 'false' : 'true';
+    await actualizarCelda(idx, 'H', newVal);
+    inventarioData[idx][7] = newVal;
+    mostrarInventario(inventarioData);
+  }
+
+  async function actualizarCelda(rowIdx, col, value) {
+    try {
+      const res = await fetch('/api/inventarios/inventario/update_cell', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + idToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ row: rowIdx + 2, col: col, value: value })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        showError(data.error || 'Error al actualizar');
+      }
+    } catch (e) {
+      showError('Error: ' + e.message);
+    }
+  }
+
+  async function guardarFila(idx) {
+    const inputs = document.querySelectorAll(`input[data-row="${idx}"]`);
+    const values = {};
+    inputs.forEach(inp => {
+      const col = parseInt(inp.dataset.col);
+      values[col] = inp.value;
+    });
+
+    try {
+      const res = await fetch('/api/inventarios/inventario/update_row', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + idToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ row: idx + 2, estante: values[0], nivel: values[1], codigo: values[2] })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showSuccess('Fila guardada');
+        inventarioData[idx][0] = values[0];
+        inventarioData[idx][1] = values[1];
+        inventarioData[idx][2] = values[2];
+      } else {
+        showError(data.error || 'Error al guardar');
+      }
+    } catch (e) {
+      showError('Error: ' + e.message);
+    }
+  }
+
+  async function guardarEscaneo() {
+    const estante = document.getElementById('scan-estante').value;
+    const nivel = document.getElementById('scan-nivel').value;
+    const codigo = document.getElementById('scan-codigo').value;
+
+    if (!codigo) {
+      showError('Ingresa un codigo de barras');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/inventarios/inventario/registro', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + idToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ estante, nivel, codigo })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showSuccess('Registro guardado');
+        document.getElementById('scan-codigo').value = '';
+        document.getElementById('scan-codigo').focus();
+        cargarInventario();
+      } else {
+        showError(data.error || 'Error al guardar');
+      }
+    } catch (e) {
+      showError('Error: ' + e.message);
+    }
+  }
+
+  // Scanner con camara
+  async function startScanner() {
+    try {
+      codeReader = new ZXing.BrowserMultiFormatReader();
+      const videoEl = document.getElementById('scanner-video');
+      videoEl.style.display = 'block';
+      document.getElementById('start-scanner').style.display = 'none';
+      document.getElementById('stop-scanner').style.display = 'inline-block';
+
+      const devices = await codeReader.listVideoInputDevices();
+      if (devices.length === 0) {
+        showError('No se encontraron camaras');
+        return;
+      }
+
+      codeReader.decodeFromVideoDevice(devices[0].deviceId, 'scanner-video', (result, err) => {
+        if (result) {
+          document.getElementById('scan-codigo').value = result.getText();
+          showSuccess('Codigo escaneado: ' + result.getText());
+        }
+      });
+    } catch (e) {
+      showError('Error al iniciar camara: ' + e.message);
+    }
+  }
+
+  function stopScanner() {
+    if (codeReader) {
+      codeReader.reset();
+      codeReader = null;
+    }
+    document.getElementById('scanner-video').style.display = 'none';
+    document.getElementById('start-scanner').style.display = 'inline-block';
+    document.getElementById('stop-scanner').style.display = 'none';
+  }
+
+  // CSV Upload
+  document.getElementById('csv-file').addEventListener('change', async function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/inventarios/inventario/bulk', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + idToken },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showSuccess('CSV cargado: ' + data.rows + ' filas');
+        cargarInventario();
+      } else {
+        showError(data.error || 'Error al cargar CSV');
+      }
+    } catch (e) {
+      showError('Error: ' + e.message);
+    }
+    this.value = '';
+  });
+
+  async function borrarInventario() {
+    if (!confirm('¿Borrar todos los datos de inventario?')) return;
+    try {
+      const res = await fetch('/api/inventarios/inventario/clear', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      if (res.ok) {
+        showSuccess('Datos borrados');
+        cargarInventario();
+      } else {
+        const data = await res.json();
+        showError(data.error || 'Error al borrar');
+      }
+    } catch (e) {
+      showError('Error: ' + e.message);
+    }
+  }
+
+  // Busqueda inventario
+  document.getElementById('search-inventario').addEventListener('input', function() {
+    const term = this.value.toLowerCase();
+    if (!term) {
+      mostrarInventario(inventarioData);
+      document.getElementById('total-inventario').textContent = 'Total: ' + inventarioData.length + ' registros';
+      return;
+    }
+    const filtered = inventarioData.filter(row => row.some(cell => (cell || '').toString().toLowerCase().includes(term)));
+    mostrarInventario(filtered);
+    document.getElementById('total-inventario').textContent = 'Mostrando: ' + filtered.length + ' de ' + inventarioData.length;
+  });
+
+  // ===== SURTIBLE =====
+  async function cargarSurtible() {
+    try {
+      const res = await fetch('/api/inventarios/surtible/data', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      const result = await res.json();
+      if (res.ok) {
+        surtibleData = result.tabla || [];
+        document.getElementById('total-surtible').textContent = 'Total: ' + surtibleData.length + ' registros';
+        mostrarSurtible(surtibleData);
+        document.getElementById('loading-surtible').style.display = 'none';
+        document.getElementById('table-surtible').style.display = 'block';
+      } else {
+        showError(result.error || 'Error al cargar surtible');
+      }
+    } catch (error) {
+      showError('Error de conexion: ' + error.message);
+    }
+  }
+
+  function mostrarSurtible(data) {
+    const tbody = document.getElementById('tbody-surtible');
+    tbody.innerHTML = '';
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;">No hay datos</td></tr>';
+      return;
+    }
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row[0] || ''}</td>
+        <td>${row[1] || ''}</td>
+        <td>${row[2] || ''}</td>
+        <td>${row[3] || ''}</td>
+        <td>${row[4] || ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Busqueda surtible
+  document.getElementById('search-surtible').addEventListener('input', function() {
+    const term = this.value.toLowerCase();
+    if (!term) {
+      mostrarSurtible(surtibleData);
+      document.getElementById('total-surtible').textContent = 'Total: ' + surtibleData.length + ' registros';
+      return;
+    }
+    const filtered = surtibleData.filter(row => row.some(cell => (cell || '').toString().toLowerCase().includes(term)));
+    mostrarSurtible(filtered);
+    document.getElementById('total-surtible').textContent = 'Mostrando: ' + filtered.length + ' de ' + surtibleData.length;
+  });
+
+  function descargarSurtibleExcel() {
+    // Crear CSV para descargar
+    let csv = 'SKU,Unidades a Surtir,Unidades a Surtir 2,SKU Original,Marca\n';
+    surtibleData.forEach(row => {
+      csv += row.map(cell => '"' + (cell || '').toString().replace(/"/g, '""') + '"').join(',') + '\n';
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'surtible_' + new Date().toISOString().slice(0,10) + '.csv';
+    link.click();
+  }
+
+  // Escaner USB - detecta entrada rapida
+  let barcodeBuffer = '';
+  let lastKeyTime = 0;
+  document.addEventListener('keypress', function(e) {
+    const now = Date.now();
+    if (document.activeElement.id === 'scan-codigo') {
+      // Si la entrada es muy rapida, es un escaner
+      if (now - lastKeyTime < 50 && e.key === 'Enter') {
+        // El escaner termino
+        e.preventDefault();
+      }
+    }
+    lastKeyTime = now;
+  });
+</script>
+</body>
+</html>

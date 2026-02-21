@@ -7187,6 +7187,490 @@ def api_prospeccion_bd_clear():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# --- INVENTARIOS ---
+INVENTARIOS_DEFAULT_URL = 'https://docs.google.com/spreadsheets/d/1k3qTKvSwb-DPqQC-VINsABIK-1xy3mKOefDb5Tz45vQ/edit?gid=0#gid=0'
+INVENTARIOS_INVENTARIO_HOJA = {
+    'Hoja': 'INVENTARIO',
+    'Estante': 'A:A',
+    'Nivel': 'B:B',
+    'CODIGO BARRAS': 'C:C',
+    'PICKING': 'D:D',
+    'SKU': 'E:E',
+    'Titulo': 'F:F',
+    'MARCA': 'G:G',
+    'MOSTRADOR': 'H:H'
+}
+INVENTARIOS_SURTIBLE_HOJA = {
+    'Hoja': 'BD IMPULSO 2',
+    'SKU': 'A:A',
+    'UNIDADES A SURTIR': 'B:B',
+    'UNIDADES A SURTIR 2': 'C:C',
+    'SKU ORIGINAL': 'D:D',
+    'MARCA': 'E:E'
+}
+
+def _init_inventarios_config(uid):
+    """Auto-crea la configuracion de INVENTARIOS en Firebase si no existe"""
+    area_ref = db.collection('Areas').document(uid)
+    area_doc = area_ref.get()
+    if not area_doc.exists:
+        area_ref.set({'NEWINVINGRESO': INVENTARIOS_DEFAULT_URL})
+    else:
+        area_data = area_doc.to_dict()
+        if not area_data.get('NEWINVINGRESO'):
+            area_ref.update({'NEWINVINGRESO': INVENTARIOS_DEFAULT_URL})
+    # Inventario
+    hoja_ref = area_ref.collection('Hojas').document('inventarios_inventario')
+    hoja_doc = hoja_ref.get()
+    if not hoja_doc.exists:
+        hoja_ref.set(INVENTARIOS_INVENTARIO_HOJA)
+    # Surtible
+    hoja_ref2 = area_ref.collection('Hojas').document('inventarios_surtible')
+    hoja_doc2 = hoja_ref2.get()
+    if not hoja_doc2.exists:
+        hoja_ref2.set(INVENTARIOS_SURTIBLE_HOJA)
+
+@app.route('/inventarios')
+def inventarios():
+    return render_template('inventarios.html')
+
+@app.route('/api/inventarios/inventario/data', methods=['GET'])
+def api_inventarios_inventario_data():
+    """Lee datos de INVENTARIO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        _init_inventarios_config(uid)
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('NEWINVINGRESO')
+
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_inventario')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'INVENTARIO')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        result = service.spreadsheets().values().batchGet(
+            spreadsheetId=spreadsheet_id,
+            ranges=[
+                f"{nombre_hoja}!A2:A",  # Estante
+                f"{nombre_hoja}!B2:B",  # Nivel
+                f"{nombre_hoja}!C2:C",  # CODIGO BARRAS
+                f"{nombre_hoja}!D2:D",  # PICKING
+                f"{nombre_hoja}!E2:E",  # SKU
+                f"{nombre_hoja}!F2:F",  # Titulo
+                f"{nombre_hoja}!G2:G",  # MARCA
+                f"{nombre_hoja}!H2:H",  # MOSTRADOR
+            ]
+        ).execute()
+
+        value_ranges = result.get('valueRanges', [])
+
+        def get_col_values(idx):
+            if idx < len(value_ranges) and value_ranges[idx].get('values'):
+                return [row[0] if row else '' for row in value_ranges[idx]['values']]
+            return []
+
+        estante_vals = get_col_values(0)
+        nivel_vals = get_col_values(1)
+        codigo_vals = get_col_values(2)
+        picking_vals = get_col_values(3)
+        sku_vals = get_col_values(4)
+        titulo_vals = get_col_values(5)
+        marca_vals = get_col_values(6)
+        mostrador_vals = get_col_values(7)
+
+        max_rows = max(len(estante_vals), len(nivel_vals), len(codigo_vals), len(picking_vals),
+                      len(sku_vals), len(titulo_vals), len(marca_vals), len(mostrador_vals))
+
+        tabla = []
+        for i in range(max_rows):
+            row = [
+                estante_vals[i] if i < len(estante_vals) else '',
+                nivel_vals[i] if i < len(nivel_vals) else '',
+                codigo_vals[i] if i < len(codigo_vals) else '',
+                picking_vals[i] if i < len(picking_vals) else '',
+                sku_vals[i] if i < len(sku_vals) else '',
+                titulo_vals[i] if i < len(titulo_vals) else '',
+                marca_vals[i] if i < len(marca_vals) else '',
+                mostrador_vals[i] if i < len(mostrador_vals) else '',
+            ]
+            tabla.append(row)
+
+        return jsonify({'tabla': tabla}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/inventarios/inventario/update_cell', methods=['POST'])
+def api_inventarios_update_cell():
+    """Actualiza una celda especifica de INVENTARIO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        data = request.get_json()
+        _init_inventarios_config(uid)
+
+        row = data.get('row')
+        col = data.get('col')
+        value = data.get('value')
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('NEWINVINGRESO')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_inventario')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'INVENTARIO')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!{col}{row}",
+            valueInputOption='USER_ENTERED',
+            body={'values': [[value]]}
+        ).execute()
+
+        return jsonify({'status': 'ok'}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/inventarios/inventario/update_row', methods=['POST'])
+def api_inventarios_update_row():
+    """Actualiza los campos editables de una fila de INVENTARIO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        data = request.get_json()
+        _init_inventarios_config(uid)
+
+        row = data.get('row')
+        estante = data.get('estante', '')
+        nivel = data.get('nivel', '')
+        codigo = data.get('codigo', '')
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('NEWINVINGRESO')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_inventario')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'INVENTARIO')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Actualizar columnas A, B, C de la fila
+        service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!A{row}:C{row}",
+            valueInputOption='USER_ENTERED',
+            body={'values': [[estante, nivel, codigo]]}
+        ).execute()
+
+        return jsonify({'status': 'ok'}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/inventarios/inventario/registro', methods=['POST'])
+def api_inventarios_registro():
+    """Registra un nuevo escaneo en INVENTARIO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        data = request.get_json()
+        _init_inventarios_config(uid)
+
+        estante = data.get('estante', '')
+        nivel = data.get('nivel', '')
+        codigo = data.get('codigo', '')
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('NEWINVINGRESO')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_inventario')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'INVENTARIO')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        # Agregar fila con Estante(A), Nivel(B), Codigo(C)
+        # Las demas columnas (D-H) se dejaran vacias o con valores por defecto
+        values = [[estante, nivel, codigo, 'false', '', '', '', 'false']]
+        service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!A2:H2",
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body={'values': values}
+        ).execute()
+
+        return jsonify({'status': 'ok'}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/inventarios/inventario/bulk', methods=['POST'])
+def api_inventarios_bulk():
+    """Carga masiva en INVENTARIO"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re, csv, io
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        _init_inventarios_config(uid)
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('NEWINVINGRESO')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_inventario')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'INVENTARIO')
+
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        file = request.files['file']
+
+        try:
+            content = file.stream.read().decode('utf-8')
+        except UnicodeDecodeError:
+            file.stream.seek(0)
+            content = file.stream.read().decode('latin-1')
+
+        stream = io.StringIO(content)
+        reader = csv.DictReader(stream)
+
+        rows = []
+        for row in reader:
+            estante = row.get('Estante', row.get('ESTANTE', ''))
+            nivel = row.get('Nivel', row.get('NIVEL', ''))
+            codigo = row.get('CODIGO BARRAS', row.get('Codigo Barras', row.get('codigo_barras', '')))
+            rows.append([estante, nivel, codigo, 'false', '', '', '', 'false'])
+
+        if not rows:
+            return jsonify({'error': 'No se encontraron filas validas'}), 400
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!A2:H",
+            valueInputOption='USER_ENTERED',
+            insertDataOption='INSERT_ROWS',
+            body={'values': rows}
+        ).execute()
+
+        return jsonify({'status': 'ok', 'rows': len(rows)}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/inventarios/inventario/clear', methods=['POST'])
+def api_inventarios_clear():
+    """Borra datos de INVENTARIO a partir de fila 2"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import re
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        _init_inventarios_config(uid)
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('NEWINVINGRESO')
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_inventario')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'INVENTARIO')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        service.spreadsheets().values().clear(
+            spreadsheetId=spreadsheet_id,
+            range=f"{nombre_hoja}!A2:H5000",
+            body={}
+        ).execute()
+
+        return jsonify({'status': 'ok'}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/inventarios/surtible/data', methods=['GET'])
+def api_inventarios_surtible_data():
+    """Lee datos de BD IMPULSO 2 (Surtible)"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        _init_inventarios_config(uid)
+
+        area_doc = db.collection('Areas').document(uid).get()
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('NEWINVINGRESO')
+
+        import re
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet invalida'}), 400
+        spreadsheet_id = match.group(1)
+
+        hoja_ref = db.collection('Areas').document(uid).collection('Hojas').document('inventarios_surtible')
+        hoja_doc = hoja_ref.get()
+        hoja_data = hoja_doc.to_dict()
+
+        nombre_hoja = hoja_data.get('Hoja', 'BD IMPULSO 2')
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        result = service.spreadsheets().values().batchGet(
+            spreadsheetId=spreadsheet_id,
+            ranges=[
+                f"{nombre_hoja}!A2:A",  # SKU
+                f"{nombre_hoja}!B2:B",  # UNIDADES A SURTIR
+                f"{nombre_hoja}!C2:C",  # UNIDADES A SURTIR 2
+                f"{nombre_hoja}!D2:D",  # SKU ORIGINAL
+                f"{nombre_hoja}!E2:E",  # MARCA
+            ]
+        ).execute()
+
+        value_ranges = result.get('valueRanges', [])
+
+        def get_col_values(idx):
+            if idx < len(value_ranges) and value_ranges[idx].get('values'):
+                return [row[0] if row else '' for row in value_ranges[idx]['values']]
+            return []
+
+        sku_vals = get_col_values(0)
+        unidades_vals = get_col_values(1)
+        unidades2_vals = get_col_values(2)
+        sku_orig_vals = get_col_values(3)
+        marca_vals = get_col_values(4)
+
+        max_rows = max(len(sku_vals), len(unidades_vals), len(unidades2_vals),
+                      len(sku_orig_vals), len(marca_vals))
+
+        tabla = []
+        for i in range(max_rows):
+            row = [
+                sku_vals[i] if i < len(sku_vals) else '',
+                unidades_vals[i] if i < len(unidades_vals) else '',
+                unidades2_vals[i] if i < len(unidades2_vals) else '',
+                sku_orig_vals[i] if i < len(sku_orig_vals) else '',
+                marca_vals[i] if i < len(marca_vals) else '',
+            ]
+            tabla.append(row)
+
+        return jsonify({'tabla': tabla}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5001))
