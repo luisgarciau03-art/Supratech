@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Prospeccion Productos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .panel-card {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 50px 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      text-align: center;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin-bottom: 35px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .panel-links {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .panel-link {
+      background: white;
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      font-size: 1.1em;
+      border: 1px solid rgba(67, 97, 238, 0.15);
+      cursor: pointer;
+    }
+
+    .panel-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .panel-link.green {
+      color: #28a745;
+      border-color: rgba(40, 167, 69, 0.15);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.1);
+    }
+
+    .panel-link.green:hover {
+      background: #28a745;
+      color: white;
+      border-color: #28a745;
+      box-shadow: 0 8px 25px rgba(40, 167, 69, 0.25);
+    }
+
+    .panel-link.orange {
+      color: #e67e22;
+      border-color: rgba(230, 126, 34, 0.15);
+      box-shadow: 0 4px 15px rgba(230, 126, 34, 0.1);
+    }
+
+    .panel-link.orange:hover {
+      background: #e67e22;
+      color: white;
+      border-color: #e67e22;
+      box-shadow: 0 8px 25px rgba(230, 126, 34, 0.25);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 25px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 500px) {
+      .panel-card {
+        padding: 30px 20px;
+      }
+      h2 { font-size: 1.8em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel-card">
+    <a href="/panel" class="back-link">&larr; Volver al Panel</a>
+    <h2>Prospeccion Productos</h2>
+    <div class="panel-links">
+      <a class="panel-link" href="/prospeccion_plantilla">PLANTILLA</a>
+      <a class="panel-link green" href="/prospeccion_resultados">RESULTADOS</a>
+      <a class="panel-link orange" href="/prospeccion_bd">BD</a>
+    </div>
+  </div>
+</body>
+</html>

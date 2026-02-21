@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>BDQTY - Pedidos 9.0</title>
+  <title>BD - Prospeccion</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #4361ee;
-      --secondary-color: #3f37c9;
+      --primary-color: #e67e22;
+      --secondary-color: #d35400;
       --text-dark: #2b2d42;
       --text-light: #8d99ae;
       --card-bg: rgba(255, 255, 255, 0.95);
@@ -15,9 +15,9 @@
 
     body {
       background-color: #f0f2f5;
-      background-image: 
-        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
         radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
       background-attachment: fixed;
       font-family: 'Poppins', sans-serif;
@@ -54,7 +54,7 @@
       font-size: 2.2em;
       margin-bottom: 35px;
       font-weight: 700;
-      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      background: linear-gradient(45deg, #1a1a1a, var(--primary-color));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.5px;
@@ -93,11 +93,11 @@
     input:focus, select:focus {
       border-color: var(--primary-color);
       background: #fff;
-      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+      box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.1);
     }
 
     button {
-      background: linear-gradient(45deg, #4361ee, #3f37c9);
+      background: linear-gradient(45deg, #e67e22, #d35400);
       color: #fff;
       border: none;
       border-radius: 12px;
@@ -105,7 +105,7 @@
       font-size: 1.1em;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+      box-shadow: 0 10px 20px rgba(230, 126, 34, 0.2);
       transition: all 0.3s ease;
       margin-top: 10px;
       font-family: 'Poppins', sans-serif;
@@ -113,7 +113,7 @@
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(67, 97, 238, 0.3);
+      box-shadow: 0 15px 30px rgba(230, 126, 34, 0.3);
     }
 
     .success {
@@ -148,33 +148,33 @@
       border-radius: 12px;
       font-weight: 600;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.15);
+      box-shadow: 0 4px 15px rgba(230, 126, 34, 0.15);
       display: inline-flex;
       align-items: center;
       font-size: 0.95em;
-      border: 1px solid rgba(67, 97, 238, 0.2);
+      border: 1px solid rgba(230, 126, 34, 0.2);
       margin-bottom: 30px;
     }
 
     .back-link:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.25);
+      box-shadow: 0 8px 25px rgba(230, 126, 34, 0.25);
       background: var(--primary-color);
       color: white;
     }
 
     .download-link {
-        display: block;
-        margin-bottom: 15px;
-        color: var(--primary-color);
-        font-weight: 600;
-        text-decoration: none;
-        transition: color 0.2s;
+      display: block;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s;
     }
-    
+
     .download-link:hover {
-        color: var(--secondary-color);
-        text-decoration: underline;
+      color: var(--secondary-color);
+      text-decoration: underline;
     }
 
     @media (max-width: 540px) {
@@ -198,129 +198,85 @@
     };
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
-      console.log('[PEDIDOS_BDQTY] Firebase inicializado');
-    } else {
-      console.log('[PEDIDOS_BDQTY] Firebase ya estaba inicializado');
     }
   </script>
-<script>
-function setLastUpdate() {
-  const now = new Date();
-  const formatted = now.toLocaleString('es-MX', { hour12: false });
-  const div = document.getElementById('last-update');
-  if (div) {
-    div.textContent = 'Última actualización: ' + formatted;
-  }
-}
-</script>
 </head>
 <body>
   <div class="panel-card">
-    <a href="/pedidos" class="back-link">&larr; Volver</a>
-    <h2>📈 BDQTY - Pedidos 9.0</h2>
-    <form id="bdqty-form">
-      <!-- Campos dinámicos aquí -->
+    <a href="/prospeccion_productos" class="back-link">&larr; Volver</a>
+    <h2>BD - Prospeccion</h2>
+    <form id="bd-form">
+      <div>
+        <label for="sku">SKU</label>
+        <input type="text" id="sku" name="SKU" required placeholder="Ingresa el SKU">
+      </div>
+      <div>
+        <label for="costo_neto">COSTO NETO</label>
+        <input type="text" id="costo_neto" name="COSTO NETO" required placeholder="Ingresa el costo neto">
+      </div>
+      <button type="submit">Registrar</button>
     </form>
     <div style="margin: 18px 0;">
-        <a href="/static/plantilla_pedidos_bdqty.csv" download class="download-link">📥 Descargar plantilla CSV</a>
-      <label for="bulk-file" style="color:var(--text-dark);font-weight:600;margin-bottom:10px;display:block;">Carga masiva (CSV/XLSX):</label>
-      <input type="file" id="bulk-file" accept=".csv,.xlsx" style="margin-bottom:8px;">
+      <label for="bulk-file" style="color:var(--text-dark);font-weight:600;margin-bottom:10px;display:block;">Carga masiva (CSV):</label>
+      <input type="file" id="bulk-file" accept=".csv" style="margin-bottom:8px;">
       <button id="bulk-upload-btn" type="button">Cargar archivo</button>
     </div>
     <div style="margin: 18px 0;">
       <button id="clear-btn" type="button" style="background: linear-gradient(45deg, #dc3545, #c82333); box-shadow: 0 10px 20px rgba(220, 53, 69, 0.2);">Borrar todos los datos</button>
     </div>
     <div id="last-update" style="color:#555;font-size:0.98em;margin-bottom:10px;"></div>
-    <div id="bdqty-success" class="success"></div>
-    <div id="bdqty-error" class="error"></div>
+    <div id="bd-success" class="success"></div>
+    <div id="bd-error" class="error"></div>
     <div id="bulk-preview" style="margin-top:18px;text-align:left;max-height:300px;overflow:auto;"></div>
   </div>
 </body>
 <script>
+  let idToken = null;
+
+  function setLastUpdate() {
+    const now = new Date();
+    const formatted = now.toLocaleString('es-MX', { hour12: false });
+    const div = document.getElementById('last-update');
+    if (div) {
+      div.textContent = 'Ultima actualizacion: ' + formatted;
+    }
+  }
+
   setLastUpdate();
+
   firebase.auth().onAuthStateChanged(async function(user) {
-    console.log('[PEDIDOS_BDQTY] onAuthStateChanged:', user);
     if (user) {
       try {
-        const idToken = await user.getIdToken();
-        console.log('[PEDIDOS_BDQTY] Token obtenido tras restaurar sesión:', idToken);
-        cargarCamposDinamicos(idToken);
+        idToken = await user.getIdToken();
+        document.getElementById('bulk-upload-btn').dataset.idToken = idToken;
       } catch (e) {
-        console.error('[PEDIDOS_BDQTY] Error obteniendo token tras restaurar sesión:', e);
+        console.error('Error obteniendo token:', e);
         window.location.href = '/';
       }
     } else {
-      console.warn('[PEDIDOS_BDQTY] No autenticado tras onAuthStateChanged, redirigiendo');
       window.location.href = '/';
     }
   });
 
-  async function cargarCamposDinamicos(idToken) {
-    if (!idToken) {
-      console.warn('[PEDIDOS_BDQTY] Redirigiendo a login por falta de token');
-      window.location.href = '/';
-      return;
-    }
-    const res = await fetch('/api/pedidos_bdqty_campos', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + idToken }
-    });
-    if (res.headers.get('content-type') && !res.headers.get('content-type').includes('application/json')) {
-      document.getElementById('bdqty-error').textContent = 'Error: el backend no devolvió JSON. Revisa el endpoint /api/pedidos_bdqty_campos.';
-      document.getElementById('bdqty-error').style.display = 'block';
-      return;
-    }
-    const data = await res.json();
-    if (!res.ok) {
-      document.getElementById('bdqty-error').textContent = data.error || 'Error al obtener campos';
-      document.getElementById('bdqty-error').style.display = 'block';
-      console.error('[PEDIDOS_BDQTY] Error al obtener campos:', data);
-      return;
-    }
-    const campos = data.campos;
-    const form = document.getElementById('bdqty-form');
-    form.innerHTML = '';
-    for (const campo of campos) {
-      const label = document.createElement('label');
-      label.setAttribute('for', campo);
-      label.textContent = campo.replace(/_/g, ' ').toUpperCase();
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.id = campo;
-      input.name = campo;
-      input.required = true;
-      form.appendChild(label);
-      form.appendChild(input);
-    }
-    const btn = document.createElement('button');
-    btn.type = 'submit';
-    btn.textContent = 'Registrar';
-    form.appendChild(btn);
-    form.dataset.idToken = idToken;
-    document.getElementById('bulk-upload-btn').dataset.idToken = idToken;
-  }
-
-  document.getElementById('bdqty-form').addEventListener('submit', async function(e) {
+  document.getElementById('bd-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const form = document.getElementById('bdqty-form');
-    const idToken = form.dataset.idToken;
     if (!idToken) {
-      console.warn('[PEDIDOS_BDQTY] Redirigiendo a login por falta de token en submit');
       window.location.href = '/';
       return;
     }
-    const formData = {};
-    for (const el of form.elements) {
-      if (el.tagName === 'INPUT') {
-        formData[el.name] = el.value;
-      }
-    }
-    const successDiv = document.getElementById('bdqty-success');
-    const errorDiv = document.getElementById('bdqty-error');
+
+    const formData = {
+      'SKU': document.getElementById('sku').value,
+      'COSTO NETO': document.getElementById('costo_neto').value
+    };
+
+    const successDiv = document.getElementById('bd-success');
+    const errorDiv = document.getElementById('bd-error');
     successDiv.style.display = 'none';
     errorDiv.style.display = 'none';
+
     try {
-      const response = await fetch('/api/pedidos_bdqty_registro', {
+      const response = await fetch('/api/prospeccion_bd/registro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -330,9 +286,9 @@ function setLastUpdate() {
       });
       const data = await response.json();
       if (response.ok) {
-        successDiv.textContent = '✅ Registro exitoso en Spreadsheet';
+        successDiv.textContent = 'Registro exitoso en Spreadsheet';
         successDiv.style.display = 'block';
-        form.reset();
+        document.getElementById('bd-form').reset();
         setLastUpdate();
       } else {
         errorDiv.textContent = data.error || 'Error al registrar en Spreadsheet';
@@ -344,23 +300,54 @@ function setLastUpdate() {
     }
   });
 
-  document.getElementById('bulk-upload-btn').addEventListener('click', async function() {
-    const fileInput = document.getElementById('bulk-file');
-    const idToken = this.dataset.idToken;
-    const successDiv = document.getElementById('bdqty-success');
-    const errorDiv = document.getElementById('bdqty-error');
+  document.getElementById('clear-btn').addEventListener('click', async function() {
+    if (!confirm('¿Estas seguro de borrar todos los datos? Esta accion no se puede deshacer.')) {
+      return;
+    }
+    const successDiv = document.getElementById('bd-success');
+    const errorDiv = document.getElementById('bd-error');
     successDiv.style.display = 'none';
     errorDiv.style.display = 'none';
+
+    try {
+      const response = await fetch('/api/prospeccion_bd/clear', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        successDiv.textContent = 'Datos borrados exitosamente';
+        successDiv.style.display = 'block';
+        setLastUpdate();
+      } else {
+        errorDiv.textContent = data.error || 'Error al borrar datos';
+        errorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      errorDiv.textContent = error.message || 'Error inesperado';
+      errorDiv.style.display = 'block';
+    }
+  });
+
+  document.getElementById('bulk-upload-btn').addEventListener('click', async function() {
+    const fileInput = document.getElementById('bulk-file');
+    const successDiv = document.getElementById('bd-success');
+    const errorDiv = document.getElementById('bd-error');
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+
     if (!fileInput.files.length) {
-      errorDiv.textContent = 'Selecciona un archivo CSV o XLSX.';
+      errorDiv.textContent = 'Selecciona un archivo CSV.';
       errorDiv.style.display = 'block';
       return;
     }
+
     const file = fileInput.files[0];
     const formData = new FormData();
     formData.append('file', file);
+
     try {
-      const response = await fetch('/api/pedidos_bdqty_bulk', {
+      const response = await fetch('/api/prospeccion_bd/bulk', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + idToken },
         body: formData
@@ -370,20 +357,20 @@ function setLastUpdate() {
       try {
         data = await response.json();
       } catch (jsonErr) {
-        errorDiv.textContent = 'Error inesperado en el servidor. Intenta de nuevo o contacta soporte.';
+        errorDiv.textContent = 'Error inesperado en el servidor.';
         errorDiv.style.display = 'block';
         previewDiv.innerHTML = '';
         return;
       }
       if (response.ok) {
-        successDiv.textContent = `✅ Carga masiva exitosa: ${data.rows} filas`;
+        successDiv.textContent = 'Carga masiva exitosa: ' + data.rows + ' filas';
         successDiv.style.display = 'block';
         setLastUpdate();
         if (data.preview && data.preview.length > 0) {
           const keys = Object.keys(data.preview[0]);
           let html = '<table style="border-collapse:collapse;width:100%;font-size:0.97em;">';
-          html += '<thead><tr>' + keys.map(k => `<th style='border:1px solid #b3c6e6;padding:4px 8px;background:#eaf0fa;'>${k}</th>`).join('') + '</tr></thead>';
-          html += '<tbody>' + data.preview.map(row => '<tr>' + keys.map(k => `<td style='border:1px solid #b3c6e6;padding:4px 8px;'>${row[k] ?? ''}</td>`).join('') + '</tr>').join('') + '</tbody>';
+          html += '<thead><tr>' + keys.map(k => '<th style="border:1px solid #b3c6e6;padding:4px 8px;background:#eaf0fa;">' + k + '</th>').join('') + '</tr></thead>';
+          html += '<tbody>' + data.preview.map(row => '<tr>' + keys.map(k => '<td style="border:1px solid #b3c6e6;padding:4px 8px;">' + (row[k] ?? '') + '</td>').join('') + '</tr>').join('') + '</tbody>';
           html += '</table>';
           previewDiv.innerHTML = html;
         } else {
@@ -398,37 +385,6 @@ function setLastUpdate() {
       errorDiv.textContent = error.message || 'Error inesperado en carga masiva';
       errorDiv.style.display = 'block';
       document.getElementById('bulk-preview').innerHTML = '';
-    }
-  });
-
-  document.getElementById('clear-btn').addEventListener('click', async function() {
-    if (!confirm('¿Estas seguro de borrar todos los datos? Esta accion no se puede deshacer.')) {
-      return;
-    }
-    const form = document.getElementById('bdqty-form');
-    const idToken = form.dataset.idToken;
-    const successDiv = document.getElementById('bdqty-success');
-    const errorDiv = document.getElementById('bdqty-error');
-    successDiv.style.display = 'none';
-    errorDiv.style.display = 'none';
-
-    try {
-      const response = await fetch('/api/pedidos_bdqty_clear', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + idToken }
-      });
-      const data = await response.json();
-      if (response.ok) {
-        successDiv.textContent = '✅ Datos borrados exitosamente';
-        successDiv.style.display = 'block';
-        setLastUpdate();
-      } else {
-        errorDiv.textContent = data.error || 'Error al borrar datos';
-        errorDiv.style.display = 'block';
-      }
-    } catch (error) {
-      errorDiv.textContent = error.message || 'Error inesperado';
-      errorDiv.style.display = 'block';
     }
   });
 </script>
