@@ -3,36 +3,54 @@
 <head>
   <title>Panel Usuario</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg-dark: #0f172a;
-      --bg-card: #1e293b;
-      --bg-hover: #334155;
-      --accent-green: #10b981;
-      --accent-blue: #3b82f6;
-      --accent-orange: #f59e0b;
-      --accent-purple: #8b5cf6;
-      --accent-pink: #ec4899;
-      --accent-cyan: #06b6d4;
-      --text-white: #f8fafc;
-      --text-gray: #94a3b8;
-      --text-muted: #64748b;
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --green: #28a745;
+      --orange: #e67e22;
+      --text-dark: #2b2d42;
+      --text-light: #8d99ae;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
     }
+
+    * { box-sizing: border-box; }
 
     body {
-      background: var(--bg-dark);
-      font-family: 'Inter', -apple-system, sans-serif;
-      min-height: 100vh;
-      color: var(--text-white);
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
       padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dark);
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
+    .panel-card {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      animation: slideUp 0.6s ease-out;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Header */
@@ -40,361 +58,251 @@
       display: flex;
       align-items: center;
       gap: 20px;
-      padding: 30px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 40px;
+      margin-bottom: 30px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
     }
 
-    .logo {
-      width: 70px;
-      height: 70px;
-      border-radius: 16px;
+    .logo-container img {
+      width: 80px;
+      height: 80px;
       object-fit: cover;
-      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      border: 3px solid white;
     }
 
-    .header-info h1 {
-      font-size: 1.5em;
+    .header-info h2 {
+      font-size: 1.6em;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin: 0 0 5px 0;
+      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .header-info p {
-      color: var(--text-gray);
+      margin: 0;
+      color: var(--text-light);
       font-size: 0.9em;
     }
 
     .user-badge {
       margin-left: auto;
-      background: var(--bg-card);
-      padding: 12px 20px;
-      border-radius: 12px;
+      background: rgba(67, 97, 238, 0.1);
+      padding: 8px 16px;
+      border-radius: 20px;
       font-size: 0.85em;
-      color: var(--text-gray);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .user-badge span {
-      color: var(--accent-green);
+      color: var(--primary-color);
       font-weight: 600;
     }
 
-    /* Grid de secciones */
-    .sections-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 24px;
-    }
-
+    /* Secciones */
     .section {
-      background: var(--bg-card);
-      border-radius: 20px;
-      padding: 24px;
-      border: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 25px;
     }
 
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+    .section:last-child {
+      margin-bottom: 0;
     }
-
-    .section-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2em;
-    }
-
-    .section-icon.green { background: rgba(16,185,129,0.15); }
-    .section-icon.blue { background: rgba(59,130,246,0.15); }
-    .section-icon.orange { background: rgba(245,158,11,0.15); }
-    .section-icon.purple { background: rgba(139,92,246,0.15); }
-    .section-icon.pink { background: rgba(236,72,153,0.15); }
-    .section-icon.cyan { background: rgba(6,182,212,0.15); }
 
     .section-title {
-      font-size: 1em;
+      font-size: 0.75em;
       font-weight: 600;
-      color: var(--text-white);
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      padding-left: 5px;
     }
 
-    .section-subtitle {
-      font-size: 0.8em;
-      color: var(--text-muted);
-    }
-
-    /* Botones/Links */
+    /* Grid de botones */
     .btn-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
     }
 
-    .btn-link {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 18px;
-      background: var(--bg-dark);
-      border-radius: 12px;
+    .panel-link {
+      background: white;
+      color: var(--primary-color);
       text-decoration: none;
-      color: var(--text-white);
-      transition: all 0.2s ease;
-      border: 1px solid transparent;
-    }
-
-    .btn-link:hover {
-      background: var(--bg-hover);
-      border-color: rgba(255,255,255,0.1);
-      transform: translateX(4px);
-    }
-
-    .btn-link .icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 1.1em;
-      flex-shrink: 0;
+      gap: 10px;
+      font-size: 0.9em;
+      border: 1px solid rgba(67, 97, 238, 0.12);
     }
 
-    .btn-link .icon.green { background: rgba(16,185,129,0.2); }
-    .btn-link .icon.blue { background: rgba(59,130,246,0.2); }
-    .btn-link .icon.orange { background: rgba(245,158,11,0.2); }
-    .btn-link .icon.purple { background: rgba(139,92,246,0.2); }
-    .btn-link .icon.pink { background: rgba(236,72,153,0.2); }
-    .btn-link .icon.cyan { background: rgba(6,182,212,0.2); }
-
-    .btn-link .text {
-      font-weight: 500;
-      font-size: 0.95em;
+    .panel-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 97, 238, 0.15);
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
     }
 
-    .btn-link .arrow {
-      margin-left: auto;
-      color: var(--text-muted);
-      transition: transform 0.2s;
+    .panel-link .icon {
+      font-size: 1.2em;
+      width: 28px;
+      text-align: center;
     }
 
-    .btn-link:hover .arrow {
-      transform: translateX(3px);
-      color: var(--text-gray);
+    /* Variantes de color */
+    .panel-link.green {
+      color: var(--green);
+      border-color: rgba(40, 167, 69, 0.15);
     }
 
-    /* Seccion destacada */
-    .section.featured {
-      background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.1) 100%);
-      border-color: rgba(16,185,129,0.2);
+    .panel-link.green:hover {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.2);
     }
 
-    .section.featured .btn-link {
-      background: rgba(0,0,0,0.3);
+    .panel-link.orange {
+      color: var(--orange);
+      border-color: rgba(230, 126, 34, 0.15);
     }
 
-    .section.featured .btn-link:hover {
-      background: rgba(0,0,0,0.5);
-      border-color: rgba(16,185,129,0.3);
+    .panel-link.orange:hover {
+      background: var(--orange);
+      color: white;
+      border-color: var(--orange);
+      box-shadow: 0 6px 20px rgba(230, 126, 34, 0.2);
     }
 
     /* Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 600px) {
+      .panel-card {
+        padding: 25px 20px;
+      }
+
       .header {
         flex-direction: column;
         text-align: center;
-        gap: 15px;
       }
 
       .user-badge {
         margin-left: 0;
       }
 
-      .sections-grid {
+      .btn-grid {
         grid-template-columns: 1fr;
       }
 
-      .section {
-        padding: 20px;
+      .header-info h2 {
+        font-size: 1.4em;
       }
-    }
 
-    @media (max-width: 400px) {
-      body { padding: 12px; }
-      .sections-grid { gap: 16px; }
-      .btn-link { padding: 12px 14px; }
-      .btn-link .icon { width: 32px; height: 32px; }
+      .logo-container img {
+        width: 70px;
+        height: 70px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="panel-card">
     <!-- Header -->
-    <header class="header">
-      <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Logo" class="logo">
+    <div class="header">
+      <div class="logo-container">
+        <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Logo Supratech">
+      </div>
       <div class="header-info">
-        <h1>Hola, {{ user['nombre'] }}</h1>
+        <h2>Bienvenido, {{ user['nombre'] }}</h2>
         <p>{{ user['email'] }}</p>
       </div>
-      <div class="user-badge">
-        Rol: <span>{{ user.get('rol', 'Usuario') }}</span>
-      </div>
-    </header>
-
-    <!-- Grid de secciones -->
-    <div class="sections-grid">
-
-      <!-- Acciones Principales -->
-      <div class="section featured">
-        <div class="section-header">
-          <div class="section-icon green">&#9889;</div>
-          <div>
-            <div class="section-title">Acciones Rapidas</div>
-            <div class="section-subtitle">Funciones principales</div>
-          </div>
-        </div>
-        <div class="btn-grid">
-          <a href="/actualizar" class="btn-link">
-            <div class="icon green">&#128260;</div>
-            <span class="text">Actualizar</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-          <a href="/finanzas" class="btn-link">
-            <div class="icon green">&#128176;</div>
-            <span class="text">Finanzas</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-          <a href="/inventarios" class="btn-link">
-            <div class="icon green">&#128230;</div>
-            <span class="text">Inventarios</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Compras y Pedidos -->
-      <div class="section">
-        <div class="section-header">
-          <div class="section-icon blue">&#128722;</div>
-          <div>
-            <div class="section-title">Compras y Pedidos</div>
-            <div class="section-subtitle">Gestion de ordenes</div>
-          </div>
-        </div>
-        <div class="btn-grid">
-          <a href="/compras" class="btn-link">
-            <div class="icon blue">&#128722;</div>
-            <span class="text">Compras</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-          <a href="/pedidos" class="btn-link">
-            <div class="icon blue">&#128203;</div>
-            <span class="text">BD Pedidos 9.0</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Bases de Datos -->
-      <div class="section">
-        <div class="section-header">
-          <div class="section-icon purple">&#128451;</div>
-          <div>
-            <div class="section-title">Bases de Datos</div>
-            <div class="section-subtitle">Administracion de datos</div>
-          </div>
-        </div>
-        <div class="btn-grid">
-          <a href="/Llenar_BDS" class="btn-link">
-            <div class="icon purple">&#128202;</div>
-            <span class="text">Llenar Bases de datos</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-          <a href="/bd_descuentos" class="btn-link">
-            <div class="icon purple">&#128209;</div>
-            <span class="text">BD Descuentos</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Descuentos y Precios -->
-      <div class="section">
-        <div class="section-header">
-          <div class="section-icon pink">&#128184;</div>
-          <div>
-            <div class="section-title">Descuentos y Precios</div>
-            <div class="section-subtitle">Control de precios</div>
-          </div>
-        </div>
-        <div class="btn-grid">
-          <a href="/descuentos" class="btn-link">
-            <div class="icon pink">&#128184;</div>
-            <span class="text">Descuentos</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-          <a href="/estado_precios" class="btn-link">
-            <div class="icon pink">&#128178;</div>
-            <span class="text">Estado de Precios</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Analisis y Metricas -->
-      <div class="section">
-        <div class="section-header">
-          <div class="section-icon cyan">&#128200;</div>
-          <div>
-            <div class="section-title">Analisis y Metricas</div>
-            <div class="section-subtitle">Reportes y estadisticas</div>
-          </div>
-        </div>
-        <div class="btn-grid">
-          <a href="/metricas_productos" class="btn-link">
-            <div class="icon cyan">&#128200;</div>
-            <span class="text">Metricas Por Producto</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-          <a href="/capacidad_mensual" class="btn-link">
-            <div class="icon cyan">&#128197;</div>
-            <span class="text">Capacidad Mensual</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-          <a href="/productos_olvidados" class="btn-link">
-            <div class="icon cyan">&#128230;</div>
-            <span class="text">Productos Olvidados</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Prospeccion -->
-      <div class="section">
-        <div class="section-header">
-          <div class="section-icon orange">&#128269;</div>
-          <div>
-            <div class="section-title">Prospeccion</div>
-            <div class="section-subtitle">Busqueda de productos</div>
-          </div>
-        </div>
-        <div class="btn-grid">
-          <a href="/prospeccion_productos" class="btn-link">
-            <div class="icon orange">&#128269;</div>
-            <span class="text">Prospeccion Productos</span>
-            <span class="arrow">&#8594;</span>
-          </a>
-        </div>
-      </div>
-
+      <div class="user-badge">{{ user.get('rol', 'Usuario') }}</div>
     </div>
+
+    <!-- Acciones Principales -->
+    <div class="section">
+      <div class="section-title">Acciones Principales</div>
+      <div class="btn-grid">
+        <a class="panel-link green" href="/actualizar">
+          <span class="icon">&#128260;</span>Actualizar
+        </a>
+        <a class="panel-link green" href="/finanzas">
+          <span class="icon">&#128176;</span>Finanzas
+        </a>
+        <a class="panel-link green" href="/inventarios">
+          <span class="icon">&#128230;</span>Inventarios
+        </a>
+      </div>
+    </div>
+
+    <!-- Compras y Pedidos -->
+    <div class="section">
+      <div class="section-title">Compras y Pedidos</div>
+      <div class="btn-grid">
+        <a class="panel-link" href="/compras">
+          <span class="icon">&#128722;</span>Compras
+        </a>
+        <a class="panel-link" href="/pedidos">
+          <span class="icon">&#128203;</span>BD Pedidos 9.0
+        </a>
+      </div>
+    </div>
+
+    <!-- Bases de Datos -->
+    <div class="section">
+      <div class="section-title">Bases de Datos</div>
+      <div class="btn-grid">
+        <a class="panel-link" href="/Llenar_BDS">
+          <span class="icon">&#128202;</span>Llenar BDS
+        </a>
+        <a class="panel-link" href="/bd_descuentos">
+          <span class="icon">&#128209;</span>BD Descuentos
+        </a>
+      </div>
+    </div>
+
+    <!-- Descuentos y Precios -->
+    <div class="section">
+      <div class="section-title">Descuentos y Precios</div>
+      <div class="btn-grid">
+        <a class="panel-link" href="/descuentos">
+          <span class="icon">&#128184;</span>Descuentos
+        </a>
+        <a class="panel-link" href="/estado_precios">
+          <span class="icon">&#128178;</span>Estado de Precios
+        </a>
+      </div>
+    </div>
+
+    <!-- Analisis y Metricas -->
+    <div class="section">
+      <div class="section-title">Analisis y Metricas</div>
+      <div class="btn-grid">
+        <a class="panel-link" href="/metricas_productos">
+          <span class="icon">&#128200;</span>Metricas Productos
+        </a>
+        <a class="panel-link" href="/capacidad_mensual">
+          <span class="icon">&#128197;</span>Capacidad Mensual
+        </a>
+        <a class="panel-link" href="/productos_olvidados">
+          <span class="icon">&#128230;</span>Productos Olvidados
+        </a>
+      </div>
+    </div>
+
+    <!-- Prospeccion -->
+    <div class="section">
+      <div class="section-title">Prospeccion</div>
+      <div class="btn-grid">
+        <a class="panel-link orange" href="/prospeccion_productos">
+          <span class="icon">&#128269;</span>Prospeccion Productos
+        </a>
+      </div>
+    </div>
+
   </div>
 </body>
 </html>
