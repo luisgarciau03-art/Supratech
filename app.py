@@ -7820,40 +7820,6 @@ def api_contacto():
             'origen':    'landing'
         })
 
-        # Notificación por correo
-        gmail_pass = os.environ.get('GMAIL_APP_PASSWORD', '')
-        if gmail_pass:
-            try:
-                import smtplib
-                from email.mime.text import MIMEText
-                from email.mime.multipart import MIMEMultipart
-
-                remitente = 'luisgarciau03@gmail.com'
-                cuerpo_html = f"""
-                <div style="font-family:Arial,sans-serif;max-width:520px;padding:24px;border:1px solid #e5e7eb;border-radius:12px;">
-                  <h2 style="color:#4361ee;margin:0 0 20px;">🔔 Nuevo contacto — Supratech</h2>
-                  <table style="width:100%;border-collapse:collapse;font-size:0.95em;">
-                    <tr><td style="padding:8px 0;color:#6b7280;width:120px;">Nombre</td><td style="padding:8px 0;font-weight:600;color:#1a1a2e;">{nombre}</td></tr>
-                    <tr><td style="padding:8px 0;color:#6b7280;">Empresa</td><td style="padding:8px 0;color:#1a1a2e;">{empresa}</td></tr>
-                    <tr><td style="padding:8px 0;color:#6b7280;">WhatsApp</td><td style="padding:8px 0;color:#1a1a2e;">{whatsapp}</td></tr>
-                    {"<tr><td style='padding:8px 0;color:#6b7280;vertical-align:top;'>Mensaje</td><td style='padding:8px 0;color:#1a1a2e;'>" + mensaje + "</td></tr>" if mensaje else ""}
-                  </table>
-                  <p style="margin:20px 0 0;font-size:0.82em;color:#9ca3af;">Supratech Web · Landing page</p>
-                </div>
-                """
-
-                msg = MIMEMultipart('alternative')
-                msg['Subject'] = f'Nuevo contacto Supratech: {nombre} — {empresa}'
-                msg['From']    = remitente
-                msg['To']      = remitente
-                msg.attach(MIMEText(cuerpo_html, 'html'))
-
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-                    smtp.login(remitente, gmail_pass)
-                    smtp.sendmail(remitente, remitente, msg.as_string())
-            except Exception:
-                pass  # No bloquear la respuesta si el correo falla
-
         # Notificación Telegram
         tg_token   = os.environ.get('TELEGRAM_TOKEN', '')
         tg_chat_id = os.environ.get('TELEGRAM_CHAT_ID', '')
