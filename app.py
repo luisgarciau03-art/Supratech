@@ -7783,6 +7783,68 @@ def api_inventarios_pickear():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# --- SEGUIMIENTO DE ACTIVACIÓN DE USUARIOS ---
+
+@app.route('/admin/health')
+def admin_health():
+    return render_template('admin_health.html')
+
+@app.route('/api/track_visit', methods=['POST'])
+def track_visit():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import datetime
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        data = request.get_json()
+        modulo = (data or {}).get('modulo', '').strip()
+        if not modulo:
+            return jsonify({'error': 'modulo requerido'}), 400
+        user_ref = db.collection('users').document(uid)
+        user_ref.set({
+            'modulos_visitados': firestore.ArrayUnion([modulo]),
+            'ultimo_acceso': datetime.datetime.utcnow().isoformat()
+        }, merge=True)
+        modulos = list(set(user_ref.get().to_dict().get('modulos_visitados', [])))
+        user_ref.update({'health_score': len(modulos)})
+        return jsonify({'ok': True, 'health_score': len(modulos)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/health_data', methods=['GET'])
+def admin_health_data():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+        caller = db.collection('users').document(uid).get()
+        if not caller.exists or (caller.to_dict().get('rol') or '').lower() not in ['admin', 'administrador']:
+            return jsonify({'error': 'Acceso denegado'}), 403
+        users = []
+        for doc in db.collection('users').stream():
+            u = doc.to_dict()
+            modulos = list(set(u.get('modulos_visitados', [])))
+            users.append({
+                'uid': doc.id,
+                'nombre': u.get('nombre', ''),
+                'apellido': u.get('apellido', ''),
+                'email': u.get('email', ''),
+                'rol': u.get('rol', ''),
+                'modulos_visitados': modulos,
+                'health_score': len(modulos),
+                'ultimo_acceso': u.get('ultimo_acceso', '')
+            })
+        users.sort(key=lambda x: x['health_score'])
+        return jsonify({'users': users})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5001))

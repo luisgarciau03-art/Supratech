@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Score — Supratech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      padding: 30px 20px;
+      color: #2b2d42;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header h1 {
+      font-size: 1.6em;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .header h1 span {
+      font-weight: 300;
+      opacity: 0.7;
+      font-size: 0.75em;
+      display: block;
+    }
+
+    .back-btn {
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9em;
+      opacity: 0.75;
+      transition: opacity 0.2s;
+    }
+    .back-btn:hover { opacity: 1; }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      text-align: center;
+    }
+
+    .stat-card .stat-number {
+      font-size: 2.2em;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.8em;
+      color: #8d99ae;
+      font-weight: 500;
+    }
+
+    .stat-card.total .stat-number  { color: #4361ee; }
+    .stat-card.riesgo .stat-number { color: #dc3545; }
+    .stat-card.medio .stat-number  { color: #f4a422; }
+    .stat-card.sano .stat-number   { color: #28a745; }
+
+    /* Table card */
+    .table-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .table-header h2 {
+      font-size: 1em;
+      font-weight: 600;
+      color: #2b2d42;
+    }
+
+    .filter-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      background: #f0f2f5;
+      color: #8d99ae;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active { background: #4361ee; color: #fff; }
+    .filter-btn.riesgo.active { background: #dc3545; }
+    .filter-btn.medio.active  { background: #f4a422; }
+    .filter-btn.sano.active   { background: #28a745; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 20px;
+      font-size: 0.72em;
+      font-weight: 600;
+      color: #8d99ae;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    td {
+      padding: 14px 20px;
+      font-size: 0.88em;
+      border-bottom: 1px solid #f7f7f7;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbff; }
+
+    .badge-score {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+
+    .badge-riesgo { background: #ffeaea; color: #dc3545; }
+    .badge-medio  { background: #fff8e6; color: #d48806; }
+    .badge-sano   { background: #eafaf1; color: #28a745; }
+
+    .modulos-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .mod-tag {
+      background: #f0f2ff;
+      color: #4361ee;
+      padding: 3px 9px;
+      border-radius: 10px;
+      font-size: 0.75em;
+      font-weight: 500;
+    }
+
+    .empty-row td {
+      text-align: center;
+      padding: 40px;
+      color: #8d99ae;
+      font-size: 0.9em;
+    }
+
+    .last-seen {
+      color: #8d99ae;
+      font-size: 0.82em;
+    }
+
+    #loading {
+      text-align: center;
+      padding: 60px;
+      color: #fff;
+      font-size: 1em;
+      opacity: 0.7;
+    }
+
+    #error-msg {
+      background: #ffeaea;
+      color: #dc3545;
+      padding: 20px 24px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      display: none;
+      font-weight: 500;
+    }
+
+    @media (max-width: 700px) {
+      th:nth-child(4), td:nth-child(4) { display: none; }
+      .header h1 { font-size: 1.3em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Health Score <span>Seguimiento de activación de usuarios</span></h1>
+      <a href="/panel" class="back-btn">← Volver al panel</a>
+    </div>
+
+    <div id="loading">Cargando datos...</div>
+    <div id="error-msg"></div>
+
+    <div id="main-content" style="display:none">
+      <div class="stats">
+        <div class="stat-card total">
+          <div class="stat-number" id="stat-total">—</div>
+          <div class="stat-label">Usuarios totales</div>
+        </div>
+        <div class="stat-card riesgo">
+          <div class="stat-number" id="stat-riesgo">—</div>
+          <div class="stat-label">En riesgo (&lt;3 módulos)</div>
+        </div>
+        <div class="stat-card medio">
+          <div class="stat-number" id="stat-medio">—</div>
+          <div class="stat-label">Moderados (3–5)</div>
+        </div>
+        <div class="stat-card sano">
+          <div class="stat-number" id="stat-sano">—</div>
+          <div class="stat-label">Saludables (6+)</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h2>Detalle por usuario</h2>
+          <div class="filter-btns">
+            <button class="filter-btn active" onclick="filtrar('todos')">Todos</button>
+            <button class="filter-btn riesgo" onclick="filtrar('riesgo')">En riesgo</button>
+            <button class="filter-btn medio" onclick="filtrar('medio')">Moderados</button>
+            <button class="filter-btn sano" onclick="filtrar('sano')">Saludables</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Health Score</th>
+              <th>Módulos usados</th>
+              <th>Último acceso</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+    authDomain: "supratechweb.firebaseapp.com",
+    projectId: "supratechweb",
+    storageBucket: "supratechweb.firebasestorage.app",
+    messagingSenderId: "828253545658",
+    appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  let allUsers = [];
+  let filtroActivo = 'todos';
+
+  const MODULO_LABELS = {
+    actualizar: 'Actualizar', finanzas: 'Finanzas', inventarios: 'Inventarios',
+    compras: 'Compras', pedidos: 'Pedidos', llenar_bds: 'Bases de datos',
+    bd_descuentos: 'Desc. BD', descuentos: 'Descuentos', estado_precios: 'Precios',
+    metricas_productos: 'Métricas', capacidad_mensual: 'Capacidad',
+    productos_olvidados: 'Olvidados', prospeccion_productos: 'Prospección'
+  };
+
+  function scoreClass(s) {
+    if (s < 3) return 'riesgo';
+    if (s < 6) return 'medio';
+    return 'sano';
+  }
+
+  function scoreLabel(s) {
+    if (s < 3) return '⚠ En riesgo';
+    if (s < 6) return '◐ Moderado';
+    return '✓ Saludable';
+  }
+
+  function formatFecha(iso) {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' });
+    } catch(e) { return iso.slice(0, 10); }
+  }
+
+  function renderTabla(users) {
+    const tbody = document.getElementById('users-tbody');
+    if (!users.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Sin usuarios con este filtro</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => {
+      const cls = scoreClass(u.health_score);
+      const nombre = [u.nombre, u.apellido].filter(Boolean).join(' ') || u.email || u.uid;
+      const modTags = (u.modulos_visitados || []).map(m =>
+        `<span class="mod-tag">${MODULO_LABELS[m] || m}</span>`
+      ).join('');
+      return `<tr>
+        <td>
+          <div style="font-weight:600">${nombre}</div>
+          <div style="color:#8d99ae;font-size:0.82em">${u.email || ''}</div>
+        </td>
+        <td>
+          <span class="badge-score badge-${cls}">
+            ${u.health_score} / 13 &nbsp; ${scoreLabel(u.health_score)}
+          </span>
+        </td>
+        <td><div class="modulos-list">${modTags || '<span style="color:#bbb;font-size:0.85em">Ninguno aún</span>'}</div></td>
+        <td class="last-seen">${formatFecha(u.ultimo_acceso)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function filtrar(filtro) {
+    filtroActivo = filtro;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.filter-btn.${filtro === 'todos' ? 'active' : filtro}`) &&
+      document.querySelector(`.filter-btn${filtro === 'todos' ? ':first-child' : '.'+filtro}`).classList.add('active');
+
+    let lista = allUsers;
+    if (filtro === 'riesgo') lista = allUsers.filter(u => u.health_score < 3);
+    if (filtro === 'medio')  lista = allUsers.filter(u => u.health_score >= 3 && u.health_score < 6);
+    if (filtro === 'sano')   lista = allUsers.filter(u => u.health_score >= 6);
+    renderTabla(lista);
+  }
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) { window.location.href = '/'; return; }
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch('/api/admin/health_data', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await res.json();
+      document.getElementById('loading').style.display = 'none';
+
+      if (!res.ok) {
+        const err = document.getElementById('error-msg');
+        err.textContent = data.error || 'Error al cargar datos';
+        err.style.display = 'block';
+        return;
+      }
+
+      allUsers = data.users;
+      document.getElementById('main-content').style.display = 'block';
+
+      document.getElementById('stat-total').textContent = allUsers.length;
+      document.getElementById('stat-riesgo').textContent = allUsers.filter(u => u.health_score < 3).length;
+      document.getElementById('stat-medio').textContent  = allUsers.filter(u => u.health_score >= 3 && u.health_score < 6).length;
+      document.getElementById('stat-sano').textContent   = allUsers.filter(u => u.health_score >= 6).length;
+
+      renderTabla(allUsers);
+    } catch(e) {
+      document.getElementById('loading').style.display = 'none';
+      const err = document.getElementById('error-msg');
+      err.textContent = 'Error de conexión: ' + e.message;
+      err.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>

@@ -361,11 +361,24 @@
   };
   firebase.initializeApp(firebaseConfig);
 
+  function trackModuleVisit(moduleId) {
+    const u = window._firebaseUser;
+    if (!u) return;
+    u.getIdToken().then(function(token) {
+      fetch('/api/track_visit', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modulo: moduleId })
+      });
+    }).catch(function() {});
+  }
+
   firebase.auth().onAuthStateChanged(async function(firebaseUser) {
     if (!firebaseUser) {
       window.location.href = '/';
       return;
     }
+    window._firebaseUser = firebaseUser;
     try {
       const idToken = await firebaseUser.getIdToken();
       const res = await fetch('/api/userinfo', {
@@ -454,6 +467,8 @@
     a.addEventListener('click', function(e) {
       if (this.classList.contains('dragging')) {
         e.preventDefault();
+      } else {
+        trackModuleVisit(btn.id);
       }
     });
 
