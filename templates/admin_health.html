@@ -380,7 +380,7 @@
 
       if (!res.ok) {
         const err = document.getElementById('error-msg');
-        err.textContent = data.error || 'Error al cargar datos';
+        err.textContent = (data.error || 'Error al cargar datos') + (data.debug ? ' — ' + data.debug : '');
         err.style.display = 'block';
         return;
       }
