@@ -7800,6 +7800,7 @@ def casos():
 
 @app.route('/api/contacto', methods=['POST'])
 def api_contacto():
+    import datetime
     data = request.get_json(silent=True) or {}
     nombre   = (data.get('nombre', '') or '').strip()
     empresa  = (data.get('empresa', '') or '').strip()
@@ -7810,7 +7811,6 @@ def api_contacto():
         return jsonify({'error': 'Faltan campos obligatorios'}), 400
 
     try:
-        import datetime
         db = firestore.client()
         db.collection('contactos').add({
             'nombre':    nombre,

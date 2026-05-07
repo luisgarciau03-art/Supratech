@@ -1963,7 +1963,7 @@
           document.getElementById('c-success').style.display = 'block';
         } else {
           const d = await res.json();
-          document.getElementById('c-error').textContent = d.error || 'Error al enviar. Intenta de nuevo.';
+          document.getElementById('c-error').textContent = (d.error || 'Error al enviar.') + (d.debug ? ' — ' + d.debug : '');
           document.getElementById('c-error').style.display = 'block';
           btn.textContent = 'Quiero que me contacten →';
           btn.disabled = false;
