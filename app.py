@@ -7824,8 +7824,11 @@ def admin_health_data():
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token['uid']
         caller = db.collection('users').document(uid).get()
-        if not caller.exists or (caller.to_dict().get('rol') or '').lower() not in ['admin', 'administrador']:
-            return jsonify({'error': 'Acceso denegado'}), 403
+        if not caller.exists:
+            return jsonify({'error': 'Acceso denegado', 'debug': 'documento users/' + uid + ' no existe'}), 403
+        rol_actual = (caller.to_dict().get('rol') or '')
+        if rol_actual.lower() not in ['admin', 'administrador']:
+            return jsonify({'error': 'Acceso denegado', 'debug': 'rol encontrado: "' + rol_actual + '" — debe ser "admin" o "administrador"'}), 403
         users = []
         for doc in db.collection('users').stream():
             u = doc.to_dict()
