@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Panel Usuario</title>
+  <title>Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -271,10 +271,10 @@
         <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Logo Supratech">
       </div>
       <div class="header-info">
-        <h2>Bienvenido, {{ user['nombre'] }}</h2>
-        <p>{{ user['email'] }}</p>
+        <h2>Bienvenido, <span id="user-nombre">...</span></h2>
+        <p id="user-email">...</p>
       </div>
-      <div class="user-badge">{{ user.get('rol', 'Usuario') }}</div>
+      <div class="user-badge" id="user-badge">...</div>
     </div>
 
     <!-- Acciones Principales (drop zone) -->
@@ -317,6 +317,51 @@
     </div>
 
   </div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+    authDomain: "supratechweb.firebaseapp.com",
+    projectId: "supratechweb",
+    storageBucket: "supratechweb.firebasestorage.app",
+    messagingSenderId: "828253545658",
+    appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  firebase.auth().onAuthStateChanged(async function(firebaseUser) {
+    if (!firebaseUser) {
+      window.location.href = '/';
+      return;
+    }
+    try {
+      const idToken = await firebaseUser.getIdToken();
+      const res = await fetch('/api/userinfo', {
+        headers: { 'Authorization': 'Bearer ' + idToken }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const nombre = data.nombre || '';
+        const apellido = data.apellido || '';
+        const nombreCompleto = apellido ? nombre + ' ' + apellido : nombre;
+        document.getElementById('user-nombre').textContent = nombre || firebaseUser.displayName || 'Usuario';
+        document.getElementById('user-email').textContent = data.email || firebaseUser.email || '';
+        document.getElementById('user-badge').textContent = nombreCompleto || firebaseUser.email || 'Usuario';
+      } else {
+        document.getElementById('user-nombre').textContent = firebaseUser.displayName || 'Usuario';
+        document.getElementById('user-email').textContent = firebaseUser.email || '';
+        document.getElementById('user-badge').textContent = firebaseUser.displayName || 'Usuario';
+      }
+    } catch (e) {
+      document.getElementById('user-nombre').textContent = firebaseUser.displayName || 'Usuario';
+      document.getElementById('user-email').textContent = firebaseUser.email || '';
+      document.getElementById('user-badge').textContent = firebaseUser.displayName || 'Usuario';
+    }
+  });
+</script>
 
 <script>
 (function() {

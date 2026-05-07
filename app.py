@@ -274,15 +274,7 @@ def login():
 
 @app.route('/panel')
 def panel():
-    # Ejemplo básico: datos de usuario de prueba
-    user = {
-        'nombre': 'Usuario',
-        'email': 'usuario@email.com',
-        'rol': 'usuario'
-    }
-    esquema_raw = 'N/A'
-    uid = 'uid_de_ejemplo'
-    return render_template('panel.html', user=user, esquema_raw=esquema_raw, uid=uid)
+    return render_template('panel.html')
 
 @app.route('/api/get_spreadsheet', methods=['POST'])
 def get_spreadsheet():
