@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casos de Éxito — Supratech Web</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4361ee;
+      --dark: #0f0f1a;
+      --text: #2b2d42;
+      --light: #8d99ae;
+      --green: #28a745;
+      --bg: #f8f9fa;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(10px);
+      padding: 14px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.07);
+    }
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .navbar-logo img {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .navbar-right { display: flex; gap: 16px; align-items: center; }
+
+    .nav-back {
+      color: var(--light);
+      text-decoration: none;
+      font-size: 0.88em;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--primary); }
+
+    .nav-cta {
+      background: linear-gradient(45deg, var(--primary), #3f37c9);
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.88em;
+      transition: all 0.2s;
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(67,97,238,0.35); }
+
+    /* Hero */
+    .hero {
+      padding: 130px 40px 80px;
+      background: var(--dark);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 60%, rgba(67,97,238,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 40%, rgba(118,75,162,0.14) 0%, transparent 55%);
+    }
+
+    .hero-label {
+      display: inline-block;
+      background: rgba(67,97,238,0.2);
+      border: 1px solid rgba(67,97,238,0.4);
+      color: #a0aeff;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: 3em;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+
+    .hero p {
+      color: rgba(255,255,255,0.55);
+      font-size: 1.1em;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* Case section */
+    .case-section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 80px 40px;
+    }
+
+    /* Case header */
+    .case-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+    }
+
+    .case-badge {
+      flex-shrink: 0;
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--primary), #764ba2);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      box-shadow: 0 8px 24px rgba(67,97,238,0.3);
+    }
+
+    .case-meta { flex: 1; }
+
+    .case-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .case-tag {
+      background: #f0f4ff;
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.76em;
+      font-weight: 600;
+    }
+
+    .case-meta h2 {
+      font-size: 1.7em;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .case-meta p {
+      color: var(--light);
+      font-size: 0.9em;
+    }
+
+    /* Before / After */
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 50px;
+    }
+
+    .ba-card {
+      border-radius: 18px;
+      padding: 28px 30px;
+    }
+
+    .ba-card.before {
+      background: #fff5f5;
+      border: 1.5px solid #ffd5d5;
+    }
+
+    .ba-card.after {
+      background: #f0faf4;
+      border: 1.5px solid #b7e4c7;
+    }
+
+    .ba-label {
+      font-size: 0.72em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ba-card.before .ba-label { color: #dc3545; }
+    .ba-card.after  .ba-label { color: var(--green); }
+
+    .ba-items { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+    .ba-items li {
+      font-size: 0.9em;
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.5;
+    }
+
+    .ba-items li::before {
+      content: '•';
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .ba-card.before .ba-items li::before { color: #dc3545; }
+    .ba-card.after  .ba-items li::before { color: var(--green); }
+
+    /* Metrics */
+    .metrics-title {
+      font-size: 0.75em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--light);
+      margin-bottom: 20px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-bottom: 50px;
+    }
+
+    .metric-card {
+      background: #fff;
+      border: 1.5px solid #f0f0f0;
+      border-radius: 18px;
+      padding: 26px 28px;
+      transition: all 0.25s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+
+    .metric-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 8px 28px rgba(67,97,238,0.12);
+      transform: translateY(-3px);
+    }
+
+    .metric-icon { font-size: 1.8em; margin-bottom: 12px; }
+
+    .metric-number {
+      font-size: 2.4em;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, var(--primary), #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .metric-title {
+      font-size: 0.95em;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .metric-desc {
+      font-size: 0.83em;
+      color: var(--light);
+      line-height: 1.6;
+    }
+
+    /* Quote */
+    .quote-block {
+      background: var(--dark);
+      border-radius: 22px;
+      padding: 40px 44px;
+      margin-bottom: 50px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quote-block::before {
+      content: '"';
+      position: absolute;
+      top: -20px; left: 24px;
+      font-size: 10em;
+      color: rgba(67,97,238,0.15);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .quote-block p {
+      font-size: 1.15em;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.8;
+      font-style: italic;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 20px;
+    }
+
+    .quote-source {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .quote-avatar {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--primary), #764ba2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+
+    .quote-info strong { display: block; color: #fff; font-size: 0.88em; }
+    .quote-info span   { color: rgba(255,255,255,0.45); font-size: 0.78em; }
+
+    /* Divider coming soon */
+    .coming-soon {
+      text-align: center;
+      padding: 60px 40px;
+      background: var(--bg);
+      border-radius: 22px;
+      border: 2px dashed #e0e0e0;
+      max-width: 1000px;
+      margin: 0 auto 80px;
+    }
+
+    .coming-soon h3 {
+      font-size: 1.2em;
+      color: var(--light);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .coming-soon p {
+      font-size: 0.88em;
+      color: #bbb;
+    }
+
+    /* CTA */
+    .cta-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      text-align: center;
+      padding: 80px 40px;
+      color: #fff;
+    }
+
+    .cta-section h2 { font-size: 2.2em; font-weight: 700; margin-bottom: 16px; }
+    .cta-section p  { font-size: 1.05em; opacity: 0.85; margin-bottom: 36px; }
+
+    .cta-btn {
+      display: inline-block;
+      background: #fff;
+      color: var(--primary);
+      text-decoration: none;
+      padding: 16px 40px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1em;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: all 0.3s;
+    }
+    .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+
+    /* Footer */
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 30px 40px;
+      font-size: 0.85em;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .hero h1 { font-size: 2em; }
+      .before-after { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: 1fr; }
+      .case-section { padding: 60px 20px; }
+      .quote-block { padding: 30px 24px; }
+      .navbar { padding: 14px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/" class="navbar-logo">
+      <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Logo">
+      Supratech Web
+    </a>
+    <div class="navbar-right">
+      <a href="/" class="nav-back">← Inicio</a>
+      <a href="/login" class="nav-cta">Iniciar Sesión</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div style="position:relative;z-index:1">
+      <div class="hero-label">Casos de Éxito</div>
+      <h1>Empresas reales.<br>Resultados reales.</h1>
+      <p>Así es como nuestros clientes transformaron su operación desde el primer día de uso.</p>
+    </div>
+  </section>
+
+  <!-- Case 1 -->
+  <section class="case-section">
+
+    <div class="case-header">
+      <div class="case-badge">🔩</div>
+      <div class="case-meta">
+        <div class="case-tags">
+          <span class="case-tag">Ferretería</span>
+          <span class="case-tag">Distribución</span>
+          <span class="case-tag">Guadalajara, Jalisco</span>
+          <span class="case-tag">+5,000 productos</span>
+        </div>
+        <h2>De 4 Excels y 3 personas a una operación que corre sola</h2>
+        <p>Distribuidora de ferretería con más de 5,000 referencias de productos en catálogo</p>
+      </div>
+    </div>
+
+    <!-- Before / After -->
+    <div class="before-after">
+      <div class="ba-card before">
+        <div class="ba-label">⚠ Antes de Supratech</div>
+        <ul class="ba-items">
+          <li>3 personas del área de compras dedicando la mayor parte de su tiempo a capturar pedidos a mano</li>
+          <li>4 archivos de Excel distintos para controlar productos, pedidos, precios y stock</li>
+          <li>Errores frecuentes al copiar datos entre archivos</li>
+          <li>Capital detenido en productos sin movimiento que nadie detectaba a tiempo</li>
+          <li>Sin visibilidad clara de qué productos convenía seguir comprando</li>
+        </ul>
+      </div>
+      <div class="ba-card after">
+        <div class="ba-label">✓ Con Supratech</div>
+        <ul class="ba-items">
+          <li>Los pedidos se generan automáticamente desde el primer día de uso</li>
+          <li>Un solo sistema centraliza productos, precios, pedidos y métricas</li>
+          <li>El equipo de compras pasó de capturar datos a tomar decisiones</li>
+          <li>Identificaron y liquidaron el inventario detenido, liberando capital</li>
+          <li>Visibilidad completa sobre qué productos rotan y cuáles no</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <p class="metrics-title">Resultados desde el primer día</p>
+    <div class="metrics-grid">
+
+      <div class="metric-card">
+        <div class="metric-icon">⏱️</div>
+        <div class="metric-number">100%</div>
+        <div class="metric-title">Pedidos automatizados</div>
+        <div class="metric-desc">Ningún pedido se captura a mano. El sistema lo hace automáticamente desde que arrancaron, sin curva de aprendizaje para el equipo.</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">💰</div>
+        <div class="metric-number">60%</div>
+        <div class="metric-title">Menos costo operativo</div>
+        <div class="metric-desc">Lo que antes requería 3 personas y 4 archivos de Excel, hoy corre solo. El equipo de compras se enfoca en negociar y crecer, no en capturar.</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">📦</div>
+        <div class="metric-number">↑</div>
+        <div class="metric-title">Inventario más sano</div>
+        <div class="metric-desc">Detectaron los productos sin movimiento que tenían capital detenido, los liquidaron y redirigieron sus compras a productos con rotación real.</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">💧</div>
+        <div class="metric-number">↑</div>
+        <div class="metric-title">Mejor liquidez</div>
+        <div class="metric-desc">Al liberar el dinero que estaba "congelado" en inventario sin salida, recuperaron flujo de caja disponible para compras estratégicas.</div>
+      </div>
+
+    </div>
+
+    <!-- Quote -->
+    <div class="quote-block">
+      <p>"Antes teníamos tres personas revisando cuatro Excels distintos solo para levantar un pedido. Hoy el sistema lo hace solo desde que arrancamos. No extrañamos los Excels para nada."</p>
+      <div class="quote-source">
+        <div class="quote-avatar">AC</div>
+        <div class="quote-info">
+          <strong>Área de Compras</strong>
+          <span>Distribuidora de Ferretería · Guadalajara, Jalisco</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Próximos casos -->
+  <div class="coming-soon">
+    <h3>Más casos de éxito en camino</h3>
+    <p>Estamos documentando los resultados de otros clientes. Vuelve pronto.</p>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>¿Tu empresa podría tener resultados similares?</h2>
+    <p>Agenda una demostración y te mostramos cómo funciona con tu operación específica.</p>
+    <a href="/login" class="cta-btn">Ver el sistema en acción</a>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 Supratech Web. Todos los derechos reservados.</p>
+  </footer>
+
+</body>
+</html>

@@ -7793,6 +7793,10 @@ def admin_health():
 def admin_usuarios():
     return render_template('admin_usuarios.html')
 
+@app.route('/casos')
+def casos():
+    return render_template('casos.html')
+
 @app.route('/api/track_visit', methods=['POST'])
 def track_visit():
     auth_header = request.headers.get('Authorization')
