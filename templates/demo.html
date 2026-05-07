@@ -223,24 +223,37 @@
       box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
     }
 
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link {
+      color: var(--text-dark);
+      text-decoration: none;
+      font-size: 0.88em;
+      font-weight: 500;
+      padding: 7px 13px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: rgba(67, 97, 238, 0.08);
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+    }
+
     @media (max-width: 600px) {
-      .navbar {
-        padding: 12px 20px;
-      }
-
-      .navbar-logo span {
-        font-size: 1.1em;
-      }
-
-      .navbar-logo img {
-        width: 40px;
-        height: 40px;
-      }
-
-      .login-button {
-        padding: 10px 20px;
-        font-size: 0.9em;
-      }
+      .navbar { padding: 12px 20px; }
+      .navbar-logo span { font-size: 1.1em; }
+      .navbar-logo img { width: 40px; height: 40px; }
+      .login-button { padding: 10px 20px; font-size: 0.9em; }
     }
 
     /* Features Section */
@@ -892,6 +905,13 @@
       <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Supratech Logo">
       <span>Supratech Web</span>
     </a>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Características</a>
+      <a href="#modulos" class="nav-link">Módulos</a>
+      <a href="#preview" class="nav-link">Vista Previa</a>
+      <a href="#beneficios" class="nav-link">¿Por qué Supratech?</a>
+      <a href="#testimonios" class="nav-link">Testimonios</a>
+    </div>
     <a href="/login" class="login-button">Iniciar Sesión</a>
   </nav>
 
@@ -946,7 +966,7 @@
   </section>
 
   <!-- Modules Section -->
-  <section class="modules">
+  <section id="modulos" class="modules">
     <h2 class="section-title">Módulos del Sistema</h2>
     <div class="modules-grid">
       <div class="module-card">
@@ -1005,7 +1025,7 @@
   </section>
 
   <!-- Preview Section -->
-  <section class="preview">
+  <section id="preview" class="preview">
     <h2 class="section-title">Vista Previa del Sistema</h2>
     <div class="preview-grid">
       <div class="preview-item">
@@ -1119,7 +1139,7 @@
   </section>
 
   <!-- Benefits Section -->
-  <section class="benefits">
+  <section id="beneficios" class="benefits">
     <h2 class="section-title">¿Porque Supratech?</h2>
     <div class="benefits-comparison">
       <!-- CON Sistema -->
@@ -1247,7 +1267,7 @@
   </section>
 
   <!-- Testimonials Section -->
-  <section class="testimonials">
+  <section id="testimonios" class="testimonials">
     <h2 class="section-title">Lo que dicen nuestros clientes</h2>
     <div class="testimonials-grid">
 
