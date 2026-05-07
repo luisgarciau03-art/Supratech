@@ -178,6 +178,35 @@
       cursor: grab;
       -webkit-user-select: none;
       user-select: none;
+      position: relative;
+    }
+
+    .panel-link::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(43, 45, 66, 0.93);
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.78em;
+      font-weight: 400;
+      line-height: 1.4;
+      white-space: normal;
+      max-width: 220px;
+      width: max-content;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      z-index: 200;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .panel-link:hover::after {
+      opacity: 1;
     }
 
     .panel-link:active {
@@ -367,19 +396,19 @@
 (function() {
   // Definicion de todos los botones con su categoria original
   const allButtons = [
-    { id: 'actualizar', icon: '&#128260;', text: 'Actualizar', href: '/actualizar', category: 'compras' },
-    { id: 'finanzas', icon: '&#128176;', text: 'Finanzas', href: '/finanzas', category: 'metricas' },
-    { id: 'inventarios', icon: '&#128230;', text: 'Inventarios', href: '/inventarios', category: 'metricas' },
-    { id: 'compras', icon: '&#128722;', text: 'Compras', href: '/compras', category: 'compras' },
-    { id: 'pedidos', icon: '&#128203;', text: 'BD Pedidos 9.0', href: '/pedidos', category: 'bases' },
-    { id: 'llenar_bds', icon: '&#128202;', text: 'Llenar BDS', href: '/Llenar_BDS', category: 'bases' },
-    { id: 'bd_descuentos', icon: '&#128209;', text: 'BD Descuentos', href: '/bd_descuentos', category: 'bases' },
-    { id: 'descuentos', icon: '&#128184;', text: 'Descuentos', href: '/descuentos', category: 'descuentos' },
-    { id: 'estado_precios', icon: '&#128178;', text: 'Estado de Precios', href: '/estado_precios', category: 'descuentos' },
-    { id: 'metricas_productos', icon: '&#128200;', text: 'Metricas Productos', href: '/metricas_productos', category: 'metricas' },
-    { id: 'capacidad_mensual', icon: '&#128197;', text: 'Capacidad Mensual', href: '/capacidad_mensual', category: 'metricas' },
-    { id: 'productos_olvidados', icon: '&#128230;', text: 'Productos Olvidados', href: '/productos_olvidados', category: 'metricas' },
-    { id: 'prospeccion_productos', icon: '&#128269;', text: 'Prospeccion Productos', href: '/prospeccion_productos', category: 'prospeccion' }
+    { id: 'actualizar', icon: '&#128260;', text: 'Actualizar', href: '/actualizar', category: 'compras', tooltip: 'Mantén la información del sistema al día con un solo clic' },
+    { id: 'finanzas', icon: '&#128176;', text: 'Finanzas', href: '/finanzas', category: 'metricas', tooltip: 'Revisa lo que debes, lo que te deben y el estado de tus pagos' },
+    { id: 'inventarios', icon: '&#128230;', text: 'Inventarios', href: '/inventarios', category: 'metricas', tooltip: 'Consulta y actualiza lo que tienes en físico en tu almacén' },
+    { id: 'compras', icon: '&#128722;', text: 'Compras', href: '/compras', category: 'compras', tooltip: 'Registra y revisa lo que has comprado a tus proveedores' },
+    { id: 'pedidos', icon: '&#128203;', text: 'BD Pedidos 9.0', href: '/pedidos', category: 'bases', tooltip: 'Carga aquí tus pedidos para que el sistema los procese y calcule correctamente' },
+    { id: 'llenar_bds', icon: '&#128202;', text: 'Llenar BDS', href: '/Llenar_BDS', category: 'bases', tooltip: 'Carga la información base que el sistema necesita para funcionar correctamente' },
+    { id: 'bd_descuentos', icon: '&#128209;', text: 'BD Descuentos', href: '/bd_descuentos', category: 'bases', tooltip: 'Ingresa los descuentos por producto para que el sistema los aplique en los cálculos' },
+    { id: 'descuentos', icon: '&#128184;', text: 'Descuentos', href: '/descuentos', category: 'descuentos', tooltip: 'Decide qué productos impulsar, retirar o poner en oferta' },
+    { id: 'estado_precios', icon: '&#128178;', text: 'Estado de Precios', href: '/estado_precios', category: 'descuentos', tooltip: 'Revisa y ajusta los precios de tu catálogo de productos' },
+    { id: 'metricas_productos', icon: '&#128200;', text: 'Metricas Productos', href: '/metricas_productos', category: 'metricas', tooltip: 'Descubre cuáles productos venden más y cuáles necesitan atención' },
+    { id: 'capacidad_mensual', icon: '&#128197;', text: 'Capacidad Mensual', href: '/capacidad_mensual', category: 'metricas', tooltip: 'Conoce cuánto puedes comprar y vender este mes' },
+    { id: 'productos_olvidados', icon: '&#128230;', text: 'Productos Olvidados', href: '/productos_olvidados', category: 'metricas', tooltip: 'Detecta productos que llevan tiempo sin venderse' },
+    { id: 'prospeccion_productos', icon: '&#128269;', text: 'Prospeccion Productos', href: '/prospeccion_productos', category: 'prospeccion', tooltip: 'Evalúa nuevos productos antes de agregarlos a tu catálogo' }
   ];
 
   // Estado: que botones estan en main
@@ -414,6 +443,7 @@
     a.draggable = true;
     a.dataset.id = btn.id;
     a.dataset.category = btn.category;
+    if (btn.tooltip) a.dataset.tooltip = btn.tooltip;
     a.innerHTML = `<span class="icon">${btn.icon}</span>${btn.text}`;
 
     // Eventos de drag
