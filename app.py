@@ -7797,6 +7797,32 @@ def admin_usuarios():
 def casos():
     return render_template('casos.html')
 
+@app.route('/api/contacto', methods=['POST'])
+def api_contacto():
+    data = request.get_json(silent=True) or {}
+    nombre   = (data.get('nombre', '') or '').strip()
+    empresa  = (data.get('empresa', '') or '').strip()
+    whatsapp = (data.get('whatsapp', '') or '').strip()
+    mensaje  = (data.get('mensaje', '') or '').strip()
+
+    if not nombre or not empresa or not whatsapp:
+        return jsonify({'error': 'Faltan campos obligatorios'}), 400
+
+    try:
+        import datetime
+        db = firestore.client()
+        db.collection('contactos').add({
+            'nombre':    nombre,
+            'empresa':   empresa,
+            'whatsapp':  whatsapp,
+            'mensaje':   mensaje,
+            'fecha':     datetime.datetime.utcnow().isoformat(),
+            'origen':    'landing'
+        })
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': 'Error interno', 'debug': str(e)}), 500
+
 @app.route('/api/track_visit', methods=['POST'])
 def track_visit():
     auth_header = request.headers.get('Authorization')

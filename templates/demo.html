@@ -1149,6 +1149,7 @@
       <a href="#beneficios" class="nav-link">¿Por qué Supratech?</a>
       <a href="#testimonios" class="nav-link">Testimonios</a>
       <a href="#precios" class="nav-link">Precios</a>
+      <a href="#contacto" class="nav-link">Contáctanos</a>
       <a href="/casos" class="nav-link" style="font-weight:600;color:#4361ee">Casos de Éxito</a>
     </div>
     <a href="/login" class="login-button">Iniciar Sesión</a>
@@ -1783,6 +1784,80 @@
     </div>
   </section>
 
+  <!-- Contact Section -->
+  <section id="contacto" style="padding:80px 20px;background:#fff;">
+    <div style="max-width:840px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+
+      <!-- Left copy -->
+      <div>
+        <span style="background:#e8edff;color:#4361ee;padding:6px 18px;border-radius:20px;font-size:0.8em;font-weight:600;letter-spacing:0.5px;">CONTÁCTANOS</span>
+        <h2 style="font-size:1.9em;font-weight:700;color:#1a1a2e;margin:18px 0 14px;line-height:1.25;">¿Te interesa?<br>Cuéntanos sobre tu negocio.</h2>
+        <p style="color:#6b7280;font-size:0.95em;line-height:1.7;margin-bottom:28px;">Nos ponemos en contacto contigo en menos de 24 horas. Sin ventas agresivas — solo una plática para ver si Supratech es el fit correcto para tu operación.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;align-items:center;gap:12px;color:#374151;font-size:0.88em;">
+            <span style="width:36px;height:36px;background:#e8edff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-shrink:0;">⚡</span>
+            Respuesta en menos de 24 h
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;color:#374151;font-size:0.88em;">
+            <span style="width:36px;height:36px;background:#e8edff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-shrink:0;">🎁</span>
+            Onboarding e integración gratis
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;color:#374151;font-size:0.88em;">
+            <span style="width:36px;height:36px;background:#e8edff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-shrink:0;">🔒</span>
+            Sin compromisos ni contratos largos
+          </div>
+        </div>
+      </div>
+
+      <!-- Right form -->
+      <div style="background:#f8f9ff;border-radius:20px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <form id="contacto-form" style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <label style="font-size:0.78em;font-weight:600;color:#4b5563;display:block;margin-bottom:5px;">Nombre completo *</label>
+            <input type="text" id="c-nombre" required placeholder="Juan García"
+              style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:0.88em;color:#1a1a2e;outline:none;transition:border 0.2s;"
+              onfocus="this.style.borderColor='#4361ee'" onblur="this.style.borderColor='#e5e7eb'">
+          </div>
+          <div>
+            <label style="font-size:0.78em;font-weight:600;color:#4b5563;display:block;margin-bottom:5px;">Empresa / Giro *</label>
+            <input type="text" id="c-empresa" required placeholder="Ferretería García, Distribuidora..."
+              style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:0.88em;color:#1a1a2e;outline:none;transition:border 0.2s;"
+              onfocus="this.style.borderColor='#4361ee'" onblur="this.style.borderColor='#e5e7eb'">
+          </div>
+          <div>
+            <label style="font-size:0.78em;font-weight:600;color:#4b5563;display:block;margin-bottom:5px;">WhatsApp *</label>
+            <input type="tel" id="c-whatsapp" required placeholder="+52 33 1234 5678"
+              style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:0.88em;color:#1a1a2e;outline:none;transition:border 0.2s;"
+              onfocus="this.style.borderColor='#4361ee'" onblur="this.style.borderColor='#e5e7eb'">
+          </div>
+          <div>
+            <label style="font-size:0.78em;font-weight:600;color:#4b5563;display:block;margin-bottom:5px;">¿Qué quieres resolver? <span style="color:#aaa;font-weight:400;">(opcional)</span></label>
+            <textarea id="c-mensaje" rows="3" placeholder="Ej: Tardamos mucho en armar pedidos, tenemos muchos errores en inventario..."
+              style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:0.88em;color:#1a1a2e;outline:none;resize:none;transition:border 0.2s;"
+              onfocus="this.style.borderColor='#4361ee'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+          </div>
+
+          <button type="submit" id="c-btn"
+            style="background:#4361ee;color:#fff;border:none;padding:14px;border-radius:12px;font-family:inherit;font-size:0.92em;font-weight:700;cursor:pointer;transition:background 0.2s;">
+            Quiero que me contacten →
+          </button>
+
+          <div id="c-success" style="display:none;text-align:center;background:#eafaf1;color:#28a745;padding:14px;border-radius:12px;font-weight:600;font-size:0.88em;">
+            ¡Listo! Te contactamos en menos de 24 h. 🎉
+          </div>
+          <div id="c-error" style="display:none;text-align:center;background:#ffeaea;color:#dc3545;padding:12px;border-radius:12px;font-size:0.82em;font-weight:500;"></div>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <style>
+    @media (max-width: 700px) {
+      #contacto > div { grid-template-columns: 1fr !important; }
+    }
+  </style>
+
   <!-- CTA Section -->
   <section class="cta-section">
     <h2>¿Listo para Automatizar tu Empresa?</h2>
@@ -1860,6 +1935,46 @@
     inpValor.addEventListener('input', calcROI);
     inpPersonas.addEventListener('input', calcROI);
     calcROI();
+  </script>
+
+  <script>
+    // Contact form submit
+    document.getElementById('contacto-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('c-btn');
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+
+      const body = {
+        nombre:   document.getElementById('c-nombre').value.trim(),
+        empresa:  document.getElementById('c-empresa').value.trim(),
+        whatsapp: document.getElementById('c-whatsapp').value.trim(),
+        mensaje:  document.getElementById('c-mensaje').value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/contacto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          document.getElementById('contacto-form').style.display = 'none';
+          document.getElementById('c-success').style.display = 'block';
+        } else {
+          const d = await res.json();
+          document.getElementById('c-error').textContent = d.error || 'Error al enviar. Intenta de nuevo.';
+          document.getElementById('c-error').style.display = 'block';
+          btn.textContent = 'Quiero que me contacten →';
+          btn.disabled = false;
+        }
+      } catch(err) {
+        document.getElementById('c-error').textContent = 'Error de conexión. Intenta de nuevo.';
+        document.getElementById('c-error').style.display = 'block';
+        btn.textContent = 'Quiero que me contacten →';
+        btn.disabled = false;
+      }
+    });
   </script>
 </body>
 </html>
