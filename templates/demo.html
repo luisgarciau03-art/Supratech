@@ -1148,6 +1148,7 @@
       <a href="#preview" class="nav-link">Vista Previa</a>
       <a href="#beneficios" class="nav-link">¿Por qué Supratech?</a>
       <a href="#testimonios" class="nav-link">Testimonios</a>
+      <a href="#precios" class="nav-link">Precios</a>
       <a href="/casos" class="nav-link" style="font-weight:600;color:#4361ee">Casos de Éxito</a>
     </div>
     <a href="/login" class="login-button">Iniciar Sesión</a>
@@ -1669,6 +1670,119 @@
     </div>
   </section>
 
+  <!-- Pricing Section -->
+  <section id="precios" style="padding:80px 20px;background:#f8f9ff;">
+    <div style="max-width:1000px;margin:0 auto;">
+
+      <!-- Header -->
+      <div style="text-align:center;margin-bottom:50px;">
+        <span style="background:#e8edff;color:#4361ee;padding:6px 18px;border-radius:20px;font-size:0.8em;font-weight:600;letter-spacing:0.5px;">PRECIOS</span>
+        <h2 style="font-size:2em;font-weight:700;color:#1a1a2e;margin:16px 0 10px;">Precio claro. ROI medible.</h2>
+        <p style="color:#6b7280;font-size:1em;max-width:480px;margin:0 auto;">Antes de ver el precio, calcula cuánto te está costando NO tenerlo.</p>
+      </div>
+
+      <!-- ROI Calculator -->
+      <div style="background:#fff;border-radius:20px;padding:36px;box-shadow:0 4px 24px rgba(0,0,0,0.08);margin-bottom:40px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;">
+          <div style="width:36px;height:36px;background:#4361ee;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1em;">🧮</div>
+          <div>
+            <div style="font-weight:700;font-size:1em;color:#1a1a2e;">Calculadora de Ahorro</div>
+            <div style="font-size:0.78em;color:#8d99ae;">Estimado mensual en MXN</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:28px;">
+          <div>
+            <label style="font-size:0.8em;font-weight:600;color:#4b5563;display:block;margin-bottom:6px;">¿Cuántas horas/semana dedicas a tareas manuales? <span style="color:#4361ee" id="lbl-horas">12 h</span></label>
+            <input type="range" id="inp-horas" min="2" max="40" value="12" step="1"
+              style="width:100%;accent-color:#4361ee;">
+          </div>
+          <div>
+            <label style="font-size:0.8em;font-weight:600;color:#4b5563;display:block;margin-bottom:6px;">¿Cuánto vale tu hora de trabajo? <span style="color:#4361ee" id="lbl-hora-valor">$120</span></label>
+            <input type="range" id="inp-valor" min="50" max="600" value="120" step="10"
+              style="width:100%;accent-color:#4361ee;">
+          </div>
+          <div>
+            <label style="font-size:0.8em;font-weight:600;color:#4b5563;display:block;margin-bottom:6px;">¿Cuántas personas hacen esas tareas? <span style="color:#4361ee" id="lbl-personas">2</span></label>
+            <input type="range" id="inp-personas" min="1" max="10" value="2" step="1"
+              style="width:100%;accent-color:#4361ee;">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center;">
+          <div style="background:#f8f9ff;border-radius:14px;padding:18px 12px;">
+            <div style="font-size:1.8em;font-weight:700;color:#dc3545;" id="roi-costo-actual">$5,760</div>
+            <div style="font-size:0.75em;color:#8d99ae;margin-top:4px;">Costo operativo actual/mes</div>
+          </div>
+          <div style="background:#f8f9ff;border-radius:14px;padding:18px 12px;">
+            <div style="font-size:1.8em;font-weight:700;color:#4361ee;">$399</div>
+            <div style="font-size:0.75em;color:#8d99ae;margin-top:4px;">Costo Supratech/mes</div>
+          </div>
+          <div style="background:#eafaf1;border-radius:14px;padding:18px 12px;border:2px solid #28a745;">
+            <div style="font-size:1.8em;font-weight:700;color:#28a745;" id="roi-ahorro">$5,361</div>
+            <div style="font-size:0.75em;color:#28a745;margin-top:4px;font-weight:600;">Ahorro mensual estimado</div>
+          </div>
+        </div>
+
+        <p style="font-size:0.74em;color:#aaa;margin-top:16px;text-align:center;">* Estimado basado en horas recuperadas. El ahorro real puede ser mayor por reducción de errores y mejora en decisiones.</p>
+      </div>
+
+      <!-- Pricing Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">
+
+        <!-- Monthly -->
+        <div style="background:#fff;border-radius:20px;padding:36px;box-shadow:0 4px 20px rgba(0,0,0,0.07);border:2px solid #f0f0f0;">
+          <div style="font-size:0.8em;font-weight:600;color:#8d99ae;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Mensual</div>
+          <div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:6px;">
+            <span style="font-size:2.8em;font-weight:700;color:#1a1a2e;line-height:1;">$399</span>
+            <span style="color:#8d99ae;font-size:0.9em;margin-bottom:8px;">MXN / mes</span>
+          </div>
+          <p style="color:#6b7280;font-size:0.85em;margin-bottom:24px;">Sin compromisos. Cancela cuando quieras.</p>
+          <ul style="list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:10px;">
+            <li style="font-size:0.88em;color:#374151;display:flex;align-items:center;gap:8px;"><span style="color:#28a745;font-weight:700;">✓</span> Acceso a todos los módulos</li>
+            <li style="font-size:0.88em;color:#374151;display:flex;align-items:center;gap:8px;"><span style="color:#28a745;font-weight:700;">✓</span> Onboarding e integración gratis</li>
+            <li style="font-size:0.88em;color:#374151;display:flex;align-items:center;gap:8px;"><span style="color:#28a745;font-weight:700;">✓</span> Soporte por WhatsApp</li>
+            <li style="font-size:0.88em;color:#374151;display:flex;align-items:center;gap:8px;"><span style="color:#28a745;font-weight:700;">✓</span> Actualizaciones incluidas</li>
+          </ul>
+          <a href="/login" style="display:block;text-align:center;background:#f0f2ff;color:#4361ee;padding:13px;border-radius:12px;font-weight:600;font-size:0.9em;text-decoration:none;transition:background 0.2s;">Empezar ahora</a>
+        </div>
+
+        <!-- Annual (recommended) -->
+        <div style="background:linear-gradient(135deg,#4361ee,#764ba2);border-radius:20px;padding:36px;box-shadow:0 8px 32px rgba(67,97,238,0.3);position:relative;overflow:hidden;">
+          <div style="position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.2);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72em;font-weight:700;">⭐ RECOMENDADO</div>
+          <div style="font-size:0.8em;font-weight:600;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Anual</div>
+          <div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:2px;">
+            <span style="font-size:2.8em;font-weight:700;color:#fff;line-height:1;">$379</span>
+            <span style="color:rgba(255,255,255,0.7);font-size:0.9em;margin-bottom:8px;">MXN / mes</span>
+          </div>
+          <div style="margin-bottom:6px;">
+            <span style="background:rgba(255,255,255,0.2);color:#fff;padding:3px 10px;border-radius:10px;font-size:0.75em;font-weight:600;">Ahorras $240 al año</span>
+          </div>
+          <p style="color:rgba(255,255,255,0.75);font-size:0.85em;margin-bottom:24px;">Facturado como $4,548 MXN una vez al año.</p>
+          <ul style="list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:10px;">
+            <li style="font-size:0.88em;color:#fff;display:flex;align-items:center;gap:8px;"><span style="font-weight:700;">✓</span> Todo lo del plan mensual</li>
+            <li style="font-size:0.88em;color:#fff;display:flex;align-items:center;gap:8px;"><span style="font-weight:700;">✓</span> $20 MXN de descuento/mes</li>
+            <li style="font-size:0.88em;color:#fff;display:flex;align-items:center;gap:8px;"><span style="font-weight:700;">✓</span> Onboarding e integración gratis</li>
+            <li style="font-size:0.88em;color:#fff;display:flex;align-items:center;gap:8px;"><span style="font-weight:700;">✓</span> Prioridad en soporte</li>
+          </ul>
+          <a href="/login" style="display:block;text-align:center;background:#fff;color:#4361ee;padding:13px;border-radius:12px;font-weight:700;font-size:0.9em;text-decoration:none;">Obtener plan anual</a>
+        </div>
+
+      </div>
+
+      <!-- Onboarding callout -->
+      <div style="margin-top:28px;background:#fff;border-radius:16px;padding:22px 28px;box-shadow:0 2px 12px rgba(0,0,0,0.05);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="font-size:1.8em;">🎁</div>
+        <div style="flex:1;min-width:200px;">
+          <div style="font-weight:700;color:#1a1a2e;font-size:0.95em;">Integración y Onboarding completamente gratis</div>
+          <div style="font-size:0.82em;color:#6b7280;margin-top:3px;">Configuramos Supratech con tus datos, catálogos y estructura. Sin costo adicional. Sin letra chica.</div>
+        </div>
+        <a href="/login" style="background:#4361ee;color:#fff;padding:11px 24px;border-radius:12px;font-weight:600;font-size:0.88em;text-decoration:none;white-space:nowrap;">Quiero empezar →</a>
+      </div>
+
+    </div>
+  </section>
+
   <!-- CTA Section -->
   <section class="cta-section">
     <h2>¿Listo para Automatizar tu Empresa?</h2>
@@ -1716,6 +1830,36 @@
         }
       });
     });
+  </script>
+
+  <script>
+    // ROI Calculator
+    const inpHoras    = document.getElementById('inp-horas');
+    const inpValor    = document.getElementById('inp-valor');
+    const inpPersonas = document.getElementById('inp-personas');
+
+    function calcROI() {
+      const horas    = parseInt(inpHoras.value);
+      const valor    = parseInt(inpValor.value);
+      const personas = parseInt(inpPersonas.value);
+
+      document.getElementById('lbl-horas').textContent     = horas + ' h';
+      document.getElementById('lbl-hora-valor').textContent = '$' + valor;
+      document.getElementById('lbl-personas').textContent   = personas;
+
+      const costoMes = horas * 4.3 * valor * personas;
+      const ahorro   = costoMes - 399;
+
+      document.getElementById('roi-costo-actual').textContent =
+        '$' + Math.round(costoMes).toLocaleString('es-MX');
+      document.getElementById('roi-ahorro').textContent =
+        '$' + Math.max(0, Math.round(ahorro)).toLocaleString('es-MX');
+    }
+
+    inpHoras.addEventListener('input', calcROI);
+    inpValor.addEventListener('input', calcROI);
+    inpPersonas.addEventListener('input', calcROI);
+    calcROI();
   </script>
 </body>
 </html>
