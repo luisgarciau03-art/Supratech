@@ -7811,7 +7811,6 @@ def api_contacto():
         return jsonify({'error': 'Faltan campos obligatorios'}), 400
 
     try:
-        db = firestore.client()
         db.collection('contactos').add({
             'nombre':    nombre,
             'empresa':   empresa,
