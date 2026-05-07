@@ -7854,6 +7854,27 @@ def api_contacto():
             except Exception:
                 pass  # No bloquear la respuesta si el correo falla
 
+        # Notificación Telegram
+        tg_token   = os.environ.get('TELEGRAM_TOKEN', '')
+        tg_chat_id = os.environ.get('TELEGRAM_CHAT_ID', '')
+        if tg_token and tg_chat_id:
+            try:
+                linea_msg = f'\n📝 {mensaje}' if mensaje else ''
+                texto = (
+                    f'🔔 *Nuevo contacto — Supratech*\n\n'
+                    f'👤 *{nombre}*\n'
+                    f'🏢 {empresa}\n'
+                    f'📱 {whatsapp}'
+                    f'{linea_msg}'
+                )
+                http_requests.post(
+                    f'https://api.telegram.org/bot{tg_token}/sendMessage',
+                    json={'chat_id': tg_chat_id, 'text': texto, 'parse_mode': 'Markdown'},
+                    timeout=5
+                )
+            except Exception:
+                pass
+
         return jsonify({'ok': True})
     except Exception as e:
         return jsonify({'error': 'Error interno', 'debug': str(e)}), 500
