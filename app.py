@@ -7,6 +7,7 @@ from firebase_admin import credentials, auth, db as firebase_db
 from google.cloud import firestore
 import os
 import json
+import requests as http_requests
 
 print('Iniciando Flask...')
 
@@ -7819,6 +7820,28 @@ def api_contacto():
             'fecha':     datetime.datetime.utcnow().isoformat(),
             'origen':    'landing'
         })
+
+        # Notificación Telegram
+        tg_token   = os.environ.get('TELEGRAM_TOKEN', '')
+        tg_chat_id = os.environ.get('TELEGRAM_CHAT_ID', '')
+        if tg_token and tg_chat_id:
+            linea_mensaje = f'\n📝 <i>{mensaje}</i>' if mensaje else ''
+            texto = (
+                f'🔔 <b>Nuevo contacto — Supratech</b>\n\n'
+                f'👤 <b>{nombre}</b>\n'
+                f'🏢 {empresa}\n'
+                f'📱 {whatsapp}'
+                f'{linea_mensaje}'
+            )
+            try:
+                http_requests.post(
+                    f'https://api.telegram.org/bot{tg_token}/sendMessage',
+                    json={'chat_id': tg_chat_id, 'text': texto, 'parse_mode': 'HTML'},
+                    timeout=5
+                )
+            except Exception:
+                pass  # No bloquear la respuesta si Telegram falla
+
         return jsonify({'ok': True})
     except Exception as e:
         return jsonify({'error': 'Error interno', 'debug': str(e)}), 500
