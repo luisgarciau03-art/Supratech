@@ -721,6 +721,110 @@
       }
     }
 
+    /* Testimonials Section */
+    .testimonials {
+      padding: 100px 40px;
+      background: linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 35px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      background: white;
+      border-radius: 24px;
+      padding: 40px 35px;
+      box-shadow: 0 10px 40px rgba(67, 97, 238, 0.08);
+      border: 1px solid rgba(67, 97, 238, 0.1);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.5s ease;
+      position: relative;
+    }
+
+    .testimonial-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(67, 97, 238, 0.15);
+    }
+
+    .testimonial-quote {
+      font-size: 3em;
+      color: var(--primary-color);
+      opacity: 0.2;
+      line-height: 1;
+      margin-bottom: 10px;
+      font-family: Georgia, serif;
+    }
+
+    .testimonial-stars {
+      color: #f4b942;
+      font-size: 1.2em;
+      margin-bottom: 18px;
+      letter-spacing: 2px;
+    }
+
+    .testimonial-text {
+      color: var(--text-dark);
+      font-size: 1em;
+      line-height: 1.75;
+      margin-bottom: 28px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .testimonial-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1em;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    }
+
+    .testimonial-info strong {
+      display: block;
+      color: var(--text-dark);
+      font-size: 0.95em;
+    }
+
+    .testimonial-info span {
+      color: var(--text-light);
+      font-size: 0.82em;
+    }
+
+    .testimonial-tag {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(67, 97, 238, 0.08);
+      color: var(--primary-color);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      font-weight: 600;
+    }
+
     /* CTA Section */
     .cta-section {
       padding: 100px 40px;
@@ -1142,6 +1246,56 @@
     </div>
   </section>
 
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <h2 class="section-title">Lo que dicen nuestros clientes</h2>
+    <div class="testimonials-grid">
+
+      <div class="testimonial-card">
+        <div class="testimonial-tag">Distribuidora</div>
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">Lo que antes nos tomaba medio día lo hacemos ahora en 20 minutos. Las compras, los pedidos y los precios ya no dependen de que alguien esté disponible para calcularlo todo a mano.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">CM</div>
+          <div class="testimonial-info">
+            <strong>Carlos M.</strong>
+            <span>Gerente de Compras · Distribuidora Norte</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-tag">Comercio</div>
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">Por fin sé exactamente cuánto debo, cuánto me deben y qué productos están olvidados en bodega. Antes esa información vivía en tres Excel distintos y siempre había errores.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AL</div>
+          <div class="testimonial-info">
+            <strong>Ana L.</strong>
+            <span>Directora Administrativa · Comercializadora Sur</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-tag">Mayorista</div>
+        <div class="testimonial-quote">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">Desde que tenemos el sistema, mis descuentos se aplican solos y sin errores. Ya no perdemos dinero por precios mal capturados y el equipo se enfoca en vender, no en capturar datos.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">RG</div>
+          <div class="testimonial-info">
+            <strong>Roberto G.</strong>
+            <span>Propietario · Mayorista Central</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- CTA Section -->
   <section class="cta-section">
     <h2>¿Listo para Automatizar tu Empresa?</h2>
@@ -1172,7 +1326,7 @@
     }, observerOptions);
 
     // Observe all cards
-    document.querySelectorAll('.feature-card, .module-card, .future-module-card, .process-step, .preview-item, .benefit-column').forEach((el) => {
+    document.querySelectorAll('.feature-card, .module-card, .future-module-card, .process-step, .preview-item, .benefit-column, .testimonial-card').forEach((el) => {
       observer.observe(el);
     });
 
