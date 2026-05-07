@@ -256,6 +256,242 @@
       .login-button { padding: 10px 20px; font-size: 0.9em; }
     }
 
+    /* Integration Pitch Section */
+    .integracion {
+      padding: 100px 40px;
+      background: #0f0f1a;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .integracion::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(67,97,238,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(118,75,162,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .integracion .section-title {
+      background: linear-gradient(135deg, #fff 0%, #a0aeff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    .integracion-subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.55);
+      font-size: 1.05em;
+      margin-bottom: 70px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Flow */
+    .flow-wrapper {
+      max-width: 1100px;
+      margin: 0 auto 70px;
+      position: relative;
+    }
+
+    .flow-steps {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0;
+      position: relative;
+    }
+
+    .flow-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.5s ease;
+    }
+
+    .flow-step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .flow-step:nth-child(1) { transition-delay: 0s; }
+    .flow-step:nth-child(3) { transition-delay: 0.1s; }
+    .flow-step:nth-child(5) { transition-delay: 0.2s; }
+    .flow-step:nth-child(7) { transition-delay: 0.3s; }
+    .flow-step:nth-child(9) { transition-delay: 0.4s; }
+
+    .flow-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #4361ee, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8em;
+      margin-bottom: 14px;
+      box-shadow: 0 0 30px rgba(67,97,238,0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .flow-step-title {
+      font-size: 0.95em;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .flow-step-desc {
+      font-size: 0.78em;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.5;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+
+    .flow-module-tag {
+      background: rgba(67,97,238,0.2);
+      border: 1px solid rgba(67,97,238,0.4);
+      color: #a0aeff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7em;
+      font-weight: 600;
+    }
+
+    .flow-arrow {
+      flex: 0 0 40px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 26px;
+      color: rgba(67,97,238,0.6);
+      font-size: 1.4em;
+    }
+
+    /* Quote callout */
+    .pitch-quote {
+      max-width: 800px;
+      margin: 0 auto 70px;
+      background: rgba(67,97,238,0.12);
+      border: 1px solid rgba(67,97,238,0.3);
+      border-left: 4px solid #4361ee;
+      border-radius: 16px;
+      padding: 30px 36px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease 0.3s;
+    }
+
+    .pitch-quote.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .pitch-quote p {
+      font-size: 1.1em;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.85);
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    .pitch-quote cite {
+      font-size: 0.82em;
+      color: rgba(255,255,255,0.4);
+      font-style: normal;
+    }
+
+    /* Comparison table */
+    .comp-title {
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.8em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 24px;
+    }
+
+    .comp-table-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease 0.4s;
+    }
+
+    .comp-table-wrap.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comp-table th {
+      padding: 14px 20px;
+      font-size: 0.82em;
+      font-weight: 700;
+      text-align: center;
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.6);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .comp-table th:first-child { text-align: left; }
+
+    .comp-table th.highlight {
+      background: rgba(67,97,238,0.25);
+      color: #a0aeff;
+    }
+
+    .comp-table td {
+      padding: 13px 20px;
+      font-size: 0.85em;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.65);
+    }
+
+    .comp-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .comp-table td.highlight { background: rgba(67,97,238,0.08); }
+    .comp-table tr:last-child td { border-bottom: none; }
+
+    .check { color: #4ade80; font-size: 1.1em; }
+    .cross { color: rgba(255,255,255,0.2); font-size: 1.1em; }
+    .partial { color: #f4a422; font-size: 1em; }
+
+    @media (max-width: 768px) {
+      .flow-steps { flex-direction: column; align-items: center; gap: 10px; }
+      .flow-arrow { transform: rotate(90deg); padding: 0; }
+      .flow-step { width: 100%; max-width: 300px; }
+      .comp-table th:nth-child(3),
+      .comp-table td:nth-child(3) { display: none; }
+    }
+
     /* Features Section */
     .features {
       padding: 100px 40px;
@@ -906,6 +1142,7 @@
       <span>Supratech Web</span>
     </a>
     <div class="nav-links">
+      <a href="#integracion" class="nav-link">Flujo Completo</a>
       <a href="#features" class="nav-link">Características</a>
       <a href="#modulos" class="nav-link">Módulos</a>
       <a href="#preview" class="nav-link">Vista Previa</a>
@@ -926,6 +1163,121 @@
       <a href="#features" class="cta-button">Descubre Más</a>
     </div>
     <div class="scroll-indicator"></div>
+  </section>
+
+  <!-- Integration Pitch Section -->
+  <section id="integracion" class="integracion">
+    <h2 class="section-title">Un solo sistema, todo el flujo</h2>
+    <p class="integracion-subtitle">Desde que prospectas hasta que despachas. Sin exportar a Excel. Sin copiar datos entre sistemas.</p>
+
+    <!-- Flow diagram -->
+    <div class="flow-wrapper">
+      <div class="flow-steps">
+
+        <div class="flow-step">
+          <div class="flow-icon">🔍</div>
+          <div class="flow-step-title">Prospecto</div>
+          <div class="flow-step-desc">Identifica y evalúa nuevos productos antes de ofrecerlos</div>
+          <span class="flow-module-tag">Prospección</span>
+        </div>
+
+        <div class="flow-arrow">→</div>
+
+        <div class="flow-step">
+          <div class="flow-icon">💬</div>
+          <div class="flow-step-title">Cotización</div>
+          <div class="flow-step-desc">Consulta precios actualizados y márgenes en tiempo real</div>
+          <span class="flow-module-tag">Estado de Precios</span>
+        </div>
+
+        <div class="flow-arrow">→</div>
+
+        <div class="flow-step">
+          <div class="flow-icon">📋</div>
+          <div class="flow-step-title">Pedido</div>
+          <div class="flow-step-desc">Registra y da seguimiento al pedido dentro del mismo sistema</div>
+          <span class="flow-module-tag">BD Pedidos · Compras</span>
+        </div>
+
+        <div class="flow-arrow">→</div>
+
+        <div class="flow-step">
+          <div class="flow-icon">🏷️</div>
+          <div class="flow-step-title">Precio & Descuento</div>
+          <div class="flow-step-desc">Aplica descuentos inteligentes respetando márgenes por categoría</div>
+          <span class="flow-module-tag">Descuentos · BD Descuentos</span>
+        </div>
+
+        <div class="flow-arrow">→</div>
+
+        <div class="flow-step">
+          <div class="flow-icon">📊</div>
+          <div class="flow-step-title">Métricas</div>
+          <div class="flow-step-desc">Visualiza resultados, rotación e indicadores para decidir qué sigue</div>
+          <span class="flow-module-tag">Métricas · Indicadores</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Script de demo -->
+    <div class="pitch-quote">
+      <p>"Con otro sistema tienes el CRM, pero cuando el cliente compra ¿a dónde va ese pedido? ¿A otro sistema? Con Supratech, desde que prospectas hasta que despachas el pedido, todo está en el mismo lugar. Sin exportar a Excel, sin copiar datos."</p>
+      <cite>— Por qué Supratech es diferente</cite>
+    </div>
+
+    <!-- Comparativa -->
+    <p class="comp-title">¿Qué cubre cada tipo de sistema?</p>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Capacidad</th>
+            <th class="highlight">Supratech</th>
+            <th>CRM Tradicional</th>
+            <th>ERP Básico</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Prospección de productos</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>Cotización y precios en tiempo real</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="partial">◑ Básico</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Gestión de pedidos nativa</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Descuentos inteligentes por categoría</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>Métricas e indicadores integrados</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="partial">◑ Básico</span></td>
+            <td><span class="partial">◑ Básico</span></td>
+          </tr>
+          <tr>
+            <td>Todo en un solo sistema sin exportar</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <!-- Features Section -->
@@ -1346,7 +1698,7 @@
     }, observerOptions);
 
     // Observe all cards
-    document.querySelectorAll('.feature-card, .module-card, .future-module-card, .process-step, .preview-item, .benefit-column, .testimonial-card').forEach((el) => {
+    document.querySelectorAll('.feature-card, .module-card, .future-module-card, .process-step, .preview-item, .benefit-column, .testimonial-card, .flow-step, .pitch-quote, .comp-table-wrap').forEach((el) => {
       observer.observe(el);
     });
 
