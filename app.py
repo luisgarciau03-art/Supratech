@@ -7789,6 +7789,10 @@ def api_inventarios_pickear():
 def admin_health():
     return render_template('admin_health.html')
 
+@app.route('/admin/usuarios')
+def admin_usuarios():
+    return render_template('admin_usuarios.html')
+
 @app.route('/api/track_visit', methods=['POST'])
 def track_visit():
     auth_header = request.headers.get('Authorization')

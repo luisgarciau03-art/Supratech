@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desglose por Usuario — Supratech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      padding: 30px 20px;
+      color: #2b2d42;
+    }
+
+    .container { max-width: 1300px; margin: 0 auto; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header h1 { font-size: 1.6em; font-weight: 700; color: #fff; }
+    .header h1 span { font-weight: 300; opacity: 0.7; font-size: 0.75em; display: block; }
+
+    .nav-links { display: flex; gap: 12px; align-items: center; }
+    .nav-link {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.85em;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: #fff; }
+    .nav-link.active { color: #fff; font-weight: 600; }
+
+    /* Summary cards */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .sum-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      text-align: center;
+    }
+
+    .sum-card .num { font-size: 2em; font-weight: 700; color: #4361ee; line-height: 1; margin-bottom: 4px; }
+    .sum-card .lbl { font-size: 0.75em; color: #8d99ae; font-weight: 500; }
+
+    /* Search */
+    .search-bar {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9em;
+      color: #2b2d42;
+      flex: 1;
+    }
+
+    .search-bar input::placeholder { color: #aaa; }
+
+    /* Table wrapper */
+    .table-wrap {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    /* Sticky header */
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #fafafa;
+      z-index: 10;
+      padding: 0;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .th-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 12px 8px 10px;
+      font-size: 0.68em;
+      font-weight: 600;
+      color: #8d99ae;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      gap: 6px;
+      min-height: 70px;
+    }
+
+    .th-inner .mod-count {
+      background: #4361ee;
+      color: #fff;
+      border-radius: 10px;
+      padding: 2px 7px;
+      font-size: 0.85em;
+      font-weight: 700;
+    }
+
+    thead th:first-child .th-inner {
+      align-items: flex-start;
+      font-size: 0.72em;
+      color: #8d99ae;
+    }
+
+    thead th:last-child .th-inner { align-items: center; }
+
+    /* Body rows */
+    tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f8f9ff; }
+
+    td {
+      padding: 0;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    td:first-child {
+      text-align: left;
+      padding: 14px 20px;
+      min-width: 180px;
+    }
+
+    .user-name { font-weight: 600; font-size: 0.88em; color: #2b2d42; }
+    .user-email { font-size: 0.75em; color: #8d99ae; }
+
+    /* Module cell */
+    .cell-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 52px;
+      width: 100%;
+      font-size: 1.1em;
+    }
+
+    .cell-wrap.visited {
+      background: rgba(40,167,69,0.07);
+      color: #28a745;
+    }
+
+    .cell-wrap.visited::after { content: '✓'; font-weight: 700; }
+    .cell-wrap.not-visited { color: #e0e0e0; }
+    .cell-wrap.not-visited::after { content: '·'; font-size: 1.4em; }
+
+    /* Score column */
+    td:last-child { min-width: 80px; }
+
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.95em;
+    }
+
+    .score-riesgo { background: #ffeaea; color: #dc3545; }
+    .score-medio  { background: #fff8e6; color: #d48806; }
+    .score-sano   { background: #eafaf1; color: #28a745; }
+
+    /* Footer totals */
+    tfoot td {
+      padding: 10px 8px;
+      font-size: 0.78em;
+      font-weight: 600;
+      color: #4361ee;
+      background: #f8f9ff;
+      border-top: 2px solid #f0f0f0;
+      text-align: center;
+    }
+
+    tfoot td:first-child {
+      text-align: left;
+      padding-left: 20px;
+      color: #8d99ae;
+    }
+
+    #loading {
+      text-align: center;
+      padding: 60px;
+      color: #fff;
+      opacity: 0.7;
+    }
+
+    #error-msg {
+      background: #ffeaea;
+      color: #dc3545;
+      padding: 20px 24px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      display: none;
+      font-weight: 500;
+    }
+
+    #main-content { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Desglose por Usuario <span>Módulos utilizados por cada cuenta</span></h1>
+      <div class="nav-links">
+        <a href="/admin/health" class="nav-link">Health Score</a>
+        <span style="color:rgba(255,255,255,0.3)">|</span>
+        <a href="/admin/usuarios" class="nav-link active">Desglose</a>
+        <span style="color:rgba(255,255,255,0.3)">|</span>
+        <a href="/panel" class="nav-link">← Panel</a>
+      </div>
+    </div>
+
+    <div id="loading">Cargando datos...</div>
+    <div id="error-msg"></div>
+
+    <div id="main-content">
+      <div class="summary" id="summary-cards"></div>
+
+      <div class="search-bar">
+        🔍 <input type="text" id="search-input" placeholder="Buscar usuario por nombre o email...">
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead id="table-head"></thead>
+          <tbody id="table-body"></tbody>
+          <tfoot id="table-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+    authDomain: "supratechweb.firebaseapp.com",
+    projectId: "supratechweb",
+    storageBucket: "supratechweb.firebasestorage.app",
+    messagingSenderId: "828253545658",
+    appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  const MODULOS = [
+    { id: 'actualizar',           label: 'Actualizar' },
+    { id: 'finanzas',             label: 'Finanzas' },
+    { id: 'inventarios',          label: 'Inventarios' },
+    { id: 'compras',              label: 'Compras' },
+    { id: 'pedidos',              label: 'Pedidos' },
+    { id: 'llenar_bds',           label: 'Bases de datos' },
+    { id: 'bd_descuentos',        label: 'Desc. BD' },
+    { id: 'descuentos',           label: 'Descuentos' },
+    { id: 'estado_precios',       label: 'Precios' },
+    { id: 'metricas_productos',   label: 'Métricas' },
+    { id: 'capacidad_mensual',    label: 'Capacidad' },
+    { id: 'productos_olvidados',  label: 'Olvidados' },
+    { id: 'prospeccion_productos', label: 'Prospección' }
+  ];
+
+  let allUsers = [];
+
+  function scoreClass(s) {
+    if (s < 3) return 'score-riesgo';
+    if (s < 6) return 'score-medio';
+    return 'score-sano';
+  }
+
+  function buildTable(users) {
+    // Header
+    const thead = document.getElementById('table-head');
+    const modCounts = MODULOS.map(m => users.filter(u => u.modulos_visitados.includes(m.id)).length);
+
+    thead.innerHTML = `<tr>
+      <th><div class="th-inner">Usuario</div></th>
+      ${MODULOS.map((m, i) => `
+        <th><div class="th-inner">
+          ${m.label}
+          <span class="mod-count">${modCounts[i]}</span>
+        </div></th>
+      `).join('')}
+      <th><div class="th-inner">Total</div></th>
+    </tr>`;
+
+    // Body
+    renderBody(users);
+
+    // Footer totals
+    const tfoot = document.getElementById('table-foot');
+    tfoot.innerHTML = `<tr>
+      <td>Usuarios que usaron el módulo</td>
+      ${MODULOS.map((m, i) => `<td>${modCounts[i]} / ${users.length}</td>`).join('')}
+      <td></td>
+    </tr>`;
+  }
+
+  function renderBody(users) {
+    const tbody = document.getElementById('table-body');
+    if (!users.length) {
+      tbody.innerHTML = `<tr><td colspan="${MODULOS.length + 2}" style="text-align:center;padding:40px;color:#8d99ae">Sin resultados</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = users.map(u => {
+      const nombre = [u.nombre, u.apellido].filter(Boolean).join(' ') || u.email || u.uid;
+      const score = u.health_score;
+      return `<tr>
+        <td>
+          <div class="user-name">${nombre}</div>
+          <div class="user-email">${u.email || ''}</div>
+        </td>
+        ${MODULOS.map(m => {
+          const visited = u.modulos_visitados.includes(m.id);
+          return `<td><div class="cell-wrap ${visited ? 'visited' : 'not-visited'}"></div></td>`;
+        }).join('')}
+        <td><div style="display:flex;justify-content:center">
+          <span class="score-badge ${scoreClass(score)}">${score}</span>
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function buildSummary(users) {
+    const total = users.length;
+    const riesgo = users.filter(u => u.health_score < 3).length;
+    const activos = users.filter(u => u.health_score >= 3).length;
+    const moduloMasUsado = MODULOS.reduce((max, m) => {
+      const count = users.filter(u => u.modulos_visitados.includes(m.id)).length;
+      return count > max.count ? { label: m.label, count } : max;
+    }, { label: '—', count: 0 });
+    const promedio = total ? (users.reduce((s, u) => s + u.health_score, 0) / total).toFixed(1) : 0;
+
+    document.getElementById('summary-cards').innerHTML = `
+      <div class="sum-card"><div class="num">${total}</div><div class="lbl">Usuarios totales</div></div>
+      <div class="sum-card"><div class="num" style="color:#28a745">${activos}</div><div class="lbl">Activos (≥3 módulos)</div></div>
+      <div class="sum-card"><div class="num" style="color:#dc3545">${riesgo}</div><div class="lbl">En riesgo (&lt;3)</div></div>
+      <div class="sum-card"><div class="num">${promedio}</div><div class="lbl">Promedio de módulos</div></div>
+      <div class="sum-card"><div class="num" style="font-size:1.1em;color:#764ba2">${moduloMasUsado.label}</div><div class="lbl">Módulo más usado</div></div>
+    `;
+  }
+
+  document.getElementById('search-input').addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    const filtered = q
+      ? allUsers.filter(u => {
+          const nombre = [u.nombre, u.apellido].filter(Boolean).join(' ').toLowerCase();
+          return nombre.includes(q) || (u.email || '').toLowerCase().includes(q);
+        })
+      : allUsers;
+    renderBody(filtered);
+  });
+
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) { window.location.href = '/'; return; }
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch('/api/admin/health_data', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await res.json();
+      document.getElementById('loading').style.display = 'none';
+
+      if (!res.ok) {
+        const err = document.getElementById('error-msg');
+        err.textContent = (data.error || 'Error') + (data.debug ? ' — ' + data.debug : '');
+        err.style.display = 'block';
+        return;
+      }
+
+      allUsers = data.users;
+      document.getElementById('main-content').style.display = 'block';
+      buildSummary(allUsers);
+      buildTable(allUsers);
+    } catch(e) {
+      document.getElementById('loading').style.display = 'none';
+      const err = document.getElementById('error-msg');
+      err.textContent = 'Error de conexión: ' + e.message;
+      err.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>
