@@ -1,224 +1,464 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión — Supratech</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary-color: #4361ee;
-      --secondary-color: #3f37c9;
-      --text-dark: #2b2d42;
-      --text-light: #8d99ae;
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
+      font-family: 'Poppins', sans-serif;
       background-color: #f0f2f5;
-      background-image: 
-        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+      background-image:
+        radial-gradient(at 0%   0%, hsla(253,16%,7%,1)  0, transparent 50%),
+        radial-gradient(at 50%  0%, hsla(225,39%,30%,1) 0, transparent 50%),
         radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
       background-attachment: fixed;
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      padding: 20px;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--text-dark);
+      padding: 20px;
+      color: #2b2d42;
     }
 
-    .login-card {
+    .card {
       width: 100%;
       max-width: 400px;
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 50px 40px;
+      background: rgba(255,255,255,0.97);
       border-radius: 24px;
-      box-shadow: var(--shadow);
-      animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-      border: 1px solid rgba(255, 255, 255, 0.6);
+      padding: 48px 40px 40px;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.12);
+      border: 1px solid rgba(255,255,255,0.7);
+      animation: rise 0.6s cubic-bezier(0.16,1,0.3,1);
     }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes rise {
+      from { opacity:0; transform:translateY(32px); }
+      to   { opacity:1; transform:translateY(0); }
     }
 
-    .logo-container {
+    .logo {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 28px;
     }
 
-    .logo-container img {
-      width: 100px;
-      height: 100px;
+    .logo img {
+      width: 88px;
+      height: 88px;
       object-fit: cover;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
       border: 3px solid rgba(255,255,255,0.8);
-      background: #fff;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s;
     }
-
-    .logo-container img:hover {
-      transform: scale(1.05) rotate(-2deg);
-    }
+    .logo img:hover { transform: scale(1.05) rotate(-2deg); }
 
     h2 {
       text-align: center;
-      color: #1a1a1a;
-      font-size: 2em;
+      font-size: 1.7em;
       font-weight: 700;
-      margin-bottom: 30px;
-      letter-spacing: -0.5px;
-      background: linear-gradient(45deg, #1a1a1a, #4361ee);
+      margin-bottom: 28px;
+      background: linear-gradient(45deg, #1a1a2e, #4361ee);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      width: 100%;
-    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
 
     label {
+      font-size: 0.82em;
       font-weight: 600;
-      color: var(--text-dark);
-      font-size: 0.95em;
-      margin-bottom: 5px;
-      display: block;
+      color: #4b5563;
     }
 
-    input[type="email"], input[type="password"] {
+    .input-wrap { position: relative; }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
       width: 100%;
-      box-sizing: border-box;
-      border: 2px solid #e0e0e0;
+      padding: 13px 44px 13px 16px;
+      border: 1.5px solid #e5e7eb;
       border-radius: 12px;
-      padding: 14px 16px;
-      font-size: 1em;
-      outline: none;
-      transition: all 0.3s ease;
-      background: rgba(255,255,255,0.8);
       font-family: 'Poppins', sans-serif;
-    }
-
-    input[type="email"]:focus, input[type="password"]:focus {
-      border-color: var(--primary-color);
+      font-size: 0.92em;
+      color: #1a1a2e;
       background: #fff;
-      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
     }
 
-    button {
-      background: linear-gradient(45deg, #4361ee, #3f37c9);
+    input:focus {
+      border-color: #4361ee;
+      box-shadow: 0 0 0 4px rgba(67,97,238,0.1);
+    }
+
+    input.error-input { border-color: #ef233c; }
+
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      font-size: 1em;
+      padding: 0;
+      line-height: 1;
+    }
+    .toggle-pw:hover { color: #4361ee; }
+
+    .forgot {
+      text-align: right;
+      margin-top: -4px;
+    }
+    .forgot button {
+      background: none;
+      border: none;
+      color: #4361ee;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78em;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+    .forgot button:hover { text-decoration: underline; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #4361ee, #3f37c9);
       color: #fff;
       border: none;
       border-radius: 12px;
-      padding: 16px;
-      font-size: 1.1em;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1em;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
-      transition: all 0.3s ease;
-      margin-top: 10px;
-      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 8px 20px rgba(67,97,238,0.25);
+      transition: all 0.2s;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-
-    button:hover {
+    .btn-submit:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(67, 97, 238, 0.3);
+      box-shadow: 0 12px 28px rgba(67,97,238,0.35);
+    }
+    .btn-submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
     }
 
-    .error {
-      color: #ef233c;
-      margin-bottom: 20px;
-      text-align: center;
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .alert {
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.84em;
       font-weight: 500;
-      font-size: 0.95em;
-      background: rgba(239, 35, 60, 0.1);
-      padding: 10px;
-      border-radius: 8px;
+      display: none;
+    }
+    .alert.error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .alert.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+    .attempts-bar {
+      height: 3px;
+      background: #f0f0f0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .attempts-fill {
+      height: 100%;
+      background: #ef233c;
+      border-radius: 2px;
+      transition: width 0.3s;
+      width: 0%;
     }
 
-    @media (max-width: 500px) {
-      .login-card {
-        padding: 30px 20px;
-      }
-      h2 { font-size: 1.5em; }
+    /* Recover panel */
+    #recover-panel {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .back-link {
+      background: none;
+      border: none;
+      color: #8d99ae;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.8em;
+      cursor: pointer;
+      padding: 0;
+      text-align: left;
+    }
+    .back-link:hover { color: #4361ee; }
+
+    .divider { height: 1px; background: #f0f0f0; margin: 4px 0; }
+
+    form { display: flex; flex-direction: column; gap: 18px; }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px 28px; }
+      h2 { font-size: 1.4em; }
     }
   </style>
 </head>
 <body>
-  <div class="login-card">
-    <div class="logo-container">
-      <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Logo Supratech">
-    </div>
-    <h2>Iniciar sesión</h2>
-    {% if error %}
-      <div class="error">{{ error }}</div>
-    {% endif %}
-    <form method="POST">
-      <label for="email">Email</label>
-      <input type="email" name="email" id="email" required autocomplete="username">
-      <label for="password">Contraseña</label>
-      <input type="password" name="password" id="password" required autocomplete="current-password">
-      <button type="submit">Ingresar</button>
-    </form>
-    <div id="firebase-error" class="error" style="display:none;"></div>
+<div class="card">
+
+  <div class="logo">
+    <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Supratech">
   </div>
-<!-- Firebase App (core) -->
+
+  <!-- ── LOGIN PANEL ── -->
+  <div id="login-panel">
+    <h2>Iniciar sesión</h2>
+
+    <div class="alert error" id="error-msg"></div>
+
+    <form id="login-form" novalidate>
+      <div class="field">
+        <label for="email">Correo electrónico</label>
+        <div class="input-wrap">
+          <input type="email" id="email" name="email" required
+                 placeholder="tucorreo@empresa.com"
+                 autocomplete="email">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="password">Contraseña</label>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password" required
+                 placeholder="Tu contraseña"
+                 autocomplete="current-password">
+          <button type="button" class="toggle-pw" id="toggle-pw" aria-label="Mostrar contraseña">👁</button>
+        </div>
+      </div>
+
+      <div class="forgot">
+        <button type="button" id="show-recover">¿Olvidaste tu contraseña?</button>
+      </div>
+
+      <div class="attempts-bar"><div class="attempts-fill" id="attempts-fill"></div></div>
+
+      <button type="submit" class="btn-submit" id="btn-submit">
+        <div class="spinner" id="spinner"></div>
+        <span id="btn-text">Ingresar</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- ── RECOVER PANEL ── -->
+  <div id="recover-panel">
+    <button class="back-link" id="btn-back">← Volver al inicio de sesión</button>
+    <div class="divider"></div>
+    <h2 style="font-size:1.3em;margin-bottom:4px;">Recuperar contraseña</h2>
+    <p style="font-size:0.82em;color:#6b7280;margin-bottom:8px;">Te enviaremos un enlace para restablecer tu contraseña.</p>
+
+    <div class="alert error"   id="recover-error"></div>
+    <div class="alert success" id="recover-ok"></div>
+
+    <div class="field">
+      <label for="recover-email">Correo electrónico</label>
+      <div class="input-wrap">
+        <input type="email" id="recover-email" placeholder="tucorreo@empresa.com" autocomplete="email">
+      </div>
+    </div>
+
+    <button class="btn-submit" id="btn-recover">
+      <div class="spinner" id="recover-spinner"></div>
+      <span id="recover-text">Enviar enlace</span>
+    </button>
+  </div>
+
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<!-- Firebase Auth -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
-  const firebaseConfig = {
+  firebase.initializeApp({
     apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
     authDomain: "supratechweb.firebaseapp.com",
     projectId: "supratechweb",
     storageBucket: "supratechweb.firebasestorage.app",
     messagingSenderId: "828253545658",
-    appId: "1:828253545658:web:daa886d1de6c9c796a8e83",
-    measurementId: "G-JC8Y89CPQH"
-  };
-  firebase.initializeApp(firebaseConfig);
+    appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+  });
 
-  document.querySelector('form').addEventListener('submit', async function(e) {
+  // ── Error messages ──────────────────────────────────
+  const ERRORES = {
+    'auth/wrong-password':        'Contraseña incorrecta. Verifica e intenta de nuevo.',
+    'auth/user-not-found':        'No encontramos una cuenta con ese correo.',
+    'auth/invalid-credential':    'Correo o contraseña incorrectos.',
+    'auth/invalid-email':         'El formato del correo no es válido.',
+    'auth/user-disabled':         'Esta cuenta ha sido desactivada. Contacta a soporte.',
+    'auth/too-many-requests':     'Demasiados intentos fallidos. Espera unos minutos e intenta de nuevo.',
+    'auth/network-request-failed':'Sin conexión a internet. Verifica tu red.',
+  };
+
+  // ── Show/hide password ──────────────────────────────
+  const pwInput   = document.getElementById('password');
+  const toggleBtn = document.getElementById('toggle-pw');
+  toggleBtn.addEventListener('click', () => {
+    const visible = pwInput.type === 'text';
+    pwInput.type  = visible ? 'password' : 'text';
+    toggleBtn.textContent = visible ? '👁' : '🙈';
+  });
+
+  // ── Login form ──────────────────────────────────────
+  let intentosFallidos = 0;
+  const MAX_INTENTOS   = 5;
+  let bloqueadoHasta   = 0;
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('email').classList.toggle('error-input', msg.includes('correo'));
+    document.getElementById('password').classList.toggle('error-input', !msg.includes('correo'));
+  }
+
+  function clearError() {
+    const el = document.getElementById('error-msg');
+    el.style.display = 'none';
+    document.getElementById('email').classList.remove('error-input');
+    document.getElementById('password').classList.remove('error-input');
+  }
+
+  function setLoading(on) {
+    const btn = document.getElementById('btn-submit');
+    document.getElementById('spinner').style.display  = on ? 'block' : 'none';
+    document.getElementById('btn-text').textContent   = on ? 'Ingresando...' : 'Ingresar';
+    btn.disabled = on;
+  }
+
+  function updateAttemptBar() {
+    const pct = Math.min(100, (intentosFallidos / MAX_INTENTOS) * 100);
+    document.getElementById('attempts-fill').style.width = pct + '%';
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const email = document.getElementById('email').value;
+    clearError();
+
+    const ahora = Date.now();
+    if (ahora < bloqueadoHasta) {
+      const seg = Math.ceil((bloqueadoHasta - ahora) / 1000);
+      showError(`Demasiados intentos. Espera ${seg} segundos.`);
+      return;
+    }
+
+    const email    = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
-    const errorDiv = document.getElementById('firebase-error');
-    errorDiv.style.display = 'none';
+
+    if (!email || !password) {
+      showError('Completa ambos campos para continuar.');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-      const idToken = await userCredential.user.getIdToken();
-      // Envía el idToken al backend en el cuerpo (no solo en el header)
-      const response = await fetch('/api/login', {
+      const cred    = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const idToken = await cred.user.getIdToken();
+
+      const res = await fetch('/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken })
       });
-      if (response.ok) {
+
+      if (res.ok) {
+        intentosFallidos = 0;
         window.location.href = '/panel';
       } else {
-        const data = await response.json();
-        errorDiv.textContent = data.error || 'Error de autenticación en backend';
-        errorDiv.style.display = 'block';
+        const data = await res.json();
+        showError(data.error || 'Error al autenticar. Intenta de nuevo.');
+        setLoading(false);
       }
-    } catch (error) {
-      // Si el error es de credenciales inválidas, mostrar mensaje personalizado
-      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-        errorDiv.textContent = 'Contraseña o correo incorrecto';
-      } else {
-        errorDiv.textContent = 'Error de login: ' + error.message;
+    } catch (err) {
+      setLoading(false);
+      intentosFallidos++;
+      updateAttemptBar();
+
+      if (intentosFallidos >= MAX_INTENTOS) {
+        bloqueadoHasta = Date.now() + 60000; // 60 segundos
+        showError('Demasiados intentos fallidos. Espera 60 segundos.');
+        setTimeout(() => {
+          intentosFallidos = 0;
+          bloqueadoHasta = 0;
+          updateAttemptBar();
+          clearError();
+        }, 60000);
+        return;
       }
-      errorDiv.style.display = 'block';
+
+      showError(ERRORES[err.code] || 'Error al iniciar sesión. Intenta de nuevo.');
+    }
+  });
+
+  // ── Recover panel ───────────────────────────────────
+  document.getElementById('show-recover').addEventListener('click', () => {
+    document.getElementById('login-panel').style.display   = 'none';
+    document.getElementById('recover-panel').style.display = 'flex';
+    document.getElementById('recover-email').value = document.getElementById('email').value;
+    document.getElementById('recover-email').focus();
+  });
+
+  document.getElementById('btn-back').addEventListener('click', () => {
+    document.getElementById('recover-panel').style.display = 'none';
+    document.getElementById('login-panel').style.display   = 'block';
+  });
+
+  document.getElementById('btn-recover').addEventListener('click', async () => {
+    const email = document.getElementById('recover-email').value.trim();
+    const errEl = document.getElementById('recover-error');
+    const okEl  = document.getElementById('recover-ok');
+    const btn   = document.getElementById('btn-recover');
+    errEl.style.display = 'none';
+    okEl.style.display  = 'none';
+
+    if (!email) {
+      errEl.textContent = 'Ingresa tu correo electrónico.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('recover-spinner').style.display = 'block';
+    document.getElementById('recover-text').textContent = 'Enviando...';
+    btn.disabled = true;
+
+    try {
+      await firebase.auth().sendPasswordResetEmail(email);
+      okEl.textContent = '¡Listo! Revisa tu bandeja de entrada (y spam) para el enlace de recuperación.';
+      okEl.style.display = 'block';
+      document.getElementById('recover-spinner').style.display = 'none';
+      document.getElementById('recover-text').textContent = 'Enviado ✓';
+    } catch (err) {
+      document.getElementById('recover-spinner').style.display = 'none';
+      document.getElementById('recover-text').textContent = 'Enviar enlace';
+      btn.disabled = false;
+      errEl.textContent = ERRORES[err.code] || 'No pudimos enviar el correo. Verifica la dirección.';
+      errEl.style.display = 'block';
     }
   });
 </script>

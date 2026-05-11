@@ -226,24 +226,40 @@ def bdmarcas_bulk():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Endpoint de login para recibir el token de Firebase y devolver info básica del usuario
+# Rate limiting simple para /api/login (in-memory, reinicia con el servidor)
+_login_intentos = {}  # {ip: [timestamp, ...]}
+_LOGIN_MAX      = 10   # intentos por ventana
+_LOGIN_VENTANA  = 600  # segundos (10 min)
+
 @app.route('/api/login', methods=['POST'])
 def api_login():
+    import time
+    ip   = request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip()
+    ahora = time.time()
+
+    # Limpiar intentos fuera de ventana y chequear límite
+    intentos = [t for t in _login_intentos.get(ip, []) if ahora - t < _LOGIN_VENTANA]
+    if len(intentos) >= _LOGIN_MAX:
+        return jsonify({'error': 'Demasiados intentos. Espera unos minutos.'}), 429
+    intentos.append(ahora)
+    _login_intentos[ip] = intentos
+
     data = request.get_json()
-    id_token = data.get('idToken')
+    id_token = (data or {}).get('idToken')
     if not id_token:
         return jsonify({'error': 'No token provided'}), 401
     try:
         decoded_token = auth.verify_id_token(id_token)
-        uid = decoded_token['uid']
+        uid   = decoded_token['uid']
         email = decoded_token.get('email', '')
-        # Puedes personalizar la consulta a Firestore para obtener más info del usuario
-        user_ref = db.collection('users').document(uid)
-        user_doc = user_ref.get()
+        # Login exitoso: limpiar contador de esa IP
+        _login_intentos.pop(ip, None)
+        user_ref  = db.collection('users').document(uid)
+        user_doc  = user_ref.get()
         user_data = user_doc.to_dict() if user_doc.exists else {}
         return jsonify({'status': 'ok', 'uid': uid, 'email': email, 'rol': user_data.get('rol', 'usuario')})
     except Exception as e:
-        return jsonify({'error': 'Invalid token', 'details': str(e)}), 401
+        return jsonify({'error': 'Token inválido', 'details': str(e)}), 401
 
 
 @app.route('/api/baseplus_campos', methods=['GET'])
