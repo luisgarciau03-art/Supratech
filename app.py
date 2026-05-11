@@ -7786,6 +7786,57 @@ def api_inventarios_pickear():
 
 # --- SEGUIMIENTO DE ACTIVACIÓN DE USUARIOS ---
 
+def _safe_dt(ts):
+    import datetime
+    try:
+        return datetime.datetime.fromisoformat(str(ts))
+    except:
+        return None
+
+def _compute_health_score_v2(user_data):
+    """0-100 score based on 4 engagement signals."""
+    import datetime
+    now = datetime.datetime.utcnow()
+    score = 0
+
+    # 1. Último acceso — 0-30 pts
+    last_dt = _safe_dt(user_data.get('ultimo_acceso', ''))
+    if last_dt:
+        dias = (now - last_dt).days
+        if   dias <= 1:  score += 30
+        elif dias <= 3:  score += 24
+        elif dias <= 7:  score += 16
+        elif dias <= 14: score += 8
+        elif dias <= 30: score += 2
+
+    # 2. Módulos activos últimos 14 días — 0-30 pts
+    cutoff_14 = now - datetime.timedelta(days=14)
+    active_14 = sum(
+        1 for ts in user_data.get('modulos_recientes', {}).values()
+        if _safe_dt(ts) and _safe_dt(ts) >= cutoff_14
+    )
+    if   active_14 >= 7: score += 30
+    elif active_14 >= 5: score += 23
+    elif active_14 >= 3: score += 15
+    elif active_14 >= 1: score += 7
+
+    # 3. Frecuencia semanal — 0-25 pts
+    cutoff_7 = now - datetime.timedelta(days=7)
+    ses_7d = sum(
+        1 for ts in user_data.get('sesiones_recientes', [])
+        if _safe_dt(ts) and _safe_dt(ts) >= cutoff_7
+    )
+    if   ses_7d >= 7: score += 25
+    elif ses_7d >= 4: score += 20
+    elif ses_7d >= 2: score += 12
+    elif ses_7d >= 1: score += 5
+
+    # 4. Amplitud de módulos (all-time) — 0-15 pts
+    total_mods = len(set(user_data.get('modulos_visitados', [])))
+    score += min(15, round(total_mods / 13 * 15))
+
+    return min(100, max(0, score))
+
 @app.route('/admin/health')
 def admin_health():
     return render_template('admin_health.html')
@@ -8012,14 +8063,63 @@ def track_visit():
         modulo = (data or {}).get('modulo', '').strip()
         if not modulo:
             return jsonify({'error': 'modulo requerido'}), 400
+
+        now_iso = datetime.datetime.utcnow().isoformat()
         user_ref = db.collection('users').document(uid)
+
         user_ref.set({
             'modulos_visitados': firestore.ArrayUnion([modulo]),
-            'ultimo_acceso': datetime.datetime.utcnow().isoformat()
+            'ultimo_acceso': now_iso,
         }, merge=True)
-        modulos = list(set(user_ref.get().to_dict().get('modulos_visitados', [])))
-        user_ref.update({'health_score': len(modulos)})
-        return jsonify({'ok': True, 'health_score': len(modulos)})
+
+        # Registrar módulo reciente (dot-notation preserva otros módulos)
+        user_ref.update({f'modulos_recientes.{modulo}': now_iso})
+
+        # Leer doc completo para calcular score
+        user_data = user_ref.get().to_dict() or {}
+
+        # Trim sesiones_recientes a las últimas 60
+        sesiones = user_data.get('sesiones_recientes', [])
+        sesiones.append(now_iso)
+        sesiones = sesiones[-60:]
+
+        modulos = list(set(user_data.get('modulos_visitados', [])))
+        score_v2 = _compute_health_score_v2(user_data)
+
+        user_ref.update({
+            'health_score':        len(modulos),
+            'health_score_v2':     score_v2,
+            'sesiones_recientes':  sesiones,
+        })
+
+        return jsonify({'ok': True, 'health_score': len(modulos), 'health_score_v2': score_v2})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/track_login', methods=['POST'])
+def track_login():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+    try:
+        import datetime
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        now_iso = datetime.datetime.utcnow().isoformat()
+        user_ref = db.collection('users').document(uid)
+        user_ref.set({'ultimo_acceso': now_iso}, merge=True)
+
+        user_data = user_ref.get().to_dict() or {}
+        sesiones = user_data.get('sesiones_recientes', [])
+        sesiones.append(now_iso)
+        sesiones = sesiones[-60:]
+
+        score_v2 = _compute_health_score_v2(user_data)
+        user_ref.update({'sesiones_recientes': sesiones, 'health_score_v2': score_v2})
+
+        return jsonify({'ok': True})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -8042,15 +8142,19 @@ def admin_health_data():
         for doc in db.collection('users').stream():
             u = doc.to_dict()
             modulos = list(set(u.get('modulos_visitados', [])))
+            score_v2 = u.get('health_score_v2')
+            if score_v2 is None:
+                score_v2 = _compute_health_score_v2(u)
             users.append({
-                'uid': doc.id,
-                'nombre': u.get('nombre', ''),
-                'apellido': u.get('apellido', ''),
-                'email': u.get('email', ''),
-                'rol': u.get('rol', ''),
+                'uid':              doc.id,
+                'nombre':           u.get('nombre', ''),
+                'apellido':         u.get('apellido', ''),
+                'email':            u.get('email', ''),
+                'rol':              u.get('rol', ''),
                 'modulos_visitados': modulos,
-                'health_score': len(modulos),
-                'ultimo_acceso': u.get('ultimo_acceso', '')
+                'health_score':     score_v2,
+                'ultimo_acceso':    u.get('ultimo_acceso', ''),
+                'sesiones_recientes': len(u.get('sesiones_recientes', [])),
             })
         users.sort(key=lambda x: x['health_score'])
         return jsonify({'users': users})

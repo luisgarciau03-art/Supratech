@@ -379,6 +379,10 @@
       return;
     }
     window._firebaseUser = firebaseUser;
+    // Track login para health score (fire and forget)
+    firebaseUser.getIdToken().then(t =>
+      fetch('/api/track_login', { method: 'POST', headers: { 'Authorization': 'Bearer ' + t } })
+    ).catch(() => {});
     try {
       const idToken = await firebaseUser.getIdToken();
       const res = await fetch('/api/userinfo', {

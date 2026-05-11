@@ -249,15 +249,15 @@
         </div>
         <div class="stat-card riesgo">
           <div class="stat-number" id="stat-riesgo">—</div>
-          <div class="stat-label">En riesgo (&lt;3 módulos)</div>
+          <div class="stat-label">En riesgo (0–39)</div>
         </div>
         <div class="stat-card medio">
           <div class="stat-number" id="stat-medio">—</div>
-          <div class="stat-label">Moderados (3–5)</div>
+          <div class="stat-label">Moderados (40–69)</div>
         </div>
         <div class="stat-card sano">
           <div class="stat-number" id="stat-sano">—</div>
-          <div class="stat-label">Saludables (6+)</div>
+          <div class="stat-label">Saludables (70–100)</div>
         </div>
       </div>
 
@@ -311,14 +311,14 @@
   };
 
   function scoreClass(s) {
-    if (s < 3) return 'riesgo';
-    if (s < 6) return 'medio';
+    if (s < 40) return 'riesgo';
+    if (s < 70) return 'medio';
     return 'sano';
   }
 
   function scoreLabel(s) {
-    if (s < 3) return '⚠ En riesgo';
-    if (s < 6) return '◐ Moderado';
+    if (s < 40) return '⚠ En riesgo';
+    if (s < 70) return '◐ Moderado';
     return '✓ Saludable';
   }
 
@@ -349,7 +349,7 @@
         </td>
         <td>
           <span class="badge-score badge-${cls}">
-            ${u.health_score} / 13 &nbsp; ${scoreLabel(u.health_score)}
+            ${u.health_score} / 100 &nbsp; ${scoreLabel(u.health_score)}
           </span>
         </td>
         <td><div class="modulos-list">${modTags || '<span style="color:#bbb;font-size:0.85em">Ninguno aún</span>'}</div></td>
@@ -365,9 +365,9 @@
       document.querySelector(`.filter-btn${filtro === 'todos' ? ':first-child' : '.'+filtro}`).classList.add('active');
 
     let lista = allUsers;
-    if (filtro === 'riesgo') lista = allUsers.filter(u => u.health_score < 3);
-    if (filtro === 'medio')  lista = allUsers.filter(u => u.health_score >= 3 && u.health_score < 6);
-    if (filtro === 'sano')   lista = allUsers.filter(u => u.health_score >= 6);
+    if (filtro === 'riesgo') lista = allUsers.filter(u => u.health_score < 40);
+    if (filtro === 'medio')  lista = allUsers.filter(u => u.health_score >= 40 && u.health_score < 70);
+    if (filtro === 'sano')   lista = allUsers.filter(u => u.health_score >= 70);
     renderTabla(lista);
   }
 
@@ -392,9 +392,9 @@
       document.getElementById('main-content').style.display = 'block';
 
       document.getElementById('stat-total').textContent = allUsers.length;
-      document.getElementById('stat-riesgo').textContent = allUsers.filter(u => u.health_score < 3).length;
-      document.getElementById('stat-medio').textContent  = allUsers.filter(u => u.health_score >= 3 && u.health_score < 6).length;
-      document.getElementById('stat-sano').textContent   = allUsers.filter(u => u.health_score >= 6).length;
+      document.getElementById('stat-riesgo').textContent = allUsers.filter(u => u.health_score < 40).length;
+      document.getElementById('stat-medio').textContent  = allUsers.filter(u => u.health_score >= 40 && u.health_score < 70).length;
+      document.getElementById('stat-sano').textContent   = allUsers.filter(u => u.health_score >= 70).length;
 
       renderTabla(allUsers);
     } catch(e) {
