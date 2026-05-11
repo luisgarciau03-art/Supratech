@@ -7802,6 +7802,155 @@ def casos():
 def privacidad():
     return render_template('privacidad.html')
 
+@app.route('/analytics')
+def analytics():
+    return render_template('analytics.html')
+
+@app.route('/api/analytics/data', methods=['GET'])
+def api_analytics_data():
+    import re, datetime as dt
+
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+    id_token = auth_header.split(' ')[1]
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        uid = decoded_token['uid']
+
+        area_doc = db.collection('Areas').document(uid).get()
+        if not area_doc.exists:
+            return jsonify({'sin_datos': True, 'mensaje': 'Sin área configurada'}), 200
+
+        area_data = area_doc.to_dict()
+        spreadsheet_url = area_data.get('PEDIDOSANT')
+        if not spreadsheet_url:
+            return jsonify({'sin_datos': True, 'mensaje': 'No hay historial de pedidos configurado (PEDIDOSANT)'}), 200
+
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", spreadsheet_url)
+        if not match:
+            return jsonify({'error': 'URL de spreadsheet inválida'}), 400
+        spreadsheet_id = match.group(1)
+
+        from googleapiclient.discovery import build
+        creds = get_google_credentials()
+        service = build('sheets', 'v4', credentials=creds)
+
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='A1:Z2000'
+        ).execute()
+
+        values = result.get('values', [])
+        if len(values) < 2:
+            return jsonify({'sin_datos': True, 'mensaje': 'Sin registros en el historial'}), 200
+
+        raw_headers = values[0]
+        headers = [h.lower().strip() for h in raw_headers]
+        rows = values[1:]
+
+        def find_col(candidates):
+            for c in candidates:
+                for i, h in enumerate(headers):
+                    if c in h:
+                        return i
+            return None
+
+        col_fecha    = find_col(['fecha', 'date', 'dia'])
+        col_cliente  = find_col(['cliente', 'client', 'empresa', 'razon', 'comprador'])
+        col_producto = find_col(['producto', 'descripcion', 'articulo', 'sku', 'titulo', 'item'])
+        col_cantidad = find_col(['cantidad', 'qty', 'unidades', 'piezas', 'cant'])
+        col_importe  = find_col(['importe', 'total', 'monto', 'valor'])
+
+        def cell(row, col):
+            if col is not None and col < len(row):
+                return row[col].strip()
+            return ''
+
+        def parse_num(s):
+            try:
+                return float(s.replace(',', '').replace('$', '').strip())
+            except:
+                return 0.0
+
+        def parse_fecha(s):
+            for fmt in ['%d/%m/%Y', '%Y-%m-%d', '%m/%d/%Y', '%d-%m-%Y', '%d/%m/%y']:
+                try:
+                    return dt.datetime.strptime(s.strip(), fmt).date()
+                except:
+                    pass
+            return None
+
+        hoy       = dt.date.today()
+        limite_30 = hoy - dt.timedelta(days=30)
+        limite_60 = hoy - dt.timedelta(days=60)
+
+        productos = {}   # nombre → {cantidad, pedidos}
+        clientes  = {}   # nombre → last_date
+        pedidos_30d  = 0
+        importe_30d  = 0.0
+
+        for row in rows:
+            fecha    = parse_fecha(cell(row, col_fecha))
+            cliente  = cell(row, col_cliente)  or 'Sin nombre'
+            producto = cell(row, col_producto) or 'Sin descripción'
+            cantidad = parse_num(cell(row, col_cantidad))
+            importe  = parse_num(cell(row, col_importe))
+
+            if producto not in productos:
+                productos[producto] = {'cantidad': 0, 'pedidos': 0}
+            productos[producto]['cantidad'] += cantidad
+            productos[producto]['pedidos']  += 1
+
+            if fecha:
+                if cliente not in clientes or fecha > clientes[cliente]:
+                    clientes[cliente] = fecha
+                if fecha >= limite_30:
+                    pedidos_30d += 1
+                    importe_30d += importe
+
+        top_productos = sorted(
+            [{'nombre': k, 'cantidad': round(v['cantidad'], 1), 'pedidos': v['pedidos']}
+             for k, v in productos.items() if k != 'Sin descripción'],
+            key=lambda x: x['cantidad'], reverse=True
+        )[:10]
+
+        alertas = sorted(
+            [{'cliente': c, 'ultimo': f.strftime('%d %b %Y'), 'dias': (hoy - f).days}
+             for c, f in clientes.items() if c != 'Sin nombre' and (hoy - f).days >= 30],
+            key=lambda x: x['dias'], reverse=True
+        )[:20]
+
+        clientes_activos = sum(1 for f in clientes.values() if f >= limite_30)
+
+        cols_detectadas = {
+            'fecha':    raw_headers[col_fecha]    if col_fecha    is not None else None,
+            'cliente':  raw_headers[col_cliente]  if col_cliente  is not None else None,
+            'producto': raw_headers[col_producto] if col_producto is not None else None,
+            'cantidad': raw_headers[col_cantidad] if col_cantidad is not None else None,
+            'importe':  raw_headers[col_importe]  if col_importe  is not None else None,
+        }
+
+        return jsonify({
+            'ok': True,
+            'stats': {
+                'pedidos_30d':     pedidos_30d,
+                'importe_30d':     round(importe_30d, 2),
+                'clientes_activos': clientes_activos,
+                'clientes_total':  len(clientes),
+                'productos_unicos': len(productos),
+            },
+            'top_productos':   top_productos,
+            'alertas_clientes': alertas,
+            'cols':            cols_detectadas,
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/contacto', methods=['POST'])
 def api_contacto():
     import datetime
