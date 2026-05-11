@@ -7798,6 +7798,10 @@ def admin_usuarios():
 def casos():
     return render_template('casos.html')
 
+@app.route('/privacidad')
+def privacidad():
+    return render_template('privacidad.html')
+
 @app.route('/api/contacto', methods=['POST'])
 def api_contacto():
     import datetime
