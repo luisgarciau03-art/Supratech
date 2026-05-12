@@ -7869,6 +7869,10 @@ def casos():
 def privacidad():
     return render_template('privacidad.html')
 
+@app.route('/terminos')
+def terminos():
+    return render_template('terminos.html')
+
 @app.route('/analytics')
 def analytics():
     return render_template('analytics.html')
