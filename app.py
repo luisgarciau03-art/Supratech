@@ -7873,6 +7873,43 @@ def privacidad():
 def terminos():
     return render_template('terminos.html')
 
+from blog_posts import POSTS, POSTS_BY_SLUG
+
+@app.route('/blog')
+def blog_index():
+    return render_template('blog_index.html', posts=POSTS)
+
+@app.route('/blog/<slug>')
+def blog_post(slug):
+    post = POSTS_BY_SLUG.get(slug)
+    if not post:
+        return 'Artículo no encontrado', 404
+    otros = [p for p in POSTS if p['slug'] != slug][:2]
+    return render_template('blog_post.html', post=post, otros=otros)
+
+@app.route('/sitemap.xml')
+def sitemap():
+    from flask import Response
+    import datetime
+    base = 'https://web-production-a9447.up.railway.app'
+    today = datetime.date.today().isoformat()
+    rutas_estaticas = ['/', '/blog', '/casos', '/privacidad', '/terminos']
+    urls = []
+    for r in rutas_estaticas:
+        urls.append(f'<url><loc>{base}{r}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>')
+    for p in POSTS:
+        urls.append(f'<url><loc>{base}/blog/{p["slug"]}</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>')
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    xml += '\n'.join(urls)
+    xml += '\n</urlset>'
+    return Response(xml, mimetype='application/xml')
+
+@app.route('/robots.txt')
+def robots():
+    from flask import Response
+    txt = 'User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /admin\nDisallow: /api\nSitemap: https://web-production-a9447.up.railway.app/sitemap.xml\n'
+    return Response(txt, mimetype='text/plain')
+
 @app.route('/analytics')
 def analytics():
     return render_template('analytics.html')

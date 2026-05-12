@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ post.title }} — Supratech</title>
+  <meta name="description" content="{{ post.meta_description }}">
+  <meta name="keywords" content="{{ post.keywords }}">
+  <meta name="author" content="Supratech Web">
+  <link rel="canonical" href="https://web-production-a9447.up.railway.app/blog/{{ post.slug }}">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{{ post.title }}">
+  <meta property="og:description" content="{{ post.meta_description }}">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://web-production-a9447.up.railway.app/blog/{{ post.slug }}">
+  <meta property="og:locale" content="es_MX">
+
+  <!-- Article schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "{{ post.title }}",
+    "description": "{{ post.meta_description }}",
+    "datePublished": "2026-05-01",
+    "author": { "@type": "Organization", "name": "Supratech Web" },
+    "publisher": { "@type": "Organization", "name": "Supratech Web", "url": "https://web-production-a9447.up.railway.app" },
+    "inLanguage": "es-MX"
+  }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: #f8f9ff; color: #2b2d42; }
+
+    .navbar {
+      background: #fff;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .navbar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .navbar-logo span { font-weight: 700; font-size: 1.15em; color: #4361ee; }
+    .nav-right { display: flex; gap: 20px; align-items: center; }
+    .nav-right a { font-size: 0.85em; color: #6b7280; text-decoration: none; }
+    .nav-right a:hover { color: #4361ee; }
+    .nav-cta {
+      background: #4361ee; color: #fff !important;
+      padding: 8px 18px; border-radius: 20px; font-weight: 600;
+    }
+
+    .article-hero {
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      padding: 56px 24px 48px;
+      color: #fff;
+      text-align: center;
+    }
+    .breadcrumb {
+      font-size: 0.78em;
+      opacity: 0.65;
+      margin-bottom: 16px;
+    }
+    .breadcrumb a { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .breadcrumb a:hover { color: #fff; }
+
+    .categoria-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .article-hero h1 {
+      font-size: 1.85em;
+      font-weight: 700;
+      max-width: 700px;
+      margin: 0 auto 14px;
+      line-height: 1.3;
+    }
+
+    .article-meta {
+      font-size: 0.8em;
+      opacity: 0.65;
+      margin-top: 8px;
+    }
+
+    /* Article layout */
+    .article-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Article content typography */
+    .article-content p {
+      font-size: 0.95em;
+      color: #374151;
+      line-height: 1.85;
+      margin-bottom: 18px;
+    }
+
+    .article-content h2 {
+      font-size: 1.25em;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin: 36px 0 14px;
+      padding-top: 8px;
+      border-top: 3px solid #e8edff;
+    }
+
+    .article-content h3 {
+      font-size: 1em;
+      font-weight: 700;
+      color: #4361ee;
+      margin: 24px 0 10px;
+    }
+
+    .article-content ul, .article-content ol {
+      padding-left: 22px;
+      margin: 10px 0 18px;
+    }
+
+    .article-content li {
+      font-size: 0.93em;
+      color: #374151;
+      line-height: 1.75;
+      margin-bottom: 4px;
+    }
+
+    .article-content strong { color: #1a1a2e; }
+
+    .article-content table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88em;
+      margin: 20px 0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .article-content th {
+      padding: 10px 14px;
+      text-align: left;
+      background: #f0f2ff;
+      color: #4361ee;
+      font-weight: 600;
+    }
+
+    .article-content td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f5f5f5;
+      color: #374151;
+    }
+
+    /* CTA box */
+    .article-content div[style*="background:#f0f2ff"] {
+      margin: 28px 0;
+    }
+
+    /* Related posts */
+    .related {
+      border-top: 2px solid #f0f0f0;
+      margin-top: 48px;
+      padding-top: 32px;
+    }
+
+    .related h3 { font-size: 1em; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; }
+
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .related-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      text-decoration: none;
+      display: block;
+      transition: transform 0.2s;
+    }
+    .related-card:hover { transform: translateY(-2px); }
+    .related-card .rc-cat { font-size: 0.72em; color: #4361ee; font-weight: 600; margin-bottom: 6px; }
+    .related-card .rc-title { font-size: 0.83em; font-weight: 600; color: #1a1a2e; line-height: 1.4; }
+
+    @media (max-width: 600px) {
+      .article-hero h1 { font-size: 1.4em; }
+      .related-grid { grid-template-columns: 1fr; }
+      .nav-right { display: none; }
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.78em;
+      color: #9ca3af;
+      border-top: 1px solid #f0f0f0;
+      background: #fff;
+    }
+    footer a { color: #4361ee; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="navbar-logo"><span>Supratech</span></a>
+    <div class="nav-right">
+      <a href="/blog">Blog</a>
+      <a href="/">Inicio</a>
+      <a href="/#precios">Precios</a>
+      <a href="/login" class="nav-cta">Ingresar</a>
+    </div>
+  </nav>
+
+  <div class="article-hero">
+    <div class="breadcrumb">
+      <a href="/">Inicio</a> › <a href="/blog">Blog</a> › {{ post.categoria }}
+    </div>
+    <div class="categoria-tag">{{ post.categoria }}</div>
+    <h1>{{ post.title }}</h1>
+    <div class="article-meta">{{ post.fecha }} · Supratech Web</div>
+  </div>
+
+  <div class="article-wrap">
+    <div class="article-content">
+      {{ post.contenido | safe }}
+    </div>
+
+    {% if otros %}
+    <div class="related">
+      <h3>Más artículos para distribuidoras</h3>
+      <div class="related-grid">
+        {% for otro in otros %}
+        <a href="/blog/{{ otro.slug }}" class="related-card">
+          <div class="rc-cat">{{ otro.categoria }}</div>
+          <div class="rc-title">{{ otro.title }}</div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <footer>
+    &copy; 2026 Supratech Web &nbsp;·&nbsp;
+    <a href="/privacidad">Aviso de Privacidad</a> &nbsp;·&nbsp;
+    <a href="/terminos">Términos de Servicio</a>
+  </footer>
+
+</body>
+</html>
