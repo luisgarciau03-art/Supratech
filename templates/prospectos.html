@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prospectos — Supratech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #2b2d42;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header h1 { font-size: 1.5em; font-weight: 700; color: #fff; }
+    .header h1 span { font-weight: 300; opacity: 0.65; font-size: 0.7em; display: block; }
+    .header-links { display: flex; gap: 12px; align-items: center; }
+    .header-links a {
+      color: rgba(255,255,255,0.75); text-decoration: none;
+      font-size: 0.85em; padding: 6px 14px;
+      border-radius: 16px; background: rgba(255,255,255,0.1);
+      transition: background 0.2s;
+    }
+    .header-links a:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+    /* ── Container ── */
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 20px 60px; }
+
+    /* ── Stat cards ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      text-align: center;
+    }
+    .stat-card .num { font-size: 2em; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .stat-card .lbl { font-size: 0.75em; color: #8d99ae; font-weight: 500; }
+    .stat-card.total .num   { color: #4361ee; }
+    .stat-card.llamar .num  { color: #f4a422; }
+    .stat-card.interes .num { color: #6c63ff; }
+    .stat-card.cliente .num { color: #28a745; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .toolbar select, .toolbar input {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82em;
+      color: #374151;
+      outline: none;
+      background: #fff;
+    }
+    .toolbar select:focus, .toolbar input:focus { border-color: #4361ee; }
+    .toolbar input[type="text"] { flex: 1; min-width: 180px; }
+    .btn {
+      padding: 9px 18px;
+      border-radius: 10px;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #4361ee; color: #fff; }
+    .btn-primary:hover { background: #3451d1; }
+    .btn-warning { background: #f4a422; color: #fff; }
+    .btn-warning:hover { background: #d48806; }
+    .btn-ghost { background: #f0f2f5; color: #374151; }
+    .btn-ghost:hover { background: #e5e7eb; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab {
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.75);
+      transition: all 0.2s;
+    }
+    .tab:hover { background: rgba(255,255,255,0.25); color: #fff; }
+    .tab.active { background: #fff; color: #4361ee; }
+
+    /* ── Prospect cards ── */
+    .prospects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .prospect-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .prospect-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+    .card-top {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .card-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .prospect-name { font-weight: 700; font-size: 0.95em; color: #1a1a2e; }
+    .prospect-empresa { font-size: 0.8em; color: #6b7280; margin-top: 1px; }
+
+    .estado-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.7em;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .estado-por_llamar  { background: #fff8e6; color: #d48806; }
+    .estado-contactado  { background: #e8edff; color: #4361ee; }
+    .estado-interesado  { background: #f0e8ff; color: #7c3aed; }
+    .estado-demo        { background: #fce7f3; color: #be185d; }
+    .estado-cliente     { background: #ecfdf5; color: #059669; }
+    .estado-no_interesa { background: #f3f4f6; color: #6b7280; }
+
+    .card-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .meta-tag {
+      font-size: 0.72em;
+      color: #6b7280;
+      background: #f9fafb;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .card-notes {
+      padding: 10px 20px;
+      font-size: 0.78em;
+      color: #6b7280;
+      line-height: 1.5;
+      border-bottom: 1px solid #f5f5f5;
+      min-height: 36px;
+      font-style: italic;
+    }
+    .card-notes.empty { color: #d1d5db; font-style: italic; }
+
+    .card-actions {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.75em;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-call    { background: #ecfdf5; color: #059669; }
+    .btn-call:hover { background: #d1fae5; }
+    .btn-wa      { background: #f0fdf4; color: #16a34a; }
+    .btn-wa:hover { background: #dcfce7; }
+    .btn-nota    { background: #f0f2ff; color: #4361ee; }
+    .btn-nota:hover { background: #e0e4ff; }
+    .btn-estado  { background: #f9fafb; color: #374151; }
+    .btn-estado:hover { background: #f3f4f6; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 { font-size: 1.1em; font-weight: 700; margin-bottom: 20px; color: #1a1a2e; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .form-grid.full { grid-template-columns: 1fr; }
+
+    .field label {
+      font-size: 0.78em;
+      font-weight: 600;
+      color: #4b5563;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85em;
+      color: #1a1a2e;
+      outline: none;
+      transition: border 0.2s;
+      background: #fff;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #4361ee; }
+    .field textarea { resize: vertical; min-height: 70px; }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    /* ── Empty / Loading ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    }
+    .empty-state .icon { font-size: 3em; margin-bottom: 12px; }
+    .empty-state p { color: #8d99ae; font-size: 0.9em; }
+
+    #loading-state {
+      text-align: center;
+      padding: 60px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* ── Nota inline ── */
+    .nota-form {
+      padding: 12px 16px;
+      border-top: 1px solid #f5f5f5;
+      display: none;
+    }
+    .nota-form textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.8em;
+      resize: none;
+      outline: none;
+      margin-bottom: 6px;
+    }
+    .nota-form textarea:focus { border-color: #4361ee; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .prospects-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Panel de Prospectos <span>Supratech · Distribuidoras mexicanas</span></h1>
+    <div class="header-links">
+      <a href="/admin/health">Health Score</a>
+      <a href="/panel">← Panel</a>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card total">
+        <div class="num" id="s-total">—</div>
+        <div class="lbl">Total prospectos</div>
+      </div>
+      <div class="stat-card llamar">
+        <div class="num" id="s-llamar">—</div>
+        <div class="lbl">Por llamar</div>
+      </div>
+      <div class="stat-card interes">
+        <div class="num" id="s-interes">—</div>
+        <div class="lbl">Interesados</div>
+      </div>
+      <div class="stat-card cliente">
+        <div class="num" id="s-cliente">—</div>
+        <div class="lbl">Convertidos</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('todos')">Todos</button>
+      <button class="tab" onclick="setTab('por_llamar')">🔔 Por llamar</button>
+      <button class="tab" onclick="setTab('contactado')">📞 Contactados</button>
+      <button class="tab" onclick="setTab('interesado')">⭐ Interesados</button>
+      <button class="tab" onclick="setTab('demo')">📅 Demo agendada</button>
+      <button class="tab" onclick="setTab('cliente')">✓ Clientes</button>
+      <button class="tab" onclick="setTab('no_interesa')">✗ No interesa</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input type="text" id="buscar" placeholder="🔍 Buscar por nombre, empresa o ciudad..." oninput="renderProspectos()">
+      <select id="filtro-giro" onchange="renderProspectos()">
+        <option value="">Todos los giros</option>
+        <option value="ferreteria">Ferretería</option>
+        <option value="materiales">Materiales de construcción</option>
+        <option value="consumibles">Consumibles industriales</option>
+        <option value="abarrotes">Abarrotes y alimentos</option>
+        <option value="otro">Otro</option>
+      </select>
+      <select id="filtro-empleados" onchange="renderProspectos()">
+        <option value="">Todos los tamaños</option>
+        <option value="5-10">5–10 empleados</option>
+        <option value="10-25">10–25 empleados</option>
+        <option value="25-50">25–50 empleados</option>
+      </select>
+      <button class="btn btn-primary" onclick="abrirModalAgregar()">+ Agregar prospecto</button>
+      <button class="btn btn-ghost" onclick="exportarCSV()">⬇ Exportar CSV</button>
+    </div>
+
+    <!-- Content -->
+    <div id="loading-state">Cargando prospectos...</div>
+    <div id="prospects-container" style="display:none">
+      <div class="prospects-grid" id="prospects-grid"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Modal agregar / editar ── -->
+  <div class="modal-overlay" id="modal-agregar">
+    <div class="modal">
+      <h2 id="modal-title">Agregar prospecto</h2>
+      <input type="hidden" id="edit-id">
+      <div class="form-grid">
+        <div class="field">
+          <label>Nombre del dueño / contacto *</label>
+          <input type="text" id="f-nombre" placeholder="Juan García">
+        </div>
+        <div class="field">
+          <label>Empresa / Distribuidora *</label>
+          <input type="text" id="f-empresa" placeholder="Ferretería García">
+        </div>
+        <div class="field">
+          <label>Giro del negocio</label>
+          <select id="f-giro">
+            <option value="ferreteria">Ferretería</option>
+            <option value="materiales">Materiales de construcción</option>
+            <option value="consumibles">Consumibles industriales</option>
+            <option value="abarrotes">Abarrotes y alimentos</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ciudad</label>
+          <input type="text" id="f-ciudad" placeholder="Guadalajara">
+        </div>
+        <div class="field">
+          <label>Teléfono *</label>
+          <input type="tel" id="f-telefono" placeholder="33 1234 5678">
+        </div>
+        <div class="field">
+          <label>WhatsApp</label>
+          <input type="tel" id="f-whatsapp" placeholder="33 1234 5678">
+        </div>
+        <div class="field">
+          <label>Número de empleados</label>
+          <select id="f-empleados">
+            <option value="5-10">5–10 empleados</option>
+            <option value="10-25">10–25 empleados</option>
+            <option value="25-50">25–50 empleados</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Estado inicial</label>
+          <select id="f-estado">
+            <option value="por_llamar">Por llamar</option>
+            <option value="contactado">Contactado</option>
+            <option value="interesado">Interesado</option>
+            <option value="demo">Demo agendada</option>
+            <option value="cliente">Cliente ✓</option>
+            <option value="no_interesa">No interesa</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>Notas iniciales</label>
+          <textarea id="f-notas" placeholder="Contexto del prospecto, intereses, objeciones..."></textarea>
+        </div>
+        <div class="field">
+          <label>Origen del prospecto</label>
+          <select id="f-origen">
+            <option value="manual">Prospección manual</option>
+            <option value="referido">Referido</option>
+            <option value="landing">Landing Supratech</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="directorios">Directorios / web</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarProspecto()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal cambiar estado ── -->
+  <div class="modal-overlay" id="modal-estado">
+    <div class="modal" style="max-width:360px;">
+      <h2>Cambiar estado</h2>
+      <input type="hidden" id="estado-id">
+      <div class="field" style="margin-bottom:16px;">
+        <label>Nuevo estado</label>
+        <select id="estado-nuevo">
+          <option value="por_llamar">Por llamar</option>
+          <option value="contactado">Contactado</option>
+          <option value="interesado">Interesado</option>
+          <option value="demo">Demo agendada</option>
+          <option value="cliente">Cliente ✓</option>
+          <option value="no_interesa">No interesa</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:16px;">
+        <label>Nota sobre este cambio (opcional)</label>
+        <textarea id="estado-nota" rows="2" placeholder="¿Qué pasó en el contacto?"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="confirmarEstado()">Actualizar</button>
+      </div>
+    </div>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+    authDomain: "supratechweb.firebaseapp.com",
+    projectId: "supratechweb",
+    storageBucket: "supratechweb.firebasestorage.app",
+    messagingSenderId: "828253545658",
+    appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+  });
+
+  let TOKEN = '';
+  let allProspectos = [];
+  let tabActivo = 'todos';
+
+  const ESTADO_LABELS = {
+    por_llamar:  '🔔 Por llamar',
+    contactado:  '📞 Contactado',
+    interesado:  '⭐ Interesado',
+    demo:        '📅 Demo agendada',
+    cliente:     '✓ Cliente',
+    no_interesa: '✗ No interesa',
+  };
+
+  const GIRO_LABELS = {
+    ferreteria:   'Ferretería',
+    materiales:   'Materiales',
+    consumibles:  'Consumibles',
+    abarrotes:    'Abarrotes',
+    otro:         'Otro',
+  };
+
+  // ── Auth ────────────────────────────────────────────
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) { window.location.href = '/'; return; }
+    TOKEN = await user.getIdToken();
+    cargarProspectos();
+  });
+
+  async function refreshToken() {
+    const user = firebase.auth().currentUser;
+    if (user) TOKEN = await user.getIdToken(true);
+  }
+
+  // ── API ─────────────────────────────────────────────
+  async function apiGet(url) {
+    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+    return res.json();
+  }
+
+  async function apiPost(url, body) {
+    await refreshToken();
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return res.json();
+  }
+
+  async function apiPut(url, body) {
+    await refreshToken();
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return res.json();
+  }
+
+  // ── Load ─────────────────────────────────────────────
+  async function cargarProspectos() {
+    const data = await apiGet('/api/prospectos/lista');
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('prospects-container').style.display = 'block';
+
+    if (data.error) {
+      document.getElementById('prospects-grid').innerHTML =
+        `<div style="color:#dc2626;padding:20px">${data.error}</div>`;
+      return;
+    }
+    allProspectos = data.prospectos || [];
+    actualizarStats();
+    renderProspectos();
+  }
+
+  function actualizarStats() {
+    document.getElementById('s-total').textContent   = allProspectos.length;
+    document.getElementById('s-llamar').textContent  = allProspectos.filter(p => p.estado === 'por_llamar').length;
+    document.getElementById('s-interes').textContent = allProspectos.filter(p => ['interesado','demo'].includes(p.estado)).length;
+    document.getElementById('s-cliente').textContent = allProspectos.filter(p => p.estado === 'cliente').length;
+  }
+
+  // ── Tabs & Filters ───────────────────────────────────
+  function setTab(tab) {
+    tabActivo = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    renderProspectos();
+  }
+
+  function renderProspectos() {
+    const q          = document.getElementById('buscar').value.toLowerCase().trim();
+    const filtroGiro = document.getElementById('filtro-giro').value;
+    const filtroEmp  = document.getElementById('filtro-empleados').value;
+
+    let lista = allProspectos;
+    if (tabActivo !== 'todos') lista = lista.filter(p => p.estado === tabActivo);
+    if (filtroGiro) lista = lista.filter(p => p.giro === filtroGiro);
+    if (filtroEmp)  lista = lista.filter(p => p.empleados === filtroEmp);
+    if (q) lista = lista.filter(p =>
+      (p.nombre  || '').toLowerCase().includes(q) ||
+      (p.empresa || '').toLowerCase().includes(q) ||
+      (p.ciudad  || '').toLowerCase().includes(q)
+    );
+
+    const grid = document.getElementById('prospects-grid');
+    if (!lista.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="icon">📋</div>
+        <p>Sin prospectos con este filtro</p>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = lista.map(p => renderCard(p)).join('');
+  }
+
+  function renderCard(p) {
+    const wa = (p.whatsapp || p.telefono || '').replace(/\D/g, '');
+    const waLink = wa ? `https://wa.me/52${wa}?text=${encodeURIComponent('Hola ' + (p.nombre||'') + ', te contacto de Supratech — el software de operaciones para distribuidoras mexicanas. ¿Tienes unos minutos?')}` : '#';
+    const telLink = p.telefono ? `tel:${p.telefono.replace(/\D/g,'')}` : '#';
+    const notas = p.notas ? `<div class="card-notes">${escHtml(p.notas)}</div>` : `<div class="card-notes empty">Sin notas</div>`;
+    const tags = [
+      p.giro     ? `<span class="meta-tag">${GIRO_LABELS[p.giro]||p.giro}</span>` : '',
+      p.ciudad   ? `<span class="meta-tag">📍 ${escHtml(p.ciudad)}</span>` : '',
+      p.empleados? `<span class="meta-tag">👥 ${p.empleados}</span>` : '',
+      p.origen   ? `<span class="meta-tag">${escHtml(p.origen)}</span>` : '',
+    ].filter(Boolean).join('');
+
+    return `<div class="prospect-card" id="card-${p.id}">
+      <div class="card-top">
+        <div class="card-top-row">
+          <div>
+            <div class="prospect-name">${escHtml(p.nombre||'Sin nombre')}</div>
+            <div class="prospect-empresa">${escHtml(p.empresa||'Sin empresa')}</div>
+          </div>
+          <span class="estado-badge estado-${p.estado}">${ESTADO_LABELS[p.estado]||p.estado}</span>
+        </div>
+        <div class="card-meta">${tags}</div>
+      </div>
+      ${notas}
+      <div class="card-actions">
+        <a href="${telLink}" class="action-btn btn-call">📞 Llamar</a>
+        <a href="${waLink}" target="_blank" class="action-btn btn-wa">💬 WhatsApp</a>
+        <button class="action-btn btn-nota" onclick="toggleNota('${p.id}')">📝 Nota</button>
+        <button class="action-btn btn-estado" onclick="abrirModalEstado('${p.id}','${p.estado}')">🔄 Estado</button>
+        <button class="action-btn btn-estado" onclick="abrirModalEditar('${p.id}')">✏️</button>
+      </div>
+      <div class="nota-form" id="nota-${p.id}">
+        <textarea placeholder="Agrega una nota sobre este contacto..." rows="2" id="nota-txt-${p.id}"></textarea>
+        <button class="btn btn-primary" style="width:100%" onclick="guardarNota('${p.id}')">Guardar nota</button>
+      </div>
+    </div>`;
+  }
+
+  // ── Nota inline ──────────────────────────────────────
+  function toggleNota(id) {
+    const el = document.getElementById('nota-' + id);
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    if (el.style.display === 'block') document.getElementById('nota-txt-' + id).focus();
+  }
+
+  async function guardarNota(id) {
+    const nota = document.getElementById('nota-txt-' + id).value.trim();
+    if (!nota) return;
+    await apiPut('/api/prospectos/actualizar/' + id, { notas: nota, append: true });
+    await cargarProspectos();
+  }
+
+  // ── Estado ───────────────────────────────────────────
+  function abrirModalEstado(id, estadoActual) {
+    document.getElementById('estado-id').value = id;
+    document.getElementById('estado-nuevo').value = estadoActual;
+    document.getElementById('estado-nota').value = '';
+    document.getElementById('modal-estado').classList.add('open');
+  }
+
+  async function confirmarEstado() {
+    const id    = document.getElementById('estado-id').value;
+    const estado = document.getElementById('estado-nuevo').value;
+    const nota   = document.getElementById('estado-nota').value.trim();
+    await apiPut('/api/prospectos/actualizar/' + id, { estado, notas: nota || null, append: !!nota });
+    cerrarModal();
+    await cargarProspectos();
+  }
+
+  // ── Agregar / Editar ─────────────────────────────────
+  function abrirModalAgregar() {
+    document.getElementById('modal-title').textContent = 'Agregar prospecto';
+    document.getElementById('edit-id').value = '';
+    ['nombre','empresa','ciudad','telefono','whatsapp','notas'].forEach(f =>
+      document.getElementById('f-' + f).value = '');
+    document.getElementById('f-giro').value = 'ferreteria';
+    document.getElementById('f-empleados').value = '10-25';
+    document.getElementById('f-estado').value = 'por_llamar';
+    document.getElementById('f-origen').value = 'manual';
+    document.getElementById('modal-agregar').classList.add('open');
+    document.getElementById('f-nombre').focus();
+  }
+
+  function abrirModalEditar(id) {
+    const p = allProspectos.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('modal-title').textContent = 'Editar prospecto';
+    document.getElementById('edit-id').value = id;
+    document.getElementById('f-nombre').value   = p.nombre   || '';
+    document.getElementById('f-empresa').value  = p.empresa  || '';
+    document.getElementById('f-ciudad').value   = p.ciudad   || '';
+    document.getElementById('f-telefono').value = p.telefono || '';
+    document.getElementById('f-whatsapp').value = p.whatsapp || '';
+    document.getElementById('f-notas').value    = p.notas    || '';
+    document.getElementById('f-giro').value     = p.giro     || 'ferreteria';
+    document.getElementById('f-empleados').value = p.empleados || '10-25';
+    document.getElementById('f-estado').value   = p.estado   || 'por_llamar';
+    document.getElementById('f-origen').value   = p.origen   || 'manual';
+    document.getElementById('modal-agregar').classList.add('open');
+  }
+
+  async function guardarProspecto() {
+    const nombre = document.getElementById('f-nombre').value.trim();
+    const empresa = document.getElementById('f-empresa').value.trim();
+    if (!nombre || !empresa) { alert('Nombre y empresa son obligatorios'); return; }
+    const body = {
+      nombre,
+      empresa,
+      ciudad:    document.getElementById('f-ciudad').value.trim(),
+      telefono:  document.getElementById('f-telefono').value.trim(),
+      whatsapp:  document.getElementById('f-whatsapp').value.trim(),
+      giro:      document.getElementById('f-giro').value,
+      empleados: document.getElementById('f-empleados').value,
+      estado:    document.getElementById('f-estado').value,
+      notas:     document.getElementById('f-notas').value.trim(),
+      origen:    document.getElementById('f-origen').value,
+    };
+    const id = document.getElementById('edit-id').value;
+    if (id) {
+      await apiPut('/api/prospectos/actualizar/' + id, body);
+    } else {
+      await apiPost('/api/prospectos/agregar', body);
+    }
+    cerrarModal();
+    await cargarProspectos();
+  }
+
+  // ── Export ───────────────────────────────────────────
+  function exportarCSV() {
+    const cols = ['nombre','empresa','giro','ciudad','telefono','whatsapp','empleados','estado','notas','origen','fecha_registro'];
+    const header = cols.join(',');
+    const rows = allProspectos.map(p => cols.map(c => `"${(p[c]||'').toString().replace(/"/g,'""')}"`).join(','));
+    const csv = [header, ...rows].join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'prospectos_supratech.csv';
+    a.click();
+  }
+
+  // ── Helpers ──────────────────────────────────────────
+  function cerrarModal() {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+  }
+
+  function escHtml(s) {
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Close on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay =>
+    overlay.addEventListener('click', e => { if (e.target === overlay) cerrarModal(); })
+  );
+</script>
+</body>
+</html>

@@ -7879,6 +7879,94 @@ from blog_posts import POSTS, POSTS_BY_SLUG
 def roi():
     return render_template('roi.html')
 
+@app.route('/prospectos')
+def prospectos():
+    return render_template('prospectos.html')
+
+@app.route('/api/prospectos/lista', methods=['GET'])
+def api_prospectos_lista():
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No autorizado'}), 401
+    try:
+        decoded = auth.verify_id_token(auth_header.split(' ')[1])
+        caller = db.collection('users').document(decoded['uid']).get()
+        if not caller.exists or (caller.to_dict().get('rol') or '').lower() not in ['admin', 'administrador']:
+            return jsonify({'error': 'Acceso solo para administradores'}), 403
+        prospectos = []
+        for doc in db.collection('prospectos_supratech').stream():
+            d = doc.to_dict()
+            d['id'] = doc.id
+            prospectos.append(d)
+        prospectos.sort(key=lambda x: x.get('fecha_registro', ''), reverse=True)
+        return jsonify({'prospectos': prospectos})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/prospectos/agregar', methods=['POST'])
+def api_prospectos_agregar():
+    import datetime
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No autorizado'}), 401
+    try:
+        decoded = auth.verify_id_token(auth_header.split(' ')[1])
+        caller = db.collection('users').document(decoded['uid']).get()
+        if not caller.exists or (caller.to_dict().get('rol') or '').lower() not in ['admin', 'administrador']:
+            return jsonify({'error': 'Acceso solo para administradores'}), 403
+        data = request.get_json() or {}
+        doc = {
+            'nombre':          (data.get('nombre')    or '').strip(),
+            'empresa':         (data.get('empresa')   or '').strip(),
+            'giro':            data.get('giro',    'otro'),
+            'ciudad':          (data.get('ciudad')    or '').strip(),
+            'telefono':        (data.get('telefono')  or '').strip(),
+            'whatsapp':        (data.get('whatsapp')  or '').strip(),
+            'empleados':       data.get('empleados', '10-25'),
+            'estado':          data.get('estado',  'por_llamar'),
+            'notas':           (data.get('notas')     or '').strip(),
+            'origen':          data.get('origen',  'manual'),
+            'fecha_registro':  datetime.datetime.utcnow().isoformat(),
+            'fecha_ultimo_contacto': None,
+        }
+        ref = db.collection('prospectos_supratech').add(doc)
+        return jsonify({'ok': True, 'id': ref[1].id})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/prospectos/actualizar/<pid>', methods=['PUT'])
+def api_prospectos_actualizar(pid):
+    import datetime
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No autorizado'}), 401
+    try:
+        decoded = auth.verify_id_token(auth_header.split(' ')[1])
+        caller = db.collection('users').document(decoded['uid']).get()
+        if not caller.exists or (caller.to_dict().get('rol') or '').lower() not in ['admin', 'administrador']:
+            return jsonify({'error': 'Acceso solo para administradores'}), 403
+        data = request.get_json() or {}
+        ref = db.collection('prospectos_supratech').document(pid)
+        update = {}
+        for campo in ['nombre','empresa','giro','ciudad','telefono','whatsapp','empleados','estado','origen']:
+            if campo in data:
+                update[campo] = data[campo]
+        if 'notas' in data and data['notas']:
+            if data.get('append'):
+                doc = ref.get().to_dict() or {}
+                notas_prev = doc.get('notas', '')
+                ts = datetime.datetime.utcnow().strftime('%d/%m %H:%M')
+                update['notas'] = (notas_prev + f'\n[{ts}] ' + data['notas']).strip()
+            else:
+                update['notas'] = data['notas']
+        if 'estado' in data:
+            update['fecha_ultimo_contacto'] = datetime.datetime.utcnow().isoformat()
+        if update:
+            ref.update(update)
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/blog')
 def blog_index():
     return render_template('blog_index.html', posts=POSTS)
