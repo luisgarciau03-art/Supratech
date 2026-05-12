@@ -7875,6 +7875,10 @@ def terminos():
 
 from blog_posts import POSTS, POSTS_BY_SLUG
 
+@app.route('/roi')
+def roi():
+    return render_template('roi.html')
+
 @app.route('/blog')
 def blog_index():
     return render_template('blog_index.html', posts=POSTS)

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de ROI — ¿Cuánto te cuesta no tener Supratech?</title>
+  <meta name="description" content="Calcula en 30 segundos cuánto dinero pierde tu distribuidora cada mes procesando pedidos de forma manual. El ROI de Supratech se vende solo.">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 60% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #1a1a2e;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar-logo { text-decoration: none; font-weight: 700; font-size: 1.1em; color: #fff; }
+    .navbar a.back { font-size: 0.82em; color: rgba(255,255,255,0.65); text-decoration: none; }
+    .navbar a.back:hover { color: #fff; }
+
+    /* Hero */
+    .hero {
+      padding: 56px 24px 40px;
+      text-align: center;
+      color: #fff;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .hero .eyebrow {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.9);
+      padding: 5px 16px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: 2.2em;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .hero h1 span { color: #f4a422; }
+    .hero p {
+      font-size: 0.98em;
+      opacity: 0.75;
+      line-height: 1.65;
+    }
+
+    /* Main layout */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .main { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.6em; }
+    }
+
+    /* Card base */
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+      font-size: 0.8em;
+      font-weight: 700;
+      color: #8d99ae;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 22px;
+    }
+
+    /* Slider groups */
+    .slider-group { margin-bottom: 26px; }
+    .slider-group:last-child { margin-bottom: 0; }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .slider-label span:first-child {
+      font-size: 0.85em;
+      font-weight: 600;
+      color: #374151;
+    }
+    .slider-value {
+      font-size: 1.05em;
+      font-weight: 800;
+      color: #4361ee;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #4361ee;
+      cursor: pointer;
+    }
+
+    .slider-hint {
+      font-size: 0.72em;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    /* Results card */
+    .results-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .result-hero {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      padding: 28px;
+      text-align: center;
+      color: #fff;
+    }
+    .result-hero .label {
+      font-size: 0.75em;
+      font-weight: 600;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+    .result-hero .big-number {
+      font-size: 3em;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .result-hero .big-number sup {
+      font-size: 0.4em;
+      font-weight: 600;
+      vertical-align: super;
+    }
+    .result-hero .sub {
+      font-size: 0.82em;
+      opacity: 0.8;
+    }
+
+    /* Breakdown */
+    .breakdown { padding: 20px 28px; border-bottom: 1px solid #f5f5f5; }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f8f8f8;
+      font-size: 0.85em;
+    }
+    .breakdown-row:last-child { border-bottom: none; }
+    .breakdown-row .bk-label { color: #6b7280; }
+    .breakdown-row .bk-val   { font-weight: 700; color: #1a1a2e; }
+    .breakdown-row .bk-val.red    { color: #dc2626; }
+    .breakdown-row .bk-val.green  { color: #16a34a; }
+    .breakdown-row .bk-val.blue   { color: #4361ee; }
+
+    /* VS row */
+    .vs-row {
+      padding: 16px 28px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      background: #fafafa;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .vs-col { text-align: center; }
+    .vs-col .vc-label { font-size: 0.7em; font-weight: 600; color: #9ca3af; text-transform: uppercase; margin-bottom: 4px; }
+    .vs-col .vc-num   { font-size: 1.4em; font-weight: 800; }
+    .vs-col.sin .vc-num  { color: #dc2626; }
+    .vs-col.con .vc-num  { color: #16a34a; }
+    .vs-divider { font-size: 1.4em; font-weight: 800; color: #d1d5db; }
+
+    /* Savings highlight */
+    .savings-bar {
+      padding: 18px 28px;
+      background: #f0fdf4;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .savings-icon { font-size: 1.6em; flex-shrink: 0; }
+    .savings-text .st-label { font-size: 0.75em; color: #16a34a; font-weight: 600; }
+    .savings-text .st-num   { font-size: 1.5em; font-weight: 800; color: #15803d; line-height: 1.1; }
+    .savings-text .st-sub   { font-size: 0.72em; color: #6b7280; }
+
+    /* Annual projection */
+    .annual { padding: 16px 28px; background: #f8f9ff; border-bottom: 1px solid #f0f0f0; }
+    .annual .an-label { font-size: 0.72em; font-weight: 600; color: #6b7280; margin-bottom: 2px; }
+    .annual .an-num   { font-size: 1.1em; font-weight: 800; color: #4361ee; }
+
+    /* Error cost */
+    .error-cost {
+      padding: 16px 28px;
+      background: #fff8e6;
+      border-bottom: 1px solid #f5e7b0;
+    }
+    .error-cost .ec-title { font-size: 0.75em; font-weight: 700; color: #92400e; margin-bottom: 4px; }
+    .error-cost .ec-body  { font-size: 0.78em; color: #78350f; line-height: 1.5; }
+    .error-cost .ec-num   { font-weight: 700; }
+
+    /* CTA */
+    .cta-section {
+      padding: 22px 28px;
+    }
+
+    .btn-primary {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #4361ee, #3f37c9);
+      color: #fff;
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95em;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 6px 20px rgba(67,97,238,0.3);
+      transition: all 0.2s;
+      margin-bottom: 10px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(67,97,238,0.4); }
+
+    .btn-secondary {
+      display: block;
+      width: 100%;
+      background: #f0f2ff;
+      color: #4361ee;
+      text-align: center;
+      padding: 12px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85em;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: #e0e4ff; }
+
+    .copy-confirm {
+      text-align: center;
+      font-size: 0.75em;
+      color: #16a34a;
+      margin-top: 6px;
+      height: 16px;
+    }
+
+    /* Payback badge */
+    .payback-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .navbar { padding: 12px 16px; }
+      .hero { padding: 36px 16px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="navbar-logo">Supratech</a>
+    <a href="/" class="back">← Volver al inicio</a>
+  </nav>
+
+  <div class="hero">
+    <div class="eyebrow">Calculadora de ROI · Distribuidoras mexicanas</div>
+    <h1>¿Cuánto te cuesta <span>no tener</span> Supratech?</h1>
+    <p>Mueve los controles con los números de tu distribuidora. El cálculo tarda 30 segundos.</p>
+  </div>
+
+  <div class="main">
+
+    <!-- Inputs -->
+    <div class="card">
+      <div class="card-title">Tu operación actual</div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Pedidos que manejas al mes</span>
+          <span class="slider-value" id="lbl-pedidos">150</span>
+        </div>
+        <input type="range" id="inp-pedidos" min="10" max="1000" value="150" step="10">
+        <div class="slider-hint">Pedidos levantados, capturados o confirmados con clientes</div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Minutos por pedido manual</span>
+          <span class="slider-value" id="lbl-minutos">30 min</span>
+        </div>
+        <input type="range" id="inp-minutos" min="5" max="120" value="30" step="5">
+        <div class="slider-hint">Tiempo en capturar, verificar precio, confirmar disponibilidad y registrar</div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Costo hora de tu equipo</span>
+          <span class="slider-value" id="lbl-hora">$120 MXN</span>
+        </div>
+        <input type="range" id="inp-hora" min="50" max="500" value="120" step="10">
+        <div class="slider-hint">Sueldo promedio del encargado de pedidos ÷ horas laboradas al mes</div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Valor promedio de un pedido con error</span>
+          <span class="slider-value" id="lbl-error-val">$2,500 MXN</span>
+        </div>
+        <input type="range" id="inp-error-val" min="500" max="20000" value="2500" step="500">
+        <div class="slider-hint">Precio promedio de un pedido que sale mal (precio incorrecto, cantidad, etc.)</div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Errores de pedido al mes</span>
+          <span class="slider-value" id="lbl-errores">2</span>
+        </div>
+        <input type="range" id="inp-errores" min="0" max="20" value="2" step="1">
+        <div class="slider-hint">Pedidos con precio incorrecto, faltantes o que generan reclamo de cliente</div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-card">
+
+      <div class="result-hero">
+        <div class="label">Estás gastando en proceso manual</div>
+        <div class="big-number"><sup>$</sup><span id="r-costo-manual">—</span></div>
+        <div class="sub">MXN al mes · solo en tiempo de tu equipo</div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-row">
+          <span class="bk-label">Pedidos × minutos por pedido</span>
+          <span class="bk-val blue" id="r-horas">— horas/mes</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="bk-label">Costo de esas horas</span>
+          <span class="bk-val red" id="r-costo-horas">$—</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="bk-label">Costo por errores de pedido</span>
+          <span class="bk-val red" id="r-costo-errores">$—</span>
+        </div>
+        <div class="breakdown-row" style="border-top:2px solid #f0f0f0;padding-top:12px;margin-top:4px;">
+          <span class="bk-label" style="font-weight:700;color:#1a1a2e;">Total mensual que pierdes</span>
+          <span class="bk-val red" style="font-size:1.1em;" id="r-total-perdida">$—</span>
+        </div>
+      </div>
+
+      <div class="vs-row">
+        <div class="vs-col sin">
+          <div class="vc-label">Sin Supratech</div>
+          <div class="vc-num" id="r-vs-sin">$—</div>
+        </div>
+        <div class="vs-divider">vs</div>
+        <div class="vs-col con">
+          <div class="vc-label">Con Supratech</div>
+          <div class="vc-num">$399</div>
+        </div>
+      </div>
+
+      <div class="savings-bar">
+        <div class="savings-icon">💰</div>
+        <div class="savings-text">
+          <div class="st-label">AHORRO ESTIMADO</div>
+          <div class="st-num" id="r-ahorro">$—</div>
+          <div class="st-sub">MXN al mes · neto después del costo de Supratech</div>
+        </div>
+      </div>
+
+      <div class="annual">
+        <div class="an-label">Proyección anual de ahorro</div>
+        <div class="an-num" id="r-anual">$—</div>
+      </div>
+
+      <div class="error-cost">
+        <div class="ec-title">⚠ Costo adicional por errores de pedido</div>
+        <div class="ec-body">
+          <span id="r-errores-count">2</span> errores/mes × <span id="r-error-val-label">$2,500</span> = <span class="ec-num" id="r-costo-errores-label">$5,000 MXN</span> en devoluciones, descuentos y clientes perdidos. Este número rara vez aparece en la contabilidad — pero está ahí.
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <div class="payback-badge" id="payback-badge">⚡ Tu inversión se paga el día 1</div>
+        <a href="/#contacto" class="btn-primary">Quiero que me contacten →</a>
+        <button class="btn-secondary" onclick="copiarResultado()">📋 Copiar resultado para compartir</button>
+        <div class="copy-confirm" id="copy-confirm"></div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  const PRECIO_SUPRATECH = 399;
+
+  const inps = {
+    pedidos:   document.getElementById('inp-pedidos'),
+    minutos:   document.getElementById('inp-minutos'),
+    hora:      document.getElementById('inp-hora'),
+    errorVal:  document.getElementById('inp-error-val'),
+    errores:   document.getElementById('inp-errores'),
+  };
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString('es-MX');
+  }
+
+  function calcular() {
+    const pedidos  = parseInt(inps.pedidos.value);
+    const minutos  = parseInt(inps.minutos.value);
+    const hora     = parseInt(inps.hora.value);
+    const errVal   = parseInt(inps.errorVal.value);
+    const errores  = parseInt(inps.errores.value);
+
+    // Labels
+    document.getElementById('lbl-pedidos').textContent   = pedidos;
+    document.getElementById('lbl-minutos').textContent   = minutos + ' min';
+    document.getElementById('lbl-hora').textContent      = '$' + hora + ' MXN';
+    document.getElementById('lbl-error-val').textContent = '$' + errVal.toLocaleString('es-MX') + ' MXN';
+    document.getElementById('lbl-errores').textContent   = errores;
+
+    // Cálculos
+    const horas        = (pedidos * minutos) / 60;
+    const costoHoras   = horas * hora;
+    const costoErrores = errores * errVal;
+    const totalPerdida = costoHoras + costoErrores;
+    const ahorro       = Math.max(0, totalPerdida - PRECIO_SUPRATECH);
+    const anual        = ahorro * 12;
+
+    // Resultados
+    document.getElementById('r-costo-manual').textContent    = Math.round(costoHoras).toLocaleString('es-MX');
+    document.getElementById('r-horas').textContent           = horas.toFixed(1) + ' horas/mes';
+    document.getElementById('r-costo-horas').textContent     = fmt(costoHoras);
+    document.getElementById('r-costo-errores').textContent   = fmt(costoErrores);
+    document.getElementById('r-total-perdida').textContent   = fmt(totalPerdida);
+    document.getElementById('r-vs-sin').textContent          = fmt(totalPerdida);
+    document.getElementById('r-ahorro').textContent          = fmt(ahorro);
+    document.getElementById('r-anual').textContent           = fmt(anual) + ' MXN / año';
+
+    // Error labels
+    document.getElementById('r-errores-count').textContent   = errores;
+    document.getElementById('r-error-val-label').textContent = '$' + errVal.toLocaleString('es-MX');
+    document.getElementById('r-costo-errores-label').textContent = fmt(costoErrores) + ' MXN';
+
+    // Payback badge
+    const badge = document.getElementById('payback-badge');
+    const roi = totalPerdida / PRECIO_SUPRATECH;
+    if (roi >= 10) {
+      badge.textContent = `⚡ ROI de ${Math.round(roi)}x — recuperas la inversión el día 1`;
+    } else if (roi >= 3) {
+      badge.textContent = `⚡ ROI de ${roi.toFixed(1)}x sobre tu inversión mensual`;
+    } else if (ahorro > 0) {
+      badge.textContent = `✓ Supratech te ahorra ${fmt(ahorro)} netos al mes`;
+    } else {
+      badge.textContent = `✓ Supratech cubre su costo con el primer pedido optimizado`;
+    }
+  }
+
+  function copiarResultado() {
+    const pedidos  = inps.pedidos.value;
+    const minutos  = inps.minutos.value;
+    const hora     = inps.hora.value;
+    const errores  = inps.errores.value;
+    const errVal   = inps.errorVal.value;
+
+    const horas      = ((pedidos * minutos) / 60).toFixed(1);
+    const costoHoras = Math.round((horas * hora));
+    const costoErr   = errores * parseInt(errVal);
+    const total      = costoHoras + costoErr;
+    const ahorro     = Math.max(0, total - 399);
+
+    const texto = `📊 Calculé el costo de mis pedidos manuales con Supratech:
+
+• ${pedidos} pedidos/mes × ${minutos} min = ${horas} horas perdidas
+• Costo de esas horas: $${costoHoras.toLocaleString('es-MX')} MXN
+• Errores de pedido: $${costoErr.toLocaleString('es-MX')} MXN
+• 💸 Total que pierdo al mes: $${total.toLocaleString('es-MX')} MXN
+
+Supratech cuesta $399/mes.
+Ahorro neto: $${ahorro.toLocaleString('es-MX')} MXN/mes = $${(ahorro*12).toLocaleString('es-MX')} MXN/año.
+
+Calcula el tuyo: https://web-production-a9447.up.railway.app/roi`;
+
+    navigator.clipboard.writeText(texto).then(() => {
+      const el = document.getElementById('copy-confirm');
+      el.textContent = '¡Copiado! Pégalo en WhatsApp o correo.';
+      setTimeout(() => el.textContent = '', 3000);
+    });
+  }
+
+  Object.values(inps).forEach(inp => inp.addEventListener('input', calcular));
+  calcular();
+</script>
+</body>
+</html>
