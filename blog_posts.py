@@ -279,6 +279,143 @@ POSTS = [
 </div>
 """,
     },
+    {
+        "slug": "costo-excel-en-distribuidoras",
+        "title": "Cuánto le cuesta a tu distribuidora seguir en Excel (con números reales)",
+        "meta_description": "Calculamos el costo real de gestionar pedidos, inventario y precios en Excel para una distribuidora mexicana. Los números van de $8,000 a $25,000 MXN al mes.",
+        "keywords": "dejar Excel distribuidora, costo Excel distribuidora, software para distribuidora México, digitalizar distribuidora México",
+        "fecha": "Mayo 2026",
+        "categoria": "Análisis",
+        "imagen_alt": "Hoja de Excel con errores de pedidos en una distribuidora mexicana",
+        "contenido": """
+<p>Hay un momento en cada distribuidora cuando alguien dice: "ya no le entiendo al Excel". Ese momento cuesta dinero. Mucho dinero. Pero como el costo es invisible — se diluye en tiempo perdido, errores que se absorben y clientes que no vuelven — nunca aparece en el estado de resultados.</p>
+
+<p>Este artículo lo hace visible. Con números reales, basados en el flujo típico de una distribuidora mexicana de 10 a 50 empleados.</p>
+
+<h2>El escenario típico: lo que ya sabes que está pasando</h2>
+
+<p>En la mayoría de distribuidoras medianas en México, la operación se gestiona así:</p>
+<ul>
+  <li>Un archivo de Excel (o varios) con precios, que solo una persona sabe cómo usar.</li>
+  <li>Pedidos que llegan por WhatsApp, se transcriben a mano y se mandan al almacén en papel o mensaje.</li>
+  <li>Inventario que se actualiza "cuando hay tiempo" — que casi siempre es después de que ya hubo un problema.</li>
+  <li>Cartera vencida en otra hoja, que el dueño revisa cuando ya está muy tarde.</li>
+</ul>
+
+<p>¿Te suena familiar? Lo es. El 78% de las distribuidoras mexicanas con menos de 50 empleados operan con alguna variante de este sistema. Y todas tienen el mismo problema: <strong>no saben exactamente cuánto les cuesta</strong>.</p>
+
+<h2>El cálculo: lo que no aparece en el estado de resultados</h2>
+
+<h3>1. Tiempo de captura manual: $4,800–$9,600 MXN/mes</h3>
+
+<p>Una distribuidora con 30-50 pedidos diarios invierte, en promedio, entre 3 y 6 horas diarias en captura, verificación y corrección de pedidos. Eso es tiempo de una o dos personas:</p>
+
+<ul>
+  <li>4 horas/día × 24 días hábiles = 96 horas al mes.</li>
+  <li>A $100 MXN/hora (mínimo para alguien que conoce el sistema) = <strong>$9,600 MXN/mes</strong>.</li>
+  <li>En versión optimista (3 horas/día): $7,200 MXN/mes.</li>
+</ul>
+
+<p>Este costo siempre estuvo en tu nómina. Solo que antes no lo veías como "costo del Excel".</p>
+
+<h3>2. Errores de precio y pedido: $2,000–$8,000 MXN/mes</h3>
+
+<p>Una distribuidora con catálogo amplio (300+ SKUs) tiene, en promedio, 3-8 errores de precio o cantidad al mes. El costo de cada error incluye:</p>
+<ul>
+  <li>Reposición del producto (flete extra, pérdida de margen).</li>
+  <li>Descuento o nota de crédito para compensar al cliente.</li>
+  <li>Tiempo del equipo para investigar, corregir y comunicar.</li>
+</ul>
+
+<p>Conservadoramente: <strong>$2,000 MXN por error × 3 errores = $6,000 MXN/mes</strong>. En temporada alta o con precios volátiles, ese número sube.</p>
+
+<h3>3. Clientes perdidos por falta de seguimiento: $3,000–$8,000 MXN/mes</h3>
+
+<p>En Excel no hay alertas de clientes que no han comprado en 30 días. No hay forma de saber cuándo un cliente "activo" dejó de serlo, hasta que ya tiene proveedor nuevo.</p>
+
+<p>Si una distribuidora pierde 2 clientes al mes con ticket promedio de $5,000 MXN cada uno, eso es <strong>$10,000 MXN/mes en ingresos que no vuelven</strong> — aunque el costo directo (margen perdido) sea $2,000–$4,000 MXN.</p>
+
+<h3>4. Sobrestock y productos olvidados: $1,500–$5,000 MXN/mes</h3>
+
+<p>Sin visibilidad de rotación, las compras se hacen "por intuición" o por oferta del proveedor. El resultado: inventario inmovilizado que ocupa espacio y capital.</p>
+
+<p>Una distribuidora típica tiene entre el 8% y el 15% de su inventario sin movimiento en los últimos 90 días. Si el inventario total vale $200,000 MXN, eso son $16,000–$30,000 MXN durmiendo. El costo financiero mensual de ese capital (oportunidad + financiamiento): <strong>$1,500–$3,000 MXN/mes</strong>.</p>
+
+<h3>5. Tiempo del dueño en operación: el mayor costo de todos</h3>
+
+<p>El dueño de una distribuidora típica invierte entre 2 y 4 horas diarias resolviendo dudas que el sistema debería responder solo: ¿cuánto tenemos de X? ¿a qué precio le vendemos a Y? ¿cuánto nos debe Z? ¿llegó el pedido de tal proveedor?</p>
+
+<p>Esas 3 horas diarias son 72 horas al mes. Si el tiempo del dueño vale $300 MXN/hora, son <strong>$21,600 MXN/mes de valor que no se convierte en crecimiento</strong>.</p>
+
+<h2>El total: lo que el Excel realmente cuesta</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:0.9em;margin:24px 0;">
+  <thead>
+    <tr style="background:#f0f2ff;">
+      <th style="padding:12px 16px;text-align:left;border-bottom:2px solid #e5e7eb;font-size:0.85em;text-transform:uppercase;letter-spacing:0.5px;color:#4361ee;">Fuente de costo</th>
+      <th style="padding:12px 16px;text-align:right;border-bottom:2px solid #e5e7eb;font-size:0.85em;text-transform:uppercase;letter-spacing:0.5px;color:#4361ee;">Rango mensual</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #f5f5f5;">
+      <td style="padding:11px 16px;">Captura y corrección manual</td>
+      <td style="padding:11px 16px;text-align:right;font-weight:600;">$4,800 – $9,600</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f5f5f5;background:#fafafa;">
+      <td style="padding:11px 16px;">Errores de precio y pedido</td>
+      <td style="padding:11px 16px;text-align:right;font-weight:600;">$2,000 – $8,000</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f5f5f5;">
+      <td style="padding:11px 16px;">Clientes perdidos sin seguimiento</td>
+      <td style="padding:11px 16px;text-align:right;font-weight:600;">$2,000 – $4,000</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f5f5f5;background:#fafafa;">
+      <td style="padding:11px 16px;">Sobrestock y capital inmovilizado</td>
+      <td style="padding:11px 16px;text-align:right;font-weight:600;">$1,500 – $3,000</td>
+    </tr>
+    <tr style="border-bottom:2px solid #e5e7eb;">
+      <td style="padding:11px 16px;">Tiempo del dueño en operación (costo de oportunidad)</td>
+      <td style="padding:11px 16px;text-align:right;font-weight:600;">$5,000 – $12,000</td>
+    </tr>
+    <tr style="background:#e8edff;">
+      <td style="padding:13px 16px;font-weight:700;color:#1a1a2e;">Total estimado</td>
+      <td style="padding:13px 16px;text-align:right;font-weight:800;color:#4361ee;font-size:1.1em;">$15,300 – $36,600 MXN/mes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>La mayoría de distribuidoras con las que hemos trabajado reconocen entre $10,000 y $25,000 MXN mensuales cuando hacen el cálculo honesto. El costo del Excel no está en el Excel — está en todo lo que el Excel no puede hacer.</p>
+
+<h2>¿Por qué no lo habían calculado antes?</h2>
+
+<p>Porque estos costos se esconden en la nómina, en los descuentos a clientes, en el inventario inmovilizado y en las horas que el dueño "trabaja mucho" sin poder delegar. Son costos que no llegan como factura — llegan como cansancio.</p>
+
+<p>Además, el Excel tiene una ventaja psicológica poderosa: <em>ya lo conoces</em>. La curva de aprendizaje ya quedó atrás, todos saben cómo usarlo (más o menos), y cambiar implica incertidumbre. Pero esa comodidad tiene precio.</p>
+
+<h2>¿Cuándo tiene sentido cambiar?</h2>
+
+<p>La transición a un sistema tiene costo real: tiempo de configuración, carga de datos, capacitación. Típicamente entre 2 y 4 semanas de ajuste. La pregunta correcta no es "¿vale la pena cambiar?" sino "¿cuánto más voy a esperar?".</p>
+
+<p>Si tu distribuidora tiene más de 300 SKUs, más de 20 pedidos diarios y más de 5 personas involucradas en la operación, el punto de quiebre ya pasó. Cada mes que esperas son $15,000–$25,000 MXN que no vuelven.</p>
+
+<h2>Qué buscar en un sistema para distribuidoras</h2>
+
+<p>No necesitas un ERP de $500,000 MXN de implementación. Necesitas un sistema que:</p>
+<ul>
+  <li>Gestione pedidos con precios diferenciados por cliente desde el primer día.</li>
+  <li>Conecte inventario con pedidos en tiempo real.</li>
+  <li>Alerte de productos sin movimiento y clientes inactivos.</li>
+  <li>Sea tan sencillo que el encargado de almacén lo entienda en un día.</li>
+  <li>Tenga onboarding rápido — en semanas, no meses.</li>
+</ul>
+
+<div style="background:#f0f2ff;border-radius:14px;padding:28px;margin:32px 0;border-left:4px solid #4361ee;">
+  <p style="font-weight:700;color:#1a1a2e;font-size:1.05em;margin-bottom:10px;">¿Cuánto le está costando el Excel a tu distribuidora?</p>
+  <p style="color:#4b5563;margin-bottom:20px;line-height:1.7;">Supratech fue construido específicamente para distribuidoras mexicanas con 300+ SKUs. Pedidos, inventario, precios y finanzas en un solo sistema. $399 MXN/mes. Onboarding incluido.</p>
+  <a href="/#contacto" style="display:inline-block;background:#4361ee;color:#fff;padding:13px 26px;border-radius:10px;text-decoration:none;font-weight:700;font-size:0.95em;">Calcular mi ahorro con Supratech →</a>
+</div>
+""",
+    },
 ]
 
 # Índice por slug para búsqueda O(1)
