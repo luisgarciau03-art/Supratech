@@ -57,11 +57,11 @@ POSTS = [
   <li><strong>Análisis de rotación</strong> — saber qué productos se venden bien y cuáles se quedan dormidos.</li>
 </ul>
 
-<h2>Salesforce y HubSpot: ¿por qué no son la respuesta?</h2>
+<h2>Los CRMs globales: ¿por qué no son la respuesta para distribuidoras?</h2>
 
-<p>Salesforce es el estándar global de CRM para empresas grandes. Pero para una distribuidora en Guadalajara con 50 empleados, es como usar una excavadora para plantar un árbol. El costo de licencias, implementación y mantenimiento supera fácilmente los $100,000 MXN al año — sin contar el tiempo de capacitación.</p>
+<p>Las plataformas enterprise globales son el estándar para empresas grandes con presupuestos de seis cifras. Pero para una distribuidora en Guadalajara con 50 empleados, son como usar una excavadora para plantar un árbol. El costo de licencias, implementación y mantenimiento puede superar fácilmente los $100,000 MXN al año — sin contar el tiempo de capacitación.</p>
 
-<p>HubSpot tiene una versión gratuita atractiva, pero su lógica es de marketing digital: embudos, correos automáticos, landing pages. No tiene concepto de pedido de compra, lote de inventario o cartera vencida.</p>
+<p>Los CRMs de marketing digital tienen una lógica de embudos, correos automáticos y landing pages. No están diseñados para el concepto de pedido de compra, lote de inventario o cartera vencida.</p>
 
 <p>La oportunidad está en el medio: software diseñado para distribuidoras mexicanas, a precio de PyME, con onboarding rápido.</p>
 
@@ -116,7 +116,7 @@ POSTS = [
 
 <h2>El problema adicional: el precio en dólares</h2>
 
-<p>HubSpot cobra en USD. Con el tipo de cambio actual, el plan Sales Hub Professional ronda los <strong>$8,000–$15,000 MXN mensuales</strong> por usuario, dependiendo del número de asientos y add-ons. Para una distribuidora mediana con 5 vendedores, eso es $40,000–$75,000 MXN al mes — sin contar implementación.</p>
+<p>Las plataformas de CRM globales cobran en USD. Con el tipo de cambio actual, sus planes profesionales pueden rondar los <strong>$8,000–$15,000 MXN mensuales por usuario</strong> (según precios públicos consultados en 2026, sujetos a cambio). Para una distribuidora mediana con 5 vendedores, el costo total puede superar los $40,000 MXN al mes — sin contar implementación.</p>
 
 <p>Y la implementación con un partner certificado en México puede costar entre $50,000 y $200,000 MXN adicionales. Para una distribuidora con márgenes del 8-15%, esos números no cuadran.</p>
 
@@ -152,42 +152,42 @@ POSTS = [
   <tbody>
     <tr style="border-bottom:1px solid #f5f5f5;">
       <td style="padding:10px 14px;">Precios en MXN</td>
-      <td style="padding:10px 14px;text-align:center;">❌</td>
+      <td style="padding:10px 14px;text-align:center;">No nativo</td>
       <td style="padding:10px 14px;text-align:center;color:#28a745;font-weight:600;">✓ $399/mes</td>
     </tr>
     <tr style="border-bottom:1px solid #f5f5f5;background:#fafafa;">
       <td style="padding:10px 14px;">Gestión de pedidos B2B</td>
-      <td style="padding:10px 14px;text-align:center;">❌</td>
+      <td style="padding:10px 14px;text-align:center;">No incluido</td>
       <td style="padding:10px 14px;text-align:center;color:#28a745;font-weight:600;">✓</td>
     </tr>
     <tr style="border-bottom:1px solid #f5f5f5;">
       <td style="padding:10px 14px;">Control de inventario</td>
-      <td style="padding:10px 14px;text-align:center;">❌</td>
+      <td style="padding:10px 14px;text-align:center;">No incluido</td>
       <td style="padding:10px 14px;text-align:center;color:#28a745;font-weight:600;">✓</td>
     </tr>
     <tr style="border-bottom:1px solid #f5f5f5;background:#fafafa;">
       <td style="padding:10px 14px;">Precios por cliente</td>
-      <td style="padding:10px 14px;text-align:center;">❌</td>
+      <td style="padding:10px 14px;text-align:center;">No incluido</td>
       <td style="padding:10px 14px;text-align:center;color:#28a745;font-weight:600;">✓</td>
     </tr>
     <tr style="border-bottom:1px solid #f5f5f5;">
       <td style="padding:10px 14px;">Cartera vencida y crédito</td>
-      <td style="padding:10px 14px;text-align:center;">❌</td>
+      <td style="padding:10px 14px;text-align:center;">No incluido</td>
       <td style="padding:10px 14px;text-align:center;color:#28a745;font-weight:600;">✓</td>
     </tr>
     <tr style="border-bottom:1px solid #f5f5f5;background:#fafafa;">
       <td style="padding:10px 14px;">Integración Google Sheets</td>
-      <td style="padding:10px 14px;text-align:center;">⚠ Plugin extra</td>
+      <td style="padding:10px 14px;text-align:center;">Plugin adicional</td>
       <td style="padding:10px 14px;text-align:center;color:#28a745;font-weight:600;">✓ Nativo</td>
     </tr>
     <tr style="border-bottom:1px solid #f5f5f5;">
       <td style="padding:10px 14px;">Onboarding</td>
-      <td style="padding:10px 14px;text-align:center;">2-6 meses</td>
+      <td style="padding:10px 14px;text-align:center;">Meses típicamente</td>
       <td style="padding:10px 14px;text-align:center;color:#28a745;font-weight:600;">Semanas · Gratis</td>
     </tr>
     <tr style="background:#fafafa;">
       <td style="padding:10px 14px;">Soporte en español MX</td>
-      <td style="padding:10px 14px;text-align:center;">Limitado</td>
+      <td style="padding:10px 14px;text-align:center;">Variable</td>
       <td style="padding:10px 14px;text-align:center;color:#28a745;font-weight:600;">✓ Directo</td>
     </tr>
   </tbody>
