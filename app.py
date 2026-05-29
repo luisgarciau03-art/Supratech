@@ -7983,7 +7983,7 @@ def blog_post(slug):
 def sitemap():
     from flask import Response
     import datetime
-    base = 'https://web-production-a9447.up.railway.app'
+    base = 'https://supratech.work'
     today = datetime.date.today().isoformat()
     rutas_estaticas = ['/', '/blog', '/casos', '/privacidad', '/terminos']
     urls = []
@@ -7999,7 +7999,7 @@ def sitemap():
 @app.route('/robots.txt')
 def robots():
     from flask import Response
-    txt = 'User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /admin\nDisallow: /api\nSitemap: https://web-production-a9447.up.railway.app/sitemap.xml\n'
+    txt = 'User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /admin\nDisallow: /api\nSitemap: https://supratech.work/sitemap.xml\n'
     return Response(txt, mimetype='text/plain')
 
 @app.route('/analytics')
