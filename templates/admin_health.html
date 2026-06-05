@@ -259,6 +259,14 @@
           <div class="stat-number" id="stat-sano">—</div>
           <div class="stat-label">Saludables (70–100)</div>
         </div>
+        <div class="stat-card" style="border-top:3px solid #4361ee;">
+          <div class="stat-number" id="stat-activados" style="color:#4361ee;">—</div>
+          <div class="stat-label">Activados (aha moment)</div>
+        </div>
+        <div class="stat-card" style="border-top:3px solid #f4a422;">
+          <div class="stat-number" id="stat-dias-prom" style="color:#f4a422;">—</div>
+          <div class="stat-label">Días promedio a activación</div>
+        </div>
       </div>
 
       <div class="table-card">
@@ -277,6 +285,7 @@
               <th>Usuario</th>
               <th>Health Score</th>
               <th>Módulos usados</th>
+              <th>Activación</th>
               <th>Último acceso</th>
             </tr>
           </thead>
@@ -307,7 +316,9 @@
     compras: 'Compras', pedidos: 'Pedidos', llenar_bds: 'Bases de datos',
     bd_descuentos: 'Desc. BD', descuentos: 'Descuentos', estado_precios: 'Precios',
     metricas_productos: 'Métricas', capacidad_mensual: 'Capacidad',
-    productos_olvidados: 'Olvidados', prospeccion_productos: 'Prospección'
+    productos_olvidados: 'Olvidados', prospeccion_productos: 'Prospección',
+    prospectos: 'Prospectos', pipeline: 'Pipeline', indicadores: 'Indicadores',
+    prospeccion_resultados: 'Prosp. Resultados', roi: 'ROI'
   };
 
   function scoreClass(s) {
@@ -342,6 +353,11 @@
       const modTags = (u.modulos_visitados || []).map(m =>
         `<span class="mod-tag">${MODULO_LABELS[m] || m}</span>`
       ).join('');
+      const activado = !!u.activated_at;
+      const diasAct  = u.dias_activacion != null ? u.dias_activacion + ' días' : '—';
+      const actBadge = activado
+        ? `<span style="background:#eafaf1;color:#28a745;border-radius:20px;padding:3px 10px;font-size:0.78em;font-weight:700;">✓ Activado</span><br><span style="font-size:0.72em;color:#8d99ae;margin-top:3px;display:block;">${diasAct} desde registro</span>`
+        : `<span style="background:#ffeaea;color:#dc3545;border-radius:20px;padding:3px 10px;font-size:0.78em;font-weight:700;">⏳ Pendiente</span>`;
       return `<tr>
         <td>
           <div style="font-weight:600">${nombre}</div>
@@ -353,6 +369,7 @@
           </span>
         </td>
         <td><div class="modulos-list">${modTags || '<span style="color:#bbb;font-size:0.85em">Ninguno aún</span>'}</div></td>
+        <td>${actBadge}</td>
         <td class="last-seen">${formatFecha(u.ultimo_acceso)}</td>
       </tr>`;
     }).join('');
@@ -395,6 +412,14 @@
       document.getElementById('stat-riesgo').textContent = allUsers.filter(u => u.health_score < 40).length;
       document.getElementById('stat-medio').textContent  = allUsers.filter(u => u.health_score >= 40 && u.health_score < 70).length;
       document.getElementById('stat-sano').textContent   = allUsers.filter(u => u.health_score >= 70).length;
+
+      const activados = allUsers.filter(u => u.activated_at);
+      document.getElementById('stat-activados').textContent = activados.length + ' / ' + allUsers.length;
+      const diasValidos = activados.filter(u => u.dias_activacion != null).map(u => u.dias_activacion);
+      const promDias = diasValidos.length > 0
+        ? (diasValidos.reduce((a, b) => a + b, 0) / diasValidos.length).toFixed(1)
+        : '—';
+      document.getElementById('stat-dias-prom').textContent = diasValidos.length > 0 ? promDias + 'd' : '—';
 
       renderTabla(allUsers);
     } catch(e) {

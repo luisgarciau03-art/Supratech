@@ -8306,6 +8306,11 @@ def track_visit():
         now_iso = datetime.datetime.utcnow().isoformat()
         user_ref = db.collection('users').document(uid)
 
+        ACTIVATION_MODULES = {
+            'prospectos', 'metricas_productos', 'indicadores',
+            'prospeccion_resultados', 'pipeline', 'finanzas', 'roi'
+        }
+
         user_ref.set({
             'modulos_visitados': firestore.ArrayUnion([modulo]),
             'ultimo_acceso': now_iso,
@@ -8325,11 +8330,14 @@ def track_visit():
         modulos = list(set(user_data.get('modulos_visitados', [])))
         score_v2 = _compute_health_score_v2(user_data)
 
-        user_ref.update({
+        score_update = {
             'health_score':        len(modulos),
             'health_score_v2':     score_v2,
             'sesiones_recientes':  sesiones,
-        })
+        }
+        if modulo in ACTIVATION_MODULES and not user_data.get('activated_at'):
+            score_update['activated_at'] = now_iso
+        user_ref.update(score_update)
 
         return jsonify({'ok': True, 'health_score': len(modulos), 'health_score_v2': score_v2})
     except Exception as e:
@@ -8356,9 +8364,13 @@ def track_login():
         sesiones = sesiones[-60:]
 
         score_v2 = _compute_health_score_v2(user_data)
-        user_ref.update({'sesiones_recientes': sesiones, 'health_score_v2': score_v2})
+        update = {'sesiones_recientes': sesiones, 'health_score_v2': score_v2}
+        es_primer_login = not bool(user_data.get('fecha_primer_login'))
+        if es_primer_login:
+            update['fecha_primer_login'] = now_iso
+        user_ref.update(update)
 
-        return jsonify({'ok': True})
+        return jsonify({'ok': True, 'primer_login': es_primer_login})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -8377,6 +8389,7 @@ def admin_health_data():
         rol_actual = (caller.to_dict().get('rol') or '')
         if rol_actual.lower() not in ['admin', 'administrador']:
             return jsonify({'error': 'Acceso denegado', 'debug': 'rol encontrado: "' + rol_actual + '" — debe ser "admin" o "administrador"'}), 403
+        import datetime as _dt
         users = []
         for doc in db.collection('users').stream():
             u = doc.to_dict()
@@ -8384,16 +8397,29 @@ def admin_health_data():
             score_v2 = u.get('health_score_v2')
             if score_v2 is None:
                 score_v2 = _compute_health_score_v2(u)
+            fecha_primer = u.get('fecha_primer_login', '')
+            activated_at = u.get('activated_at', '')
+            dias_activacion = None
+            if fecha_primer and activated_at:
+                try:
+                    d0 = _dt.datetime.fromisoformat(fecha_primer)
+                    d1 = _dt.datetime.fromisoformat(activated_at)
+                    dias_activacion = max(0, (d1 - d0).days)
+                except Exception:
+                    pass
             users.append({
-                'uid':              doc.id,
-                'nombre':           u.get('nombre', ''),
-                'apellido':         u.get('apellido', ''),
-                'email':            u.get('email', ''),
-                'rol':              u.get('rol', ''),
+                'uid':               doc.id,
+                'nombre':            u.get('nombre', ''),
+                'apellido':          u.get('apellido', ''),
+                'email':             u.get('email', ''),
+                'rol':               u.get('rol', ''),
                 'modulos_visitados': modulos,
-                'health_score':     score_v2,
-                'ultimo_acceso':    u.get('ultimo_acceso', ''),
+                'health_score':      score_v2,
+                'ultimo_acceso':     u.get('ultimo_acceso', ''),
                 'sesiones_recientes': len(u.get('sesiones_recientes', [])),
+                'fecha_primer_login': fecha_primer,
+                'activated_at':      activated_at,
+                'dias_activacion':   dias_activacion,
             })
         users.sort(key=lambda x: x['health_score'])
         return jsonify({'users': users})

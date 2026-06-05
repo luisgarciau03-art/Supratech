@@ -251,6 +251,18 @@
       border-left: none;
     }
 
+    /* Onboarding step links */
+    .onboarding-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      text-decoration: none; color: inherit;
+      background: rgba(255,255,255,0.7); border-radius: 10px;
+      padding: 10px 14px; border: 1px solid #e0e7ff;
+      transition: background 0.15s;
+    }
+    .onboarding-step:hover { background: #fff; }
+    .onboarding-step.done { opacity: 0.55; }
+    .step-check { font-size: 1.1em; flex-shrink: 0; margin-top: 1px; }
+
     /* Placeholder cuando esta vacio */
     .empty-placeholder {
       grid-column: 1 / -1;
@@ -304,6 +316,28 @@
         <p id="user-email">...</p>
       </div>
       <div class="user-badge" id="user-badge">...</div>
+    </div>
+
+    <!-- Onboarding checklist (visible solo si no activado) -->
+    <div id="onboarding-banner" style="display:none;background:linear-gradient(135deg,#f0f2ff 0%,#e8f0fe 100%);border:1.5px solid #c7d2fe;border-radius:16px;padding:18px 22px;margin-bottom:18px;position:relative;">
+      <button onclick="dismissOnboarding()" style="position:absolute;top:12px;right:14px;background:none;border:none;cursor:pointer;font-size:1.1em;color:#8d99ae;" title="Cerrar">✕</button>
+      <div style="font-size:0.82em;font-weight:700;color:#4361ee;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Primeros pasos</div>
+      <div style="font-size:0.93em;font-weight:600;color:#2b2d42;margin-bottom:14px;">Completa estos 3 pasos para ver el valor de Supratech en tu operación</div>
+      <div style="display:flex;flex-direction:column;gap:10px;" id="onboarding-steps">
+        <a href="/prospectos" id="step-prospectos" class="onboarding-step">
+          <span class="step-check" id="check-prospectos">⬜</span>
+          <div><div style="font-weight:600;font-size:0.88em;">Registra tus primeros prospectos</div><div style="font-size:0.76em;color:#6b7280;">Agrega clientes potenciales con su WhatsApp y empresa</div></div>
+        </a>
+        <a href="/metricas_productos" id="step-metricas" class="onboarding-step">
+          <span class="step-check" id="check-metricas">⬜</span>
+          <div><div style="font-weight:600;font-size:0.88em;">Ve tu primer reporte de métricas</div><div style="font-size:0.76em;color:#6b7280;">Descubre qué productos venden más y cuáles necesitan atención</div></div>
+        </a>
+        <a href="/pipeline" id="step-pipeline" class="onboarding-step">
+          <span class="step-check" id="check-pipeline">⬜</span>
+          <div><div style="font-weight:600;font-size:0.88em;">Abre tu Pipeline de Ventas</div><div style="font-size:0.76em;color:#6b7280;">Mueve tus oportunidades por el ciclo de venta en un tablero Kanban</div></div>
+        </a>
+      </div>
+      <div style="margin-top:12px;font-size:0.72em;color:#8d99ae;">Este panel desaparece cuando completes los 3 pasos.</div>
     </div>
 
     <!-- Acciones Principales (drop zone) -->
@@ -396,6 +430,28 @@
         document.getElementById('user-nombre').textContent = nombre || firebaseUser.displayName || 'Usuario';
         document.getElementById('user-email').textContent = data.email || firebaseUser.email || '';
         document.getElementById('user-badge').textContent = nombreCompleto || firebaseUser.email || 'Usuario';
+
+      // Onboarding checklist
+      const dismissed = localStorage.getItem('onboarding_dismissed_v1');
+      if (!dismissed && !data.activated_at) {
+        const visitados = new Set(data.modulos_visitados || []);
+        const checks = {
+          'check-prospectos': visitados.has('prospectos'),
+          'check-metricas':   visitados.has('metricas_productos'),
+          'check-pipeline':   visitados.has('pipeline'),
+        };
+        let todosHechos = true;
+        for (const [id, done] of Object.entries(checks)) {
+          const el = document.getElementById(id);
+          if (el) el.textContent = done ? '✅' : '⬜';
+          const step = el && el.closest('.onboarding-step');
+          if (step) step.classList.toggle('done', done);
+          if (!done) todosHechos = false;
+        }
+        if (!todosHechos) {
+          document.getElementById('onboarding-banner').style.display = 'block';
+        }
+      }
       } else {
         document.getElementById('user-nombre').textContent = firebaseUser.displayName || 'Usuario';
         document.getElementById('user-email').textContent = firebaseUser.email || '';
@@ -407,6 +463,11 @@
       document.getElementById('user-badge').textContent = firebaseUser.displayName || 'Usuario';
     }
   });
+
+  function dismissOnboarding() {
+    localStorage.setItem('onboarding_dismissed_v1', '1');
+    document.getElementById('onboarding-banner').style.display = 'none';
+  }
 </script>
 
 <script>
