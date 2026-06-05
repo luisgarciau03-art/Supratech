@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pipeline de Ventas — Supratech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #2b2d42;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .navbar-left { display: flex; align-items: center; gap: 12px; }
+    .navbar-title { font-size: 1.05em; font-weight: 700; color: #2b2d42; }
+    .navbar-sub { font-size: 0.78em; color: #8d99ae; }
+    .btn-back {
+      background: none; border: 1px solid #e0e0e0; border-radius: 8px;
+      padding: 7px 14px; font-size: 0.82em; font-weight: 600;
+      color: #4361ee; cursor: pointer; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-back:hover { background: #f0f2ff; }
+    .btn-nueva {
+      background: #4361ee; color: #fff; border: none; border-radius: 10px;
+      padding: 9px 20px; font-size: 0.88em; font-weight: 600;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-nueva:hover { background: #3451d1; transform: translateY(-1px); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex; gap: 16px; padding: 16px 24px;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.92); border-radius: 14px;
+      padding: 14px 22px; flex: 1; min-width: 150px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .stat-label { font-size: 0.72em; color: #8d99ae; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 1.5em; font-weight: 700; color: #2b2d42; margin-top: 2px; }
+    .stat-value.verde { color: #28a745; }
+    .stat-value.azul { color: #4361ee; }
+
+    /* ── KANBAN BOARD ── */
+    .board-wrap { padding: 0 16px 32px; overflow-x: auto; }
+    .board {
+      display: flex; gap: 14px;
+      min-width: max-content;
+      align-items: flex-start;
+    }
+
+    /* ── COLUMNA ── */
+    .col {
+      width: 270px; min-width: 270px;
+      background: rgba(255,255,255,0.75);
+      border-radius: 16px;
+      padding: 0 0 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      display: flex; flex-direction: column;
+      transition: background 0.15s;
+    }
+    .col.drag-over { background: rgba(67,97,238,0.08); }
+
+    .col-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-radius: 16px 16px 0 0;
+    }
+    .col-header-left { display: flex; align-items: center; gap: 8px; }
+    .col-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .col-name { font-size: 0.82em; font-weight: 700; color: #2b2d42; }
+    .col-count {
+      background: #f0f2f5; color: #8d99ae;
+      border-radius: 20px; padding: 2px 8px;
+      font-size: 0.72em; font-weight: 700;
+    }
+    .col-sum { font-size: 0.7em; color: #8d99ae; padding: 0 16px 8px; }
+
+    .col-cards { padding: 4px 10px; min-height: 60px; flex: 1; }
+
+    .btn-add-card {
+      margin: 6px 10px 0;
+      background: none; border: 1px dashed #c8cdd7; border-radius: 8px;
+      width: calc(100% - 20px); padding: 8px; font-size: 0.78em;
+      color: #8d99ae; cursor: pointer; font-family: 'Poppins', sans-serif;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-add-card:hover { background: #f0f2ff; color: #4361ee; border-color: #4361ee; }
+
+    /* ── COLORES POR ETAPA ── */
+    .dot-prospecto    { background: #8d99ae; }
+    .dot-contactado   { background: #4361ee; }
+    .dot-propuesta    { background: #e67e22; }
+    .dot-negociacion  { background: #8b5cf6; }
+    .dot-ganado       { background: #28a745; }
+    .dot-perdido      { background: #dc3545; }
+
+    /* ── CARDS ── */
+    .card {
+      background: #fff; border-radius: 12px;
+      padding: 13px 14px; margin-bottom: 9px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      cursor: grab; user-select: none;
+      border-left: 3px solid transparent;
+      transition: box-shadow 0.15s, transform 0.1s;
+    }
+    .card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.12); transform: translateY(-2px); }
+    .card.dragging { opacity: 0.45; transform: rotate(2deg); }
+
+    .card-empresa { font-size: 0.88em; font-weight: 700; color: #2b2d42; margin-bottom: 2px; }
+    .card-contacto { font-size: 0.75em; color: #6b7280; margin-bottom: 7px; }
+    .card-valor { font-size: 0.9em; font-weight: 700; color: #28a745; margin-bottom: 8px; }
+    .card-nota { font-size: 0.72em; color: #8d99ae; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .card-fecha { font-size: 0.68em; color: #c0c4cc; }
+    .card-actions { display: flex; gap: 6px; }
+    .btn-card-wa, .btn-card-edit, .btn-card-del {
+      border: none; border-radius: 6px; padding: 4px 8px;
+      font-size: 0.7em; cursor: pointer; font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+    }
+    .btn-card-wa  { background: #e7f9ed; color: #28a745; }
+    .btn-card-edit { background: #eef0ff; color: #4361ee; }
+    .btn-card-del  { background: #fdecea; color: #dc3545; }
+    .btn-card-wa:hover  { background: #d1f5e0; }
+    .btn-card-edit:hover { background: #d8dcff; }
+    .btn-card-del:hover  { background: #f9d3cf; }
+
+    /* border-left por etapa */
+    .card[data-etapa="prospecto"]   { border-left-color: #8d99ae; }
+    .card[data-etapa="contactado"]  { border-left-color: #4361ee; }
+    .card[data-etapa="propuesta"]   { border-left-color: #e67e22; }
+    .card[data-etapa="negociacion"] { border-left-color: #8b5cf6; }
+    .card[data-etapa="ganado"]      { border-left-color: #28a745; }
+    .card[data-etapa="perdido"]     { border-left-color: #dc3545; }
+
+    /* ── MODAL ── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .overlay.active { display: flex; }
+    .modal {
+      background: #fff; border-radius: 20px;
+      padding: 32px; width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: popIn 0.2s ease;
+    }
+    @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .modal-title { font-size: 1.1em; font-weight: 700; margin-bottom: 22px; color: #2b2d42; }
+    .form-row { margin-bottom: 14px; }
+    .form-row label { display: block; font-size: 0.75em; font-weight: 600; color: #6b7280; margin-bottom: 5px; }
+    .form-row input, .form-row select, .form-row textarea {
+      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
+      padding: 10px 12px; font-size: 0.88em; font-family: 'Poppins', sans-serif;
+      color: #2b2d42; transition: border-color 0.15s;
+      background: #fafafa;
+    }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+      outline: none; border-color: #4361ee; background: #fff;
+    }
+    .form-row textarea { resize: vertical; min-height: 80px; }
+    .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+    .btn-cancel {
+      background: #f3f4f6; border: none; border-radius: 10px;
+      padding: 10px 22px; font-size: 0.88em; font-weight: 600;
+      color: #6b7280; cursor: pointer; font-family: 'Poppins', sans-serif;
+    }
+    .btn-save {
+      background: #4361ee; color: #fff; border: none; border-radius: 10px;
+      padding: 10px 26px; font-size: 0.88em; font-weight: 600;
+      cursor: pointer; font-family: 'Poppins', sans-serif;
+      transition: background 0.15s;
+    }
+    .btn-save:hover { background: #3451d1; }
+    .btn-save:disabled { background: #a0aec0; cursor: not-allowed; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #2b2d42; color: #fff; padding: 12px 22px;
+      border-radius: 12px; font-size: 0.85em; font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 999; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── EMPTY STATE ── */
+    .empty-col { text-align: center; padding: 20px 10px; color: #c0c4cc; font-size: 0.78em; }
+
+    /* ── LOADING ── */
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(255,255,255,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 900; font-size: 0.9em; color: #4361ee; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-left">
+    <a href="/panel" class="btn-back">← Panel</a>
+    <div>
+      <div class="navbar-title">Pipeline de Ventas</div>
+      <div class="navbar-sub">Ciclo completo de oportunidades</div>
+    </div>
+  </div>
+  <button class="btn-nueva" onclick="abrirModal()">+ Nueva oportunidad</button>
+</nav>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-label">Total en pipeline</div>
+    <div class="stat-value azul" id="stat-total">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Valor en pipeline</div>
+    <div class="stat-value azul" id="stat-valor">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Ganado (total)</div>
+    <div class="stat-value verde" id="stat-ganado">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Tasa de cierre</div>
+    <div class="stat-value" id="stat-tasa">—</div>
+  </div>
+</div>
+
+<!-- Board -->
+<div class="board-wrap">
+  <div class="board" id="board"></div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="cerrarModalSiClick(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Nueva oportunidad</div>
+    <input type="hidden" id="modal-id">
+
+    <div class="form-2col">
+      <div class="form-row">
+        <label>Empresa *</label>
+        <input type="text" id="f-empresa" placeholder="Nombre de la empresa">
+      </div>
+      <div class="form-row">
+        <label>Contacto</label>
+        <input type="text" id="f-contacto" placeholder="Nombre del contacto">
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row">
+        <label>WhatsApp</label>
+        <input type="tel" id="f-whatsapp" placeholder="33 1234 5678">
+      </div>
+      <div class="form-row">
+        <label>Teléfono</label>
+        <input type="tel" id="f-telefono" placeholder="33 1234 5678">
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row">
+        <label>Valor estimado (MXN)</label>
+        <input type="number" id="f-valor" placeholder="0" min="0">
+      </div>
+      <div class="form-row">
+        <label>Etapa</label>
+        <select id="f-etapa">
+          <option value="prospecto">Prospecto</option>
+          <option value="contactado">Contactado</option>
+          <option value="propuesta">Propuesta</option>
+          <option value="negociacion">Negociación</option>
+          <option value="ganado">Ganado</option>
+          <option value="perdido">Perdido</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Notas</label>
+      <textarea id="f-notas" placeholder="Detalles, próximos pasos, contexto..."></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-save" id="btn-save" onclick="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyAkqr6RyXUHMHp3NtWrgsn-T6wj_tHQI00",
+    authDomain: "supratechweb.firebaseapp.com",
+    projectId: "supratechweb",
+    storageBucket: "supratechweb.firebasestorage.app",
+    messagingSenderId: "828253545658",
+    appId: "1:828253545658:web:daa886d1de6c9c796a8e83"
+  });
+
+  const ETAPAS = [
+    { id: 'prospecto',   label: 'Prospecto',   dot: 'dot-prospecto'   },
+    { id: 'contactado',  label: 'Contactado',  dot: 'dot-contactado'  },
+    { id: 'propuesta',   label: 'Propuesta',   dot: 'dot-propuesta'   },
+    { id: 'negociacion', label: 'Negociación', dot: 'dot-negociacion' },
+    { id: 'ganado',      label: 'Ganado',      dot: 'dot-ganado'      },
+    { id: 'perdido',     label: 'Perdido',     dot: 'dot-perdido'     },
+  ];
+
+  let _token = null;
+  let _oportunidades = [];
+  let _dragId = null;
+
+  firebase.auth().onAuthStateChanged(async user => {
+    if (!user) { window.location.href = '/'; return; }
+    _token = await user.getIdToken();
+    cargarDatos();
+  });
+
+  // ── API ──────────────────────────────────────────────────────────────────
+
+  async function api(method, path, body) {
+    const opts = {
+      method,
+      headers: { 'Authorization': 'Bearer ' + _token, 'Content-Type': 'application/json' }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(path, opts);
+    return r.json();
+  }
+
+  async function cargarDatos() {
+    const data = await api('GET', '/api/pipeline/lista');
+    _oportunidades = data.oportunidades || [];
+    renderBoard();
+    renderStats();
+  }
+
+  // ── RENDER ───────────────────────────────────────────────────────────────
+
+  function renderBoard() {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+    ETAPAS.forEach(etapa => {
+      const ops = _oportunidades.filter(o => o.etapa === etapa.id);
+      const suma = ops.reduce((s, o) => s + (o.valor_estimado || 0), 0);
+      const col = document.createElement('div');
+      col.className = 'col';
+      col.dataset.etapa = etapa.id;
+      col.innerHTML = `
+        <div class="col-header">
+          <div class="col-header-left">
+            <div class="col-dot ${etapa.dot}"></div>
+            <div class="col-name">${etapa.label}</div>
+          </div>
+          <div class="col-count">${ops.length}</div>
+        </div>
+        ${suma > 0 ? `<div class="col-sum">$${suma.toLocaleString('es-MX')} MXN</div>` : ''}
+        <div class="col-cards" id="col-${etapa.id}">
+          ${ops.length === 0 ? '<div class="empty-col">Sin oportunidades</div>' : ops.map(renderCard).join('')}
+        </div>
+        <button class="btn-add-card" onclick="abrirModal('${etapa.id}')">+ Agregar</button>
+      `;
+      board.appendChild(col);
+      setupColDrop(col, etapa.id);
+    });
+
+    // Drag events en las cards
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('dragstart', e => {
+        _dragId = card.dataset.id;
+        setTimeout(() => card.classList.add('dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        document.querySelectorAll('.col').forEach(c => c.classList.remove('drag-over'));
+      });
+    });
+  }
+
+  function renderCard(o) {
+    const wa = (o.whatsapp || '').replace(/\D/g, '');
+    const waLink = wa ? `https://wa.me/52${wa}` : null;
+    const fecha = o.fecha_creacion ? o.fecha_creacion.slice(0, 10) : '';
+    const nota = o.notas ? o.notas.slice(0, 60) + (o.notas.length > 60 ? '…' : '') : '';
+    return `
+      <div class="card" draggable="true" data-id="${o.id}" data-etapa="${o.etapa}">
+        <div class="card-empresa">${esc(o.empresa || '—')}</div>
+        <div class="card-contacto">${esc(o.nombre_contacto || '')}</div>
+        ${o.valor_estimado > 0 ? `<div class="card-valor">$${Number(o.valor_estimado).toLocaleString('es-MX')} MXN</div>` : ''}
+        ${nota ? `<div class="card-nota">${esc(nota)}</div>` : ''}
+        <div class="card-footer">
+          <div class="card-fecha">${fecha}</div>
+          <div class="card-actions">
+            ${waLink ? `<button class="btn-card-wa" onclick="event.stopPropagation();window.open('${waLink}','_blank')">WA</button>` : ''}
+            <button class="btn-card-edit" onclick="event.stopPropagation();editarCard('${o.id}')">Editar</button>
+            <button class="btn-card-del"  onclick="event.stopPropagation();eliminarCard('${o.id}')">✕</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderStats() {
+    const activas = _oportunidades.filter(o => !['ganado','perdido'].includes(o.etapa));
+    const ganadas = _oportunidades.filter(o => o.etapa === 'ganado');
+    const cerradas = _oportunidades.filter(o => ['ganado','perdido'].includes(o.etapa));
+    const valorPipeline = activas.reduce((s, o) => s + (o.valor_estimado || 0), 0);
+    const valorGanado   = ganadas.reduce((s, o) => s + (o.valor_estimado || 0), 0);
+    const tasa = cerradas.length > 0 ? Math.round(ganadas.length / cerradas.length * 100) : 0;
+
+    document.getElementById('stat-total').textContent  = activas.length;
+    document.getElementById('stat-valor').textContent  = '$' + valorPipeline.toLocaleString('es-MX');
+    document.getElementById('stat-ganado').textContent = '$' + valorGanado.toLocaleString('es-MX');
+    document.getElementById('stat-tasa').textContent   = cerradas.length > 0 ? tasa + '%' : '—';
+  }
+
+  // ── DRAG & DROP ──────────────────────────────────────────────────────────
+
+  function setupColDrop(col, etapaId) {
+    col.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      col.classList.add('drag-over');
+    });
+    col.addEventListener('dragleave', e => {
+      if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+    });
+    col.addEventListener('drop', async e => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      if (!_dragId) return;
+      const op = _oportunidades.find(o => o.id === _dragId);
+      if (!op || op.etapa === etapaId) return;
+      op.etapa = etapaId;
+      renderBoard();
+      renderStats();
+      await api('PUT', `/api/pipeline/actualizar/${_dragId}`, { etapa: etapaId });
+      toast('Oportunidad movida a ' + ETAPAS.find(e => e.id === etapaId).label);
+      _dragId = null;
+    });
+  }
+
+  // ── MODAL ────────────────────────────────────────────────────────────────
+
+  function abrirModal(etapaPre) {
+    document.getElementById('modal-title').textContent = 'Nueva oportunidad';
+    document.getElementById('modal-id').value = '';
+    document.getElementById('f-empresa').value  = '';
+    document.getElementById('f-contacto').value = '';
+    document.getElementById('f-whatsapp').value = '';
+    document.getElementById('f-telefono').value = '';
+    document.getElementById('f-valor').value    = '';
+    document.getElementById('f-etapa').value    = etapaPre || 'prospecto';
+    document.getElementById('f-notas').value    = '';
+    document.getElementById('overlay').classList.add('active');
+    document.getElementById('f-empresa').focus();
+  }
+
+  function editarCard(id) {
+    const o = _oportunidades.find(x => x.id === id);
+    if (!o) return;
+    document.getElementById('modal-title').textContent = 'Editar oportunidad';
+    document.getElementById('modal-id').value = id;
+    document.getElementById('f-empresa').value  = o.empresa          || '';
+    document.getElementById('f-contacto').value = o.nombre_contacto  || '';
+    document.getElementById('f-whatsapp').value = o.whatsapp         || '';
+    document.getElementById('f-telefono').value = o.telefono         || '';
+    document.getElementById('f-valor').value    = o.valor_estimado   || '';
+    document.getElementById('f-etapa').value    = o.etapa            || 'prospecto';
+    document.getElementById('f-notas').value    = o.notas            || '';
+    document.getElementById('overlay').classList.add('active');
+  }
+
+  function cerrarModal() {
+    document.getElementById('overlay').classList.remove('active');
+  }
+
+  function cerrarModalSiClick(e) {
+    if (e.target === document.getElementById('overlay')) cerrarModal();
+  }
+
+  async function guardar() {
+    const empresa = document.getElementById('f-empresa').value.trim();
+    if (!empresa) { document.getElementById('f-empresa').focus(); return; }
+
+    const btn = document.getElementById('btn-save');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+
+    const payload = {
+      empresa,
+      nombre_contacto: document.getElementById('f-contacto').value.trim(),
+      whatsapp:        document.getElementById('f-whatsapp').value.trim(),
+      telefono:        document.getElementById('f-telefono').value.trim(),
+      valor_estimado:  parseFloat(document.getElementById('f-valor').value) || 0,
+      etapa:           document.getElementById('f-etapa').value,
+      notas:           document.getElementById('f-notas').value.trim(),
+    };
+
+    const id = document.getElementById('modal-id').value;
+    let res;
+    if (id) {
+      res = await api('PUT', `/api/pipeline/actualizar/${id}`, payload);
+    } else {
+      res = await api('POST', '/api/pipeline/agregar', payload);
+    }
+
+    btn.disabled = false; btn.textContent = 'Guardar';
+
+    if (res.ok) {
+      cerrarModal();
+      await cargarDatos();
+      toast(id ? 'Oportunidad actualizada' : 'Oportunidad creada');
+    } else {
+      toast('Error: ' + (res.error || 'intenta de nuevo'));
+    }
+  }
+
+  async function eliminarCard(id) {
+    if (!confirm('¿Eliminar esta oportunidad?')) return;
+    await api('DELETE', `/api/pipeline/eliminar/${id}`);
+    _oportunidades = _oportunidades.filter(o => o.id !== id);
+    renderBoard();
+    renderStats();
+    toast('Oportunidad eliminada');
+  }
+
+  // ── UTILS ────────────────────────────────────────────────────────────────
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  let _toastTimer;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+</script>
+</body>
+</html>

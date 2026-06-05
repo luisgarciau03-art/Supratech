@@ -7967,6 +7967,96 @@ def api_prospectos_actualizar(pid):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ── PIPELINE ──────────────────────────────────────────────────────────────────
+
+@app.route('/pipeline')
+def pipeline():
+    return render_template('pipeline.html')
+
+def _pipeline_auth(req):
+    ah = req.headers.get('Authorization', '')
+    if not ah.startswith('Bearer '):
+        return None, ('No autorizado', 401)
+    try:
+        decoded = auth.verify_id_token(ah.split(' ')[1])
+        caller = db.collection('users').document(decoded['uid']).get()
+        if not caller.exists or (caller.to_dict().get('rol') or '').lower() not in ['admin', 'administrador']:
+            return None, ('Acceso solo para administradores', 403)
+        return decoded['uid'], None
+    except Exception as e:
+        return None, (str(e), 401)
+
+@app.route('/api/pipeline/lista', methods=['GET'])
+def api_pipeline_lista():
+    uid, err = _pipeline_auth(request)
+    if err:
+        return jsonify({'error': err[0]}), err[1]
+    try:
+        docs = [dict(d.to_dict(), id=d.id) for d in db.collection('pipeline_oportunidades').stream()]
+        docs.sort(key=lambda x: x.get('fecha_creacion', ''), reverse=True)
+        return jsonify({'oportunidades': docs})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/pipeline/agregar', methods=['POST'])
+def api_pipeline_agregar():
+    import datetime
+    uid, err = _pipeline_auth(request)
+    if err:
+        return jsonify({'error': err[0]}), err[1]
+    try:
+        data = request.get_json() or {}
+        now = datetime.datetime.utcnow().isoformat()
+        doc = {
+            'empresa':          (data.get('empresa')         or '').strip(),
+            'nombre_contacto':  (data.get('nombre_contacto') or '').strip(),
+            'telefono':         (data.get('telefono')        or '').strip(),
+            'whatsapp':         (data.get('whatsapp')        or '').strip(),
+            'valor_estimado':   float(data.get('valor_estimado') or 0),
+            'etapa':            data.get('etapa', 'prospecto'),
+            'notas':            (data.get('notas')           or '').strip(),
+            'origen':           data.get('origen', 'manual'),
+            'fecha_creacion':   now,
+            'fecha_actualizacion': now,
+        }
+        ref = db.collection('pipeline_oportunidades').add(doc)
+        return jsonify({'ok': True, 'id': ref[1].id})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/pipeline/actualizar/<oid>', methods=['PUT'])
+def api_pipeline_actualizar(oid):
+    import datetime
+    uid, err = _pipeline_auth(request)
+    if err:
+        return jsonify({'error': err[0]}), err[1]
+    try:
+        data = request.get_json() or {}
+        update = {'fecha_actualizacion': datetime.datetime.utcnow().isoformat()}
+        campos = ['empresa','nombre_contacto','telefono','whatsapp','etapa','notas','origen']
+        for c in campos:
+            if c in data:
+                update[c] = data[c]
+        if 'valor_estimado' in data:
+            update['valor_estimado'] = float(data['valor_estimado'] or 0)
+        db.collection('pipeline_oportunidades').document(oid).update(update)
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/pipeline/eliminar/<oid>', methods=['DELETE'])
+def api_pipeline_eliminar(oid):
+    uid, err = _pipeline_auth(request)
+    if err:
+        return jsonify({'error': err[0]}), err[1]
+    try:
+        db.collection('pipeline_oportunidades').document(oid).delete()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ── BLOG ───────────────────────────────────────────────────────────────────────
+
 @app.route('/blog')
 def blog_index():
     return render_template('blog_index.html', posts=POSTS)
