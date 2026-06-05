@@ -8,6 +8,17 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --primary:  #4361ee;
+      --green:    #28a745;
+      --orange:   #f4a422;
+      --purple:   #6c63ff;
+      --red:      #dc3545;
+      --gray:     #8d99ae;
+      --text:     #2b2d42;
+      --shadow:   0 4px 16px rgba(0,0,0,0.07);
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
       background: #f0f2f5;
@@ -17,256 +28,296 @@
         radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
       background-attachment: fixed;
       min-height: 100vh;
-      color: #2b2d42;
+      color: var(--text);
     }
 
-    /* ── NAVBAR ── */
-    .navbar {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-      padding: 14px 24px;
+    /* ── HEADER ── */
+    .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .navbar-left { display: flex; align-items: center; gap: 12px; }
-    .navbar-title { font-size: 1.05em; font-weight: 700; color: #2b2d42; }
-    .navbar-sub { font-size: 0.78em; color: #8d99ae; }
-    .btn-back {
-      background: none; border: 1px solid #e0e0e0; border-radius: 8px;
-      padding: 7px 14px; font-size: 0.82em; font-weight: 600;
-      color: #4361ee; cursor: pointer; text-decoration: none;
-      transition: background 0.15s;
-    }
-    .btn-back:hover { background: #f0f2ff; }
-    .btn-nueva {
-      background: #4361ee; color: #fff; border: none; border-radius: 10px;
-      padding: 9px 20px; font-size: 0.88em; font-weight: 600;
-      cursor: pointer; font-family: 'Poppins', sans-serif;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .btn-nueva:hover { background: #3451d1; transform: translateY(-1px); }
-
-    /* ── STATS BAR ── */
-    .stats-bar {
-      display: flex; gap: 16px; padding: 16px 24px;
+      padding: 22px 28px;
       flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header h1 { font-size: 1.6em; font-weight: 700; color: #fff; }
+    .header h1 span { font-weight: 300; opacity: 0.6; font-size: 0.65em; display: block; margin-top: 2px; }
+    .header-links { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .header-links a {
+      color: rgba(255,255,255,0.8); text-decoration: none;
+      font-size: 0.82em; padding: 7px 16px;
+      border-radius: 20px; background: rgba(255,255,255,0.12);
+      transition: background 0.2s; font-weight: 500;
+    }
+    .header-links a:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+    /* ── CONTAINER ── */
+    .container { max-width: 1600px; margin: 0 auto; padding: 0 20px 60px; }
+
+    /* ── STATS ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
     }
     .stat-card {
-      background: rgba(255,255,255,0.92); border-radius: 14px;
-      padding: 14px 22px; flex: 1; min-width: 150px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      text-align: center;
     }
-    .stat-label { font-size: 0.72em; color: #8d99ae; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-value { font-size: 1.5em; font-weight: 700; color: #2b2d42; margin-top: 2px; }
-    .stat-value.verde { color: #28a745; }
-    .stat-value.azul { color: #4361ee; }
+    .stat-card .num { font-size: 1.9em; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .stat-card .lbl { font-size: 0.72em; color: var(--gray); font-weight: 500; }
+    .num-blue   { color: var(--primary); }
+    .num-green  { color: var(--green); }
+    .num-orange { color: var(--orange); }
+    .num-gray   { color: var(--gray); }
 
-    /* ── KANBAN BOARD ── */
-    .board-wrap { padding: 0 16px 32px; overflow-x: auto; }
+    /* ── TOOLBAR ── */
+    .toolbar {
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 9px 18px; border-radius: 10px; border: none;
+      font-family: 'Poppins', sans-serif; font-size: 0.82em;
+      font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: #3451d1; }
+    .btn-ghost { background: #f0f2f5; color: #374151; }
+    .btn-ghost:hover { background: #e5e7eb; }
+    .btn-danger { background: #fdecea; color: var(--red); }
+    .btn-danger:hover { background: #f9cfcc; }
+
+    /* ── BOARD ── */
+    .board-wrap { overflow-x: auto; padding-bottom: 12px; }
     .board {
-      display: flex; gap: 14px;
-      min-width: max-content;
+      display: flex;
+      gap: 16px;
       align-items: flex-start;
+      min-width: max-content;
+      padding-bottom: 4px;
     }
 
     /* ── COLUMNA ── */
     .col {
-      width: 270px; min-width: 270px;
-      background: rgba(255,255,255,0.75);
-      border-radius: 16px;
-      padding: 0 0 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      width: 268px; min-width: 268px;
       display: flex; flex-direction: column;
-      transition: background 0.15s;
     }
-    .col.drag-over { background: rgba(67,97,238,0.08); }
-
     .col-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px 10px;
-      border-radius: 16px 16px 0 0;
+      padding: 12px 16px;
+      border-radius: 14px 14px 0 0;
+      background: #fff;
+      border-bottom: 2px solid #f0f2f5;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     .col-header-left { display: flex; align-items: center; gap: 8px; }
-    .col-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .col-name { font-size: 0.82em; font-weight: 700; color: #2b2d42; }
-    .col-count {
-      background: #f0f2f5; color: #8d99ae;
-      border-radius: 20px; padding: 2px 8px;
-      font-size: 0.72em; font-weight: 700;
+    .col-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .col-name { font-size: 0.82em; font-weight: 700; color: var(--text); }
+    .col-badge {
+      font-size: 0.7em; font-weight: 700;
+      background: #f0f2f5; color: var(--gray);
+      border-radius: 20px; padding: 2px 9px;
     }
-    .col-sum { font-size: 0.7em; color: #8d99ae; padding: 0 16px 8px; }
-
-    .col-cards { padding: 4px 10px; min-height: 60px; flex: 1; }
-
-    .btn-add-card {
-      margin: 6px 10px 0;
-      background: none; border: 1px dashed #c8cdd7; border-radius: 8px;
-      width: calc(100% - 20px); padding: 8px; font-size: 0.78em;
-      color: #8d99ae; cursor: pointer; font-family: 'Poppins', sans-serif;
-      transition: background 0.15s, color 0.15s;
+    .col-sum {
+      font-size: 0.7em; font-weight: 600;
+      background: #fff; color: var(--gray);
+      padding: 4px 16px 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .btn-add-card:hover { background: #f0f2ff; color: #4361ee; border-color: #4361ee; }
+    .col-body {
+      background: rgba(255,255,255,0.55);
+      border-radius: 0 0 14px 14px;
+      padding: 8px 10px;
+      min-height: 80px;
+      flex: 1;
+      transition: background 0.15s;
+    }
+    .col-body.drag-over { background: rgba(67,97,238,0.08); }
+    .btn-add-col {
+      margin-top: 8px;
+      background: none; border: 1.5px dashed #d1d5db;
+      border-radius: 10px; width: 100%; padding: 8px;
+      font-size: 0.75em; color: var(--gray); cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: all 0.15s;
+    }
+    .btn-add-col:hover { background: #f0f2ff; color: var(--primary); border-color: var(--primary); }
 
-    /* ── COLORES POR ETAPA ── */
-    .dot-prospecto    { background: #8d99ae; }
-    .dot-contactado   { background: #4361ee; }
-    .dot-propuesta    { background: #e67e22; }
-    .dot-negociacion  { background: #8b5cf6; }
-    .dot-ganado       { background: #28a745; }
-    .dot-perdido      { background: #dc3545; }
+    /* ── COLORES DOT ── */
+    .dot-prospecto   { background: var(--gray); }
+    .dot-contactado  { background: var(--primary); }
+    .dot-propuesta   { background: var(--orange); }
+    .dot-negociacion { background: var(--purple); }
+    .dot-ganado      { background: var(--green); }
+    .dot-perdido     { background: var(--red); }
 
-    /* ── CARDS ── */
+    /* ── CARD ── */
     .card {
-      background: #fff; border-radius: 12px;
-      padding: 13px 14px; margin-bottom: 9px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      cursor: grab; user-select: none;
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 14px 11px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow);
+      cursor: grab;
+      user-select: none;
       border-left: 3px solid transparent;
-      transition: box-shadow 0.15s, transform 0.1s;
+      transition: box-shadow 0.15s, transform 0.12s;
     }
-    .card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.12); transform: translateY(-2px); }
-    .card.dragging { opacity: 0.45; transform: rotate(2deg); }
+    .card:active { cursor: grabbing; }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.12); transform: translateY(-2px); }
+    .card.dragging { opacity: 0.4; transform: rotate(1.5deg) scale(0.97); cursor: grabbing; }
 
-    .card-empresa { font-size: 0.88em; font-weight: 700; color: #2b2d42; margin-bottom: 2px; }
-    .card-contacto { font-size: 0.75em; color: #6b7280; margin-bottom: 7px; }
-    .card-valor { font-size: 0.9em; font-weight: 700; color: #28a745; margin-bottom: 8px; }
-    .card-nota { font-size: 0.72em; color: #8d99ae; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-footer { display: flex; align-items: center; justify-content: space-between; }
-    .card-fecha { font-size: 0.68em; color: #c0c4cc; }
-    .card-actions { display: flex; gap: 6px; }
-    .btn-card-wa, .btn-card-edit, .btn-card-del {
-      border: none; border-radius: 6px; padding: 4px 8px;
-      font-size: 0.7em; cursor: pointer; font-family: 'Poppins', sans-serif;
-      font-weight: 600;
+    .card[data-etapa="prospecto"]   { border-left-color: var(--gray); }
+    .card[data-etapa="contactado"]  { border-left-color: var(--primary); }
+    .card[data-etapa="propuesta"]   { border-left-color: var(--orange); }
+    .card[data-etapa="negociacion"] { border-left-color: var(--purple); }
+    .card[data-etapa="ganado"]      { border-left-color: var(--green); }
+    .card[data-etapa="perdido"]     { border-left-color: var(--red); }
+
+    .card-empresa   { font-size: 0.88em; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .card-contacto  { font-size: 0.74em; color: var(--gray); margin-bottom: 7px; }
+    .card-valor     { font-size: 0.88em; font-weight: 700; color: var(--green); margin-bottom: 7px; }
+    .card-nota      { font-size: 0.72em; color: var(--gray); margin-bottom: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-footer    { display: flex; align-items: center; justify-content: space-between; }
+    .card-fecha     { font-size: 0.67em; color: #c0c4cc; }
+    .card-actions   { display: flex; gap: 5px; }
+
+    .btn-wa, .btn-edit, .btn-del {
+      border: none; border-radius: 7px; padding: 4px 9px;
+      font-size: 0.68em; font-weight: 600; cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: background 0.15s;
     }
-    .btn-card-wa  { background: #e7f9ed; color: #28a745; }
-    .btn-card-edit { background: #eef0ff; color: #4361ee; }
-    .btn-card-del  { background: #fdecea; color: #dc3545; }
-    .btn-card-wa:hover  { background: #d1f5e0; }
-    .btn-card-edit:hover { background: #d8dcff; }
-    .btn-card-del:hover  { background: #f9d3cf; }
+    .btn-wa   { background: #e8f5e9; color: #2e7d32; }
+    .btn-wa:hover  { background: #c8e6c9; }
+    .btn-edit { background: #eef0ff; color: var(--primary); }
+    .btn-edit:hover { background: #dde1ff; }
+    .btn-del  { background: #fdecea; color: var(--red); }
+    .btn-del:hover  { background: #f9cece; }
 
-    /* border-left por etapa */
-    .card[data-etapa="prospecto"]   { border-left-color: #8d99ae; }
-    .card[data-etapa="contactado"]  { border-left-color: #4361ee; }
-    .card[data-etapa="propuesta"]   { border-left-color: #e67e22; }
-    .card[data-etapa="negociacion"] { border-left-color: #8b5cf6; }
-    .card[data-etapa="ganado"]      { border-left-color: #28a745; }
-    .card[data-etapa="perdido"]     { border-left-color: #dc3545; }
+    .empty-col { text-align: center; padding: 18px 8px; color: #d1d5db; font-size: 0.76em; }
 
     /* ── MODAL ── */
     .overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45); z-index: 500;
+      background: rgba(0,0,0,0.5); z-index: 500;
       align-items: center; justify-content: center;
+      padding: 20px;
     }
     .overlay.active { display: flex; }
     .modal {
       background: #fff; border-radius: 20px;
-      padding: 32px; width: 100%; max-width: 480px;
-      max-height: 90vh; overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      animation: popIn 0.2s ease;
+      padding: 30px; width: 100%; max-width: 460px;
+      max-height: 92vh; overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+      animation: popIn 0.18s ease;
     }
-    @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes popIn { from { transform: scale(0.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    .modal-title { font-size: 1.1em; font-weight: 700; margin-bottom: 22px; color: #2b2d42; }
-    .form-row { margin-bottom: 14px; }
-    .form-row label { display: block; font-size: 0.75em; font-weight: 600; color: #6b7280; margin-bottom: 5px; }
-    .form-row input, .form-row select, .form-row textarea {
+    .modal-title { font-size: 1.05em; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+    .form-row { margin-bottom: 13px; }
+    .form-row label { display: block; font-size: 0.74em; font-weight: 600; color: #6b7280; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
       width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
-      padding: 10px 12px; font-size: 0.88em; font-family: 'Poppins', sans-serif;
-      color: #2b2d42; transition: border-color 0.15s;
-      background: #fafafa;
+      padding: 10px 12px; font-size: 0.85em;
+      font-family: 'Poppins', sans-serif; color: var(--text);
+      background: #fafafa; transition: border-color 0.15s;
     }
-    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
-      outline: none; border-color: #4361ee; background: #fff;
-    }
-    .form-row textarea { resize: vertical; min-height: 80px; }
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus { outline: none; border-color: var(--primary); background: #fff; }
+    .form-row textarea { resize: vertical; min-height: 78px; }
     .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
     .btn-cancel {
       background: #f3f4f6; border: none; border-radius: 10px;
-      padding: 10px 22px; font-size: 0.88em; font-weight: 600;
+      padding: 10px 22px; font-size: 0.85em; font-weight: 600;
       color: #6b7280; cursor: pointer; font-family: 'Poppins', sans-serif;
     }
     .btn-save {
-      background: #4361ee; color: #fff; border: none; border-radius: 10px;
-      padding: 10px 26px; font-size: 0.88em; font-weight: 600;
-      cursor: pointer; font-family: 'Poppins', sans-serif;
-      transition: background 0.15s;
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 10px; padding: 10px 28px;
+      font-size: 0.85em; font-weight: 600; cursor: pointer;
+      font-family: 'Poppins', sans-serif; transition: background 0.15s;
     }
     .btn-save:hover { background: #3451d1; }
-    .btn-save:disabled { background: #a0aec0; cursor: not-allowed; }
+    .btn-save:disabled { background: var(--gray); cursor: not-allowed; }
 
     /* ── TOAST ── */
     .toast {
       position: fixed; bottom: 24px; right: 24px;
-      background: #2b2d42; color: #fff; padding: 12px 22px;
-      border-radius: 12px; font-size: 0.85em; font-weight: 600;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-      opacity: 0; transform: translateY(10px);
-      transition: opacity 0.25s, transform 0.25s;
+      background: var(--text); color: #fff;
+      padding: 12px 22px; border-radius: 12px;
+      font-size: 0.83em; font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.22s, transform 0.22s;
       z-index: 999; pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
-
-    /* ── EMPTY STATE ── */
-    .empty-col { text-align: center; padding: 20px 10px; color: #c0c4cc; font-size: 0.78em; }
-
-    /* ── LOADING ── */
-    .loading-overlay {
-      position: fixed; inset: 0; background: rgba(255,255,255,0.7);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 900; font-size: 0.9em; color: #4361ee; font-weight: 600;
-    }
   </style>
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar">
-  <div class="navbar-left">
-    <a href="/panel" class="btn-back">← Panel</a>
-    <div>
-      <div class="navbar-title">Pipeline de Ventas</div>
-      <div class="navbar-sub">Ciclo completo de oportunidades</div>
+<!-- Header -->
+<div class="header">
+  <h1>Pipeline de Ventas <span>Ciclo completo de oportunidades</span></h1>
+  <div class="header-links">
+    <a href="/prospectos">Prospectos</a>
+    <a href="/panel">← Panel</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num num-blue" id="stat-total">—</div>
+      <div class="lbl">En pipeline</div>
+    </div>
+    <div class="stat-card">
+      <div class="num num-blue" id="stat-valor">—</div>
+      <div class="lbl">Valor activo (MXN)</div>
+    </div>
+    <div class="stat-card">
+      <div class="num num-green" id="stat-ganado">—</div>
+      <div class="lbl">Valor ganado (MXN)</div>
+    </div>
+    <div class="stat-card">
+      <div class="num num-orange" id="stat-tasa">—</div>
+      <div class="lbl">Tasa de cierre</div>
     </div>
   </div>
-  <button class="btn-nueva" onclick="abrirModal()">+ Nueva oportunidad</button>
-</nav>
 
-<!-- Stats -->
-<div class="stats-bar">
-  <div class="stat-card">
-    <div class="stat-label">Total en pipeline</div>
-    <div class="stat-value azul" id="stat-total">—</div>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="abrirModal()">+ Nueva oportunidad</button>
+    <button class="btn btn-ghost" onclick="cargarDatos()">&#8635; Actualizar</button>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Valor en pipeline</div>
-    <div class="stat-value azul" id="stat-valor">—</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Ganado (total)</div>
-    <div class="stat-value verde" id="stat-ganado">—</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Tasa de cierre</div>
-    <div class="stat-value" id="stat-tasa">—</div>
-  </div>
-</div>
 
-<!-- Board -->
-<div class="board-wrap">
-  <div class="board" id="board"></div>
-</div>
+  <!-- Board -->
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+
+</div><!-- /container -->
 
 <!-- Modal -->
-<div class="overlay" id="overlay" onclick="cerrarModalSiClick(event)">
+<div class="overlay" id="overlay" onclick="cerrarSiClick(event)">
   <div class="modal">
     <div class="modal-title" id="modal-title">Nueva oportunidad</div>
     <input type="hidden" id="modal-id">
@@ -274,11 +325,11 @@
     <div class="form-2col">
       <div class="form-row">
         <label>Empresa *</label>
-        <input type="text" id="f-empresa" placeholder="Nombre de la empresa">
+        <input type="text" id="f-empresa" placeholder="Nombre empresa">
       </div>
       <div class="form-row">
         <label>Contacto</label>
-        <input type="text" id="f-contacto" placeholder="Nombre del contacto">
+        <input type="text" id="f-contacto" placeholder="Nombre contacto">
       </div>
     </div>
     <div class="form-2col">
@@ -310,7 +361,7 @@
     </div>
     <div class="form-row">
       <label>Notas</label>
-      <textarea id="f-notas" placeholder="Detalles, próximos pasos, contexto..."></textarea>
+      <textarea id="f-notas" placeholder="Próximos pasos, contexto, detalles..."></textarea>
     </div>
 
     <div class="modal-footer">
@@ -337,16 +388,16 @@
   });
 
   const ETAPAS = [
-    { id: 'prospecto',   label: 'Prospecto',   dot: 'dot-prospecto'   },
-    { id: 'contactado',  label: 'Contactado',  dot: 'dot-contactado'  },
-    { id: 'propuesta',   label: 'Propuesta',   dot: 'dot-propuesta'   },
-    { id: 'negociacion', label: 'Negociación', dot: 'dot-negociacion' },
-    { id: 'ganado',      label: 'Ganado',      dot: 'dot-ganado'      },
-    { id: 'perdido',     label: 'Perdido',     dot: 'dot-perdido'     },
+    { id: 'prospecto',   label: 'Prospecto',    dot: 'dot-prospecto'   },
+    { id: 'contactado',  label: 'Contactado',   dot: 'dot-contactado'  },
+    { id: 'propuesta',   label: 'Propuesta',    dot: 'dot-propuesta'   },
+    { id: 'negociacion', label: 'Negociación',  dot: 'dot-negociacion' },
+    { id: 'ganado',      label: 'Ganado',       dot: 'dot-ganado'      },
+    { id: 'perdido',     label: 'Perdido',      dot: 'dot-perdido'     },
   ];
 
   let _token = null;
-  let _oportunidades = [];
+  let _ops   = [];
   let _dragId = null;
 
   firebase.auth().onAuthStateChanged(async user => {
@@ -355,135 +406,137 @@
     cargarDatos();
   });
 
-  // ── API ──────────────────────────────────────────────────────────────────
+  // ── API ──────────────────────────────────────────────────────────────
 
   async function api(method, path, body) {
-    const opts = {
+    const r = await fetch(path, {
       method,
-      headers: { 'Authorization': 'Bearer ' + _token, 'Content-Type': 'application/json' }
-    };
-    if (body) opts.body = JSON.stringify(body);
-    const r = await fetch(path, opts);
+      headers: { 'Authorization': 'Bearer ' + _token, 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    });
     return r.json();
   }
 
   async function cargarDatos() {
     const data = await api('GET', '/api/pipeline/lista');
-    _oportunidades = data.oportunidades || [];
+    _ops = data.oportunidades || [];
     renderBoard();
     renderStats();
   }
 
-  // ── RENDER ───────────────────────────────────────────────────────────────
+  // ── RENDER ───────────────────────────────────────────────────────────
 
   function renderBoard() {
     const board = document.getElementById('board');
     board.innerHTML = '';
     ETAPAS.forEach(etapa => {
-      const ops = _oportunidades.filter(o => o.etapa === etapa.id);
+      const ops  = _ops.filter(o => o.etapa === etapa.id);
       const suma = ops.reduce((s, o) => s + (o.valor_estimado || 0), 0);
+
       const col = document.createElement('div');
       col.className = 'col';
-      col.dataset.etapa = etapa.id;
       col.innerHTML = `
         <div class="col-header">
           <div class="col-header-left">
             <div class="col-dot ${etapa.dot}"></div>
             <div class="col-name">${etapa.label}</div>
           </div>
-          <div class="col-count">${ops.length}</div>
+          <div class="col-badge">${ops.length}</div>
         </div>
         ${suma > 0 ? `<div class="col-sum">$${suma.toLocaleString('es-MX')} MXN</div>` : ''}
-        <div class="col-cards" id="col-${etapa.id}">
-          ${ops.length === 0 ? '<div class="empty-col">Sin oportunidades</div>' : ops.map(renderCard).join('')}
+        <div class="col-body" id="col-${etapa.id}">
+          ${ops.length === 0
+            ? '<div class="empty-col">Sin oportunidades</div>'
+            : ops.map(renderCard).join('')}
         </div>
-        <button class="btn-add-card" onclick="abrirModal('${etapa.id}')">+ Agregar</button>
+        <button class="btn-add-col" onclick="abrirModal('${etapa.id}')">+ Agregar</button>
       `;
       board.appendChild(col);
-      setupColDrop(col, etapa.id);
+
+      const body = col.querySelector('.col-body');
+      setupDrop(body, etapa.id);
     });
 
-    // Drag events en las cards
     document.querySelectorAll('.card').forEach(card => {
       card.addEventListener('dragstart', e => {
         _dragId = card.dataset.id;
-        setTimeout(() => card.classList.add('dragging'), 0);
         e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => card.classList.add('dragging'), 0);
       });
       card.addEventListener('dragend', () => {
         card.classList.remove('dragging');
-        document.querySelectorAll('.col').forEach(c => c.classList.remove('drag-over'));
+        document.querySelectorAll('.col-body').forEach(c => c.classList.remove('drag-over'));
       });
     });
   }
 
   function renderCard(o) {
-    const wa = (o.whatsapp || '').replace(/\D/g, '');
-    const waLink = wa ? `https://wa.me/52${wa}` : null;
-    const fecha = o.fecha_creacion ? o.fecha_creacion.slice(0, 10) : '';
-    const nota = o.notas ? o.notas.slice(0, 60) + (o.notas.length > 60 ? '…' : '') : '';
+    const wa     = (o.whatsapp || '').replace(/\D/g, '');
+    const waHref = wa ? `https://wa.me/52${wa}` : null;
+    const fecha  = (o.fecha_creacion || '').slice(0, 10);
+    const nota   = o.notas ? o.notas.slice(0, 55) + (o.notas.length > 55 ? '…' : '') : '';
     return `
       <div class="card" draggable="true" data-id="${o.id}" data-etapa="${o.etapa}">
         <div class="card-empresa">${esc(o.empresa || '—')}</div>
-        <div class="card-contacto">${esc(o.nombre_contacto || '')}</div>
+        ${o.nombre_contacto ? `<div class="card-contacto">${esc(o.nombre_contacto)}</div>` : ''}
         ${o.valor_estimado > 0 ? `<div class="card-valor">$${Number(o.valor_estimado).toLocaleString('es-MX')} MXN</div>` : ''}
         ${nota ? `<div class="card-nota">${esc(nota)}</div>` : ''}
         <div class="card-footer">
           <div class="card-fecha">${fecha}</div>
           <div class="card-actions">
-            ${waLink ? `<button class="btn-card-wa" onclick="event.stopPropagation();window.open('${waLink}','_blank')">WA</button>` : ''}
-            <button class="btn-card-edit" onclick="event.stopPropagation();editarCard('${o.id}')">Editar</button>
-            <button class="btn-card-del"  onclick="event.stopPropagation();eliminarCard('${o.id}')">✕</button>
+            ${waHref ? `<button class="btn-wa" onclick="event.stopPropagation();window.open('${waHref}','_blank')">WA</button>` : ''}
+            <button class="btn-edit" onclick="event.stopPropagation();editarCard('${o.id}')">Editar</button>
+            <button class="btn-del"  onclick="event.stopPropagation();eliminarCard('${o.id}')">✕</button>
           </div>
         </div>
       </div>`;
   }
 
   function renderStats() {
-    const activas = _oportunidades.filter(o => !['ganado','perdido'].includes(o.etapa));
-    const ganadas = _oportunidades.filter(o => o.etapa === 'ganado');
-    const cerradas = _oportunidades.filter(o => ['ganado','perdido'].includes(o.etapa));
-    const valorPipeline = activas.reduce((s, o) => s + (o.valor_estimado || 0), 0);
-    const valorGanado   = ganadas.reduce((s, o) => s + (o.valor_estimado || 0), 0);
-    const tasa = cerradas.length > 0 ? Math.round(ganadas.length / cerradas.length * 100) : 0;
+    const activas  = _ops.filter(o => !['ganado','perdido'].includes(o.etapa));
+    const ganadas  = _ops.filter(o => o.etapa === 'ganado');
+    const cerradas = _ops.filter(o => ['ganado','perdido'].includes(o.etapa));
+    const vPipeline = activas.reduce((s, o) => s + (o.valor_estimado || 0), 0);
+    const vGanado   = ganadas.reduce((s, o) => s + (o.valor_estimado || 0), 0);
+    const tasa      = cerradas.length > 0 ? Math.round(ganadas.length / cerradas.length * 100) + '%' : '—';
 
     document.getElementById('stat-total').textContent  = activas.length;
-    document.getElementById('stat-valor').textContent  = '$' + valorPipeline.toLocaleString('es-MX');
-    document.getElementById('stat-ganado').textContent = '$' + valorGanado.toLocaleString('es-MX');
-    document.getElementById('stat-tasa').textContent   = cerradas.length > 0 ? tasa + '%' : '—';
+    document.getElementById('stat-valor').textContent  = '$' + vPipeline.toLocaleString('es-MX');
+    document.getElementById('stat-ganado').textContent = '$' + vGanado.toLocaleString('es-MX');
+    document.getElementById('stat-tasa').textContent   = tasa;
   }
 
-  // ── DRAG & DROP ──────────────────────────────────────────────────────────
+  // ── DRAG & DROP ──────────────────────────────────────────────────────
 
-  function setupColDrop(col, etapaId) {
-    col.addEventListener('dragover', e => {
+  function setupDrop(el, etapaId) {
+    el.addEventListener('dragover', e => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      col.classList.add('drag-over');
+      el.classList.add('drag-over');
     });
-    col.addEventListener('dragleave', e => {
-      if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+    el.addEventListener('dragleave', e => {
+      if (!el.contains(e.relatedTarget)) el.classList.remove('drag-over');
     });
-    col.addEventListener('drop', async e => {
+    el.addEventListener('drop', async e => {
       e.preventDefault();
-      col.classList.remove('drag-over');
+      el.classList.remove('drag-over');
       if (!_dragId) return;
-      const op = _oportunidades.find(o => o.id === _dragId);
-      if (!op || op.etapa === etapaId) return;
+      const op = _ops.find(o => o.id === _dragId);
+      if (!op || op.etapa === etapaId) { _dragId = null; return; }
       op.etapa = etapaId;
       renderBoard();
       renderStats();
       await api('PUT', `/api/pipeline/actualizar/${_dragId}`, { etapa: etapaId });
-      toast('Oportunidad movida a ' + ETAPAS.find(e => e.id === etapaId).label);
+      toast('Movido a ' + ETAPAS.find(e => e.id === etapaId).label);
       _dragId = null;
     });
   }
 
-  // ── MODAL ────────────────────────────────────────────────────────────────
+  // ── MODAL ────────────────────────────────────────────────────────────
 
   function abrirModal(etapaPre) {
     document.getElementById('modal-title').textContent = 'Nueva oportunidad';
-    document.getElementById('modal-id').value = '';
+    document.getElementById('modal-id').value   = '';
     document.getElementById('f-empresa').value  = '';
     document.getElementById('f-contacto').value = '';
     document.getElementById('f-whatsapp').value = '';
@@ -492,31 +545,26 @@
     document.getElementById('f-etapa').value    = etapaPre || 'prospecto';
     document.getElementById('f-notas').value    = '';
     document.getElementById('overlay').classList.add('active');
-    document.getElementById('f-empresa').focus();
+    setTimeout(() => document.getElementById('f-empresa').focus(), 80);
   }
 
   function editarCard(id) {
-    const o = _oportunidades.find(x => x.id === id);
+    const o = _ops.find(x => x.id === id);
     if (!o) return;
     document.getElementById('modal-title').textContent = 'Editar oportunidad';
-    document.getElementById('modal-id').value = id;
-    document.getElementById('f-empresa').value  = o.empresa          || '';
-    document.getElementById('f-contacto').value = o.nombre_contacto  || '';
-    document.getElementById('f-whatsapp').value = o.whatsapp         || '';
-    document.getElementById('f-telefono').value = o.telefono         || '';
-    document.getElementById('f-valor').value    = o.valor_estimado   || '';
-    document.getElementById('f-etapa').value    = o.etapa            || 'prospecto';
-    document.getElementById('f-notas').value    = o.notas            || '';
+    document.getElementById('modal-id').value   = id;
+    document.getElementById('f-empresa').value  = o.empresa         || '';
+    document.getElementById('f-contacto').value = o.nombre_contacto || '';
+    document.getElementById('f-whatsapp').value = o.whatsapp        || '';
+    document.getElementById('f-telefono').value = o.telefono        || '';
+    document.getElementById('f-valor').value    = o.valor_estimado  || '';
+    document.getElementById('f-etapa').value    = o.etapa           || 'prospecto';
+    document.getElementById('f-notas').value    = o.notas           || '';
     document.getElementById('overlay').classList.add('active');
   }
 
-  function cerrarModal() {
-    document.getElementById('overlay').classList.remove('active');
-  }
-
-  function cerrarModalSiClick(e) {
-    if (e.target === document.getElementById('overlay')) cerrarModal();
-  }
+  function cerrarModal() { document.getElementById('overlay').classList.remove('active'); }
+  function cerrarSiClick(e) { if (e.target.id === 'overlay') cerrarModal(); }
 
   async function guardar() {
     const empresa = document.getElementById('f-empresa').value.trim();
@@ -535,13 +583,10 @@
       notas:           document.getElementById('f-notas').value.trim(),
     };
 
-    const id = document.getElementById('modal-id').value;
-    let res;
-    if (id) {
-      res = await api('PUT', `/api/pipeline/actualizar/${id}`, payload);
-    } else {
-      res = await api('POST', '/api/pipeline/agregar', payload);
-    }
+    const id  = document.getElementById('modal-id').value;
+    const res = id
+      ? await api('PUT',  `/api/pipeline/actualizar/${id}`, payload)
+      : await api('POST', '/api/pipeline/agregar', payload);
 
     btn.disabled = false; btn.textContent = 'Guardar';
 
@@ -557,16 +602,18 @@
   async function eliminarCard(id) {
     if (!confirm('¿Eliminar esta oportunidad?')) return;
     await api('DELETE', `/api/pipeline/eliminar/${id}`);
-    _oportunidades = _oportunidades.filter(o => o.id !== id);
+    _ops = _ops.filter(o => o.id !== id);
     renderBoard();
     renderStats();
     toast('Oportunidad eliminada');
   }
 
-  // ── UTILS ────────────────────────────────────────────────────────────────
+  // ── UTILS ────────────────────────────────────────────────────────────
 
   function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   let _toastTimer;
