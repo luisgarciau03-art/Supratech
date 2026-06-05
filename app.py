@@ -7985,7 +7985,7 @@ def sitemap():
     import datetime
     base = 'https://supratech.work'
     today = datetime.date.today().isoformat()
-    rutas_estaticas = ['/', '/blog', '/casos', '/privacidad', '/terminos']
+    rutas_estaticas = ['/', '/roi', '/blog', '/casos', '/privacidad', '/terminos']
     urls = []
     for r in rutas_estaticas:
         urls.append(f'<url><loc>{base}{r}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>')
