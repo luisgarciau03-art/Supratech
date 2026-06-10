@@ -7879,6 +7879,10 @@ from blog_posts import POSTS, POSTS_BY_SLUG
 def roi():
     return render_template('roi.html')
 
+@app.route('/gracias-contacto')
+def gracias_contacto():
+    return render_template('gracias.html')
+
 @app.route('/prospectos')
 def prospectos():
     return render_template('prospectos.html')

@@ -2104,9 +2104,6 @@
             Quiero que me contacten →
           </button>
 
-          <div id="c-success" style="display:none;text-align:center;background:#eafaf1;color:#28a745;padding:14px;border-radius:12px;font-weight:600;font-size:0.88em;">
-            ¡Listo! Te contactamos en menos de 24 h. 🎉
-          </div>
           <div id="c-error" style="display:none;text-align:center;background:#ffeaea;color:#dc3545;padding:12px;border-radius:12px;font-size:0.82em;font-weight:500;"></div>
         </form>
       </div>
@@ -2235,8 +2232,7 @@
           body: JSON.stringify(body)
         });
         if (res.ok) {
-          document.getElementById('contacto-form').style.display = 'none';
-          document.getElementById('c-success').style.display = 'block';
+          window.location.href = '/gracias-contacto';
         } else {
           const d = await res.json();
           document.getElementById('c-error').textContent = (d.error || 'Error al enviar.') + (d.debug ? ' — ' + d.debug : '');
