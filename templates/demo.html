@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Supratech — Software de operaciones para distribuidoras mexicanas de hasta 50 empleados</title>
-  <meta name="description" content="El software de operaciones para distribuidoras mexicanas de hasta 50 empleados. Pedidos, inventario, finanzas y precios en un solo sistema. $399 MXN/mes. Onboarding gratis.">
-  <meta name="keywords" content="software para distribuidoras México, sistema de pedidos distribuidora, software gestión comercial PyME México, ERP distribuidoras México, software inventario distribuidora, pedidos B2B México, software operaciones distribuidora, digitalizar distribuidora México">
+  <title>Supratech — Sistema 100% Automático para Distribuidoras Mexicanas: Inventario, Precios y Cobranza</title>
+  <meta name="description" content="Automatiza por completo tu distribuidora: inventario, precios y cobranza al día, sin intervención manual. Optimiza tu cartera, liquidez, inventario y precios. $399 MXN/mes. Onboarding gratis.">
+  <meta name="keywords" content="sistema automático para distribuidoras, automatizar inventario y precios, control de cuentas por cobrar distribuidora, flujo de efectivo distribuidora México, software para distribuidoras México, sistema de pedidos distribuidora, software gestión comercial PyME México, software operaciones distribuidora, digitalizar distribuidora México">
   <link rel="canonical" href="https://supratech.work/">
-  <meta property="og:title" content="Supratech — Software de operaciones para distribuidoras mexicanas">
-  <meta property="og:description" content="Pedidos, inventario, finanzas y precios en un solo sistema. $399 MXN/mes. Onboarding gratis.">
+  <meta property="og:title" content="Supratech — Sistema 100% Automático para Distribuidoras Mexicanas">
+  <meta property="og:description" content="Automatiza por completo tu distribuidora: inventario, precios y cobranza al día, sin intervención manual. $399 MXN/mes. Onboarding gratis.">
   <meta property="og:url" content="https://supratech.work/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_MX">
@@ -140,27 +140,6 @@
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
     }
 
-    .scroll-indicator {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-      40% { transform: translateX(-50%) translateY(-10px); }
-      60% { transform: translateX(-50%) translateY(-5px); }
-    }
-
-    .scroll-indicator::before {
-      content: '↓';
-      color: white;
-      font-size: 2em;
-      opacity: 0.8;
-    }
-
     /* Navigation Bar */
     .navbar {
       position: fixed;
@@ -231,6 +210,53 @@
       box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
     }
 
+    .navbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .login-button-secondary {
+      display: inline-block;
+      padding: 10px 22px;
+      background: transparent;
+      color: var(--primary-color);
+      border: 1.5px solid var(--primary-color);
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 0.9em;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+
+    .login-button-secondary:hover {
+      background: rgba(67, 97, 238, 0.08);
+    }
+
+    .contact-button {
+      display: inline-block;
+      padding: 14px 34px;
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 1.05em;
+      white-space: nowrap;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .contact-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+    }
+
+    @media (max-width: 1100px) {
+      .login-button-secondary { display: none; }
+    }
+
     .nav-links {
       display: flex;
       align-items: center;
@@ -262,6 +288,7 @@
       .navbar-logo span { font-size: 1.1em; }
       .navbar-logo img { width: 40px; height: 40px; }
       .login-button { padding: 10px 20px; font-size: 0.9em; }
+      .contact-button { padding: 10px 20px; font-size: 0.9em; }
     }
 
     /* Integration Pitch Section */
@@ -1140,6 +1167,185 @@
         margin-bottom: 20px;
       }
     }
+
+    /* Auto badge — "100% Automático" */
+    .auto-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(45deg, #f72585, #4361ee);
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.78em;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .hero-eje-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 22px 0 30px;
+    }
+
+    .hero-eje-pills span {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 0.82em;
+      font-weight: 600;
+    }
+
+    /* 4 Optimizaciones Automáticas */
+    .optim-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto 70px;
+    }
+
+    .optim-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 28px 22px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: all 0.5s ease;
+    }
+
+    .optim-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .optim-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 16px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #4361ee, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6em;
+      box-shadow: 0 0 24px rgba(67,97,238,0.4);
+    }
+
+    .optim-card h4 {
+      font-size: 1.05em;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .optim-card p {
+      font-size: 0.82em;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+    }
+
+    .optim-tag {
+      display: inline-block;
+      margin-top: 12px;
+      background: rgba(67,97,238,0.2);
+      border: 1px solid rgba(67,97,238,0.4);
+      color: #a0aeff;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.68em;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* Categoría distinta (reemplaza tabla CRM/ERP) */
+    .categoria-block {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      background: rgba(247,37,133,0.08);
+      border: 1px solid rgba(247,37,133,0.25);
+      border-radius: 18px;
+      padding: 30px 36px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+
+    .categoria-block.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .categoria-block h3 {
+      color: #fff;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    .categoria-block p {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.92em;
+      line-height: 1.7;
+    }
+
+    /* Process highlight (operación 100% automática) */
+    .process-intro {
+      max-width: 760px;
+      margin: -20px auto 50px;
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.95em;
+      line-height: 1.7;
+    }
+
+    .process-highlight {
+      max-width: 1000px;
+      margin: 50px auto 0;
+      background: linear-gradient(135deg, #4361ee, #764ba2);
+      border-radius: 24px;
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+      color: #fff;
+      box-shadow: 0 20px 50px rgba(67,97,238,0.25);
+    }
+
+    .process-highlight h3 {
+      font-size: 1.4em;
+      margin-bottom: 12px;
+    }
+
+    .process-highlight p {
+      font-size: 0.92em;
+      opacity: 0.9;
+      line-height: 1.7;
+    }
+
+    .process-highlight-video {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .process-highlight-video video {
+      width: 100%;
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .process-highlight {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1160,7 +1366,10 @@
       <a href="#contacto" class="nav-link">Contáctanos</a>
       <a href="/casos" class="nav-link" style="font-weight:600;color:#4361ee">Casos de Éxito</a>
     </div>
-    <a href="/login" class="login-button">Iniciar Sesión</a>
+    <div class="navbar-actions">
+      <a href="/login" class="login-button-secondary">Iniciar Sesión</a>
+      <a href="#contacto" class="contact-button">Contáctanos</a>
+    </div>
   </nav>
 
   <!-- Hero Section -->
@@ -1169,18 +1378,26 @@
       <div class="hero-logo">
         <img src="https://res.cloudinary.com/dipt3jq6r/image/upload/v1765570676/Supratech-09_12.15.26_p._m._lf3sec.jpg" alt="Supratech Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 20px;">
       </div>
-      <div style="display:inline-block;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.95);padding:5px 16px;border-radius:20px;font-size:0.78em;font-weight:600;letter-spacing:0.5px;margin-bottom:16px;">Para distribuidoras mexicanas · hasta 50 empleados</div>
-      <h1>El software de operaciones<br>para distribuidoras mexicanas</h1>
-      <p>Pedidos, inventario, finanzas y precios en un solo sistema.<br>Diseñado para distribuidoras mexicanas, no adaptado desde plataformas enterprise.</p>
-      <a href="#precios" class="cta-button">Ver planes →</a>
+      <div style="display:inline-block;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.95);padding:5px 16px;border-radius:20px;font-size:0.78em;font-weight:600;letter-spacing:0.5px;margin-bottom:16px;">Para distribuidoras, mayoristas y tiendas de alto volumen · hasta 50 empleados</div>
+      <h1>Tu distribuidora, 100% automática</h1>
+      <p>El único sistema 100% automático para distribuidoras: optimiza tu cartera, liquidez, inventario y precios sin depender de personal para tareas repetitivas.</p>
+      <div class="hero-eje-pills">
+        <span>💼 Cartera</span>
+        <span>💧 Liquidez</span>
+        <span>📦 Inventario</span>
+        <span>🏷️ Precios</span>
+      </div>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+        <a href="#precios" class="cta-button">Ver planes →</a>
+        <a href="#integracion" class="cta-button" style="background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.4);box-shadow:none;">Ver cómo funciona</a>
+      </div>
     </div>
-    <div class="scroll-indicator"></div>
   </section>
 
   <!-- Nicho trust bar -->
   <div style="background:#fff;border-bottom:1px solid #f0f0f0;padding:14px 20px;text-align:center;">
     <p style="font-size:0.8em;color:#6b7280;font-family:'Poppins',sans-serif;">
-      Hecho para distribuidoras de 5 a 50 empleados en México &nbsp;·&nbsp;
+      Hecho para negocios de alto volumen de 5 a 50 empleados en México &nbsp;·&nbsp;
       <strong style="color:#4361ee;">ferretería</strong> &nbsp;·&nbsp;
       <strong style="color:#4361ee;">materiales de construcción</strong> &nbsp;·&nbsp;
       <strong style="color:#4361ee;">consumibles industriales</strong> &nbsp;·&nbsp;
@@ -1190,6 +1407,37 @@
 
   <!-- Integration Pitch Section -->
   <section id="integracion" class="integracion">
+
+    <!-- Las 4 Optimizaciones Automáticas -->
+    <h2 class="section-title">Las 4 optimizaciones 100% automáticas</h2>
+    <p class="integracion-subtitle">Supratech recalcula, prioriza y actualiza tu cartera, liquidez, inventario y precios todos los días, sin que nadie tenga que operarlo.</p>
+    <div class="optim-grid">
+      <div class="optim-card">
+        <div class="optim-icon">💼</div>
+        <h4>Optimización de Cartera</h4>
+        <p>Sabe en automático cuánto te deben y cuánto debes, sin perseguir pagos en hojas de Excel.</p>
+        <span class="optim-tag">Finanzas · BD Pedidos</span>
+      </div>
+      <div class="optim-card">
+        <div class="optim-icon">💧</div>
+        <h4>Optimización de Liquidez</h4>
+        <p>Anticipa tu flujo de efectivo y prioriza cobros y pagos antes de que se conviertan en un problema.</p>
+        <span class="optim-tag">Finanzas</span>
+      </div>
+      <div class="optim-card">
+        <div class="optim-icon">📦</div>
+        <h4>Optimización de Inventario</h4>
+        <p>Detecta sobrestock, productos olvidados y faltantes automáticamente, sin reportes manuales.</p>
+        <span class="optim-tag">Estatus de Inventario · Antigüedad</span>
+      </div>
+      <div class="optim-card">
+        <div class="optim-icon">🏷️</div>
+        <h4>Optimización de Precios</h4>
+        <p>Calcula descuentos y márgenes óptimos por categoría, en automático y sin errores de captura.</p>
+        <span class="optim-tag">Verificador de Precios · Descuentos</span>
+      </div>
+    </div>
+
     <h2 class="section-title">Un solo sistema, todo el flujo de tu distribuidora</h2>
     <p class="integracion-subtitle">Desde que prospectas un producto hasta que despachas el pedido. Sin exportar a Excel. Sin copiar datos entre sistemas. Sin depender de tres personas para levantar una orden.</p>
 
@@ -1245,61 +1493,14 @@
 
     <!-- Script de demo -->
     <div class="pitch-quote">
-      <p>"Con otro sistema tienes el CRM, pero cuando el cliente compra ¿a dónde va ese pedido? ¿A otro sistema? Con Supratech, desde que prospectas hasta que despachas el pedido, todo está en el mismo lugar. Sin exportar a Excel, sin copiar datos."</p>
+      <p>"Con otros sistemas llevas el control de clientes y prospectos, pero cuando el cliente compra ¿a dónde va ese pedido? ¿A otro sistema? Con Supratech, desde que prospectas hasta que despachas el pedido, todo está en el mismo lugar y corre solo. Sin exportar a Excel, sin copiar datos."</p>
       <cite>— Por qué Supratech es diferente</cite>
     </div>
 
-    <!-- Comparativa -->
-    <p class="comp-title">¿Qué cubre cada tipo de sistema?</p>
-    <div class="comp-table-wrap">
-      <table class="comp-table">
-        <thead>
-          <tr>
-            <th>Capacidad</th>
-            <th class="highlight">Supratech</th>
-            <th>CRM Tradicional</th>
-            <th>ERP Básico</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Prospección de productos</td>
-            <td class="highlight"><span class="check">✓</span></td>
-            <td><span class="check">✓</span></td>
-            <td><span class="cross">✗</span></td>
-          </tr>
-          <tr>
-            <td>Cotización y precios en tiempo real</td>
-            <td class="highlight"><span class="check">✓</span></td>
-            <td><span class="partial">◑ Básico</span></td>
-            <td><span class="check">✓</span></td>
-          </tr>
-          <tr>
-            <td>Gestión de pedidos nativa</td>
-            <td class="highlight"><span class="check">✓</span></td>
-            <td><span class="cross">✗</span></td>
-            <td><span class="check">✓</span></td>
-          </tr>
-          <tr>
-            <td>Descuentos inteligentes por categoría</td>
-            <td class="highlight"><span class="check">✓</span></td>
-            <td><span class="cross">✗</span></td>
-            <td><span class="cross">✗</span></td>
-          </tr>
-          <tr>
-            <td>Métricas e indicadores integrados</td>
-            <td class="highlight"><span class="check">✓</span></td>
-            <td><span class="partial">◑ Básico</span></td>
-            <td><span class="partial">◑ Básico</span></td>
-          </tr>
-          <tr>
-            <td>Todo en un solo sistema sin exportar</td>
-            <td class="highlight"><span class="check">✓</span></td>
-            <td><span class="cross">✗</span></td>
-            <td><span class="cross">✗</span></td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Categoría distinta -->
+    <div class="categoria-block">
+      <h3>Una categoría distinta — no es un CRM ni un ERP</h3>
+      <p>Supratech no es "otro CRM" ni "un ERP más". Es un sistema operativo 100% automático para tu distribuidora: además de centralizar pedidos, inventario y precios en un solo lugar, ejecuta solo los procesos que en otros sistemas tendrías que operar manualmente — desde recalcular márgenes hasta detectar sobrestock o cuentas por cobrar vencidas.</p>
     </div>
   </section>
 
@@ -1474,6 +1675,7 @@
   <!-- Process Section -->
   <section class="process">
     <h2 class="section-title">Cómo Funciona</h2>
+    <p class="process-intro">Los pasos 1-3 son la configuración inicial (incluida gratis en el onboarding). A partir de ahí, la operación diaria de cartera, liquidez, inventario y precios corre <strong>100% automática</strong> — el equipo solo revisa resultados.</p>
     <div class="process-steps">
       <div class="process-step">
         <div class="step-number">1</div>
@@ -1511,10 +1713,24 @@
         </div>
       </div>
     </div>
+
+    <!-- 1 clic = 4 resultados automáticos -->
+    <div class="process-highlight">
+      <div>
+        <h3>1 clic = 4 resultados automáticos</h3>
+        <p>Con un solo clic, Supratech recalcula márgenes y precios, actualiza el inventario, prioriza tu cartera y liquidez, y genera los indicadores listos para revisar. Cero captura manual, cero Excel, cero dependencia de que "alguien tenga tiempo".</p>
+      </div>
+      <div class="process-highlight-video">
+        <video autoplay loop muted playsinline>
+          <source src="https://res.cloudinary.com/dipt3jq6r/video/upload/v1769133938/Moduloautomat_zgl8et.webm" type="video/webm">
+        </video>
+      </div>
+    </div>
   </section>
 
   <!-- Benefits Section -->
   <section id="beneficios" class="benefits">
+    <div style="text-align:center;margin-bottom:14px;"><span class="auto-badge">⚡ 100% Automático</span></div>
     <h2 class="section-title">¿Por qué no una plataforma genérica?</h2>
     <div class="benefits-comparison">
       <!-- CON Sistema -->
@@ -1700,11 +1916,6 @@
         <span style="background:#e8edff;color:#4361ee;padding:6px 18px;border-radius:20px;font-size:0.8em;font-weight:600;letter-spacing:0.5px;">PRECIOS</span>
         <h2 style="font-size:2em;font-weight:700;color:#1a1a2e;margin:16px 0 10px;">Precio claro. ROI medible.</h2>
         <p style="color:#6b7280;font-size:1em;max-width:480px;margin:0 auto;">Antes de ver el precio, calcula cuánto te está costando NO tenerlo.</p>
-        <div style="margin-top:14px;">
-          <a href="/roi" style="display:inline-flex;align-items:center;gap:8px;background:#1a1a2e;color:#fff;padding:10px 22px;border-radius:20px;font-size:0.84em;font-weight:600;text-decoration:none;">
-            🧮 Calculadora completa por pedidos →
-          </a>
-        </div>
       </div>
 
       <!-- ROI Calculator -->
@@ -1733,9 +1944,14 @@
             <input type="range" id="inp-personas" min="1" max="10" value="2" step="1"
               style="width:100%;accent-color:#4361ee;">
           </div>
+          <div>
+            <label style="font-size:0.8em;font-weight:600;color:#4b5563;display:block;margin-bottom:6px;">¿Cuánto tienes hoy en cartera vencida (cuentas por cobrar atrasadas)? <span style="color:#4361ee" id="lbl-cartera">$50,000</span></label>
+            <input type="range" id="inp-cartera" min="0" max="300000" value="50000" step="5000"
+              style="width:100%;accent-color:#4361ee;">
+          </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;text-align:center;">
           <div style="background:#f8f9ff;border-radius:14px;padding:18px 12px;">
             <div style="font-size:1.8em;font-weight:700;color:#dc3545;" id="roi-costo-actual">$5,760</div>
             <div style="font-size:0.75em;color:#8d99ae;margin-top:4px;">Costo operativo actual/mes</div>
@@ -1748,9 +1964,13 @@
             <div style="font-size:1.8em;font-weight:700;color:#28a745;" id="roi-ahorro">$5,361</div>
             <div style="font-size:0.75em;color:#28a745;margin-top:4px;font-weight:600;">Ahorro mensual estimado</div>
           </div>
+          <div style="background:#fff7e6;border-radius:14px;padding:18px 12px;border:2px solid #f0a500;">
+            <div style="font-size:1.8em;font-weight:700;color:#f0a500;" id="roi-liquidez">$10,000</div>
+            <div style="font-size:0.75em;color:#b8860b;margin-top:4px;font-weight:600;">Liquidez recuperable estimada/mes</div>
+          </div>
         </div>
 
-        <p style="font-size:0.74em;color:#aaa;margin-top:16px;text-align:center;">* Estimado basado en horas recuperadas. El ahorro real puede ser mayor por reducción de errores y mejora en decisiones.</p>
+        <p style="font-size:0.74em;color:#aaa;margin-top:16px;text-align:center;">* Estimados basados en horas recuperadas y en la priorización automática de cobranza. El ahorro y la liquidez recuperada reales pueden ser mayores por reducción de errores y mejores decisiones.</p>
       </div>
 
       <!-- Pricing Cards -->
@@ -1856,7 +2076,19 @@
               onfocus="this.style.borderColor='#4361ee'" onblur="this.style.borderColor='#e5e7eb'">
           </div>
           <div>
-            <label style="font-size:0.78em;font-weight:600;color:#4b5563;display:block;margin-bottom:5px;">¿Qué quieres resolver? <span style="color:#aaa;font-weight:400;">(opcional)</span></label>
+            <label style="font-size:0.78em;font-weight:600;color:#4b5563;display:block;margin-bottom:5px;">¿Cuál es tu mayor reto hoy? <span style="color:#aaa;font-weight:400;">(opcional)</span></label>
+            <select id="c-reto"
+              style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:0.88em;color:#1a1a2e;outline:none;background:#fff;transition:border 0.2s;"
+              onfocus="this.style.borderColor='#4361ee'" onblur="this.style.borderColor='#e5e7eb'">
+              <option value="">Selecciona una opción...</option>
+              <option value="Inventario (sobrestock, faltantes, productos olvidados)">📦 Inventario (sobrestock, faltantes, productos olvidados)</option>
+              <option value="Precios y márgenes">🏷️ Precios y márgenes</option>
+              <option value="Cobranza y liquidez (cartera vencida, flujo de efectivo)">💧 Cobranza y liquidez (cartera vencida, flujo de efectivo)</option>
+              <option value="Todo lo anterior">⚡ Todo lo anterior</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.78em;font-weight:600;color:#4b5563;display:block;margin-bottom:5px;">Cuéntanos más <span style="color:#aaa;font-weight:400;">(opcional)</span></label>
             <textarea id="c-mensaje" rows="3" placeholder="Ej: Tardamos mucho en armar pedidos, tenemos muchos errores en inventario..."
               style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:0.88em;color:#1a1a2e;outline:none;resize:none;transition:border 0.2s;"
               onfocus="this.style.borderColor='#4361ee'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
@@ -1890,6 +2122,7 @@
 
   <!-- CTA Section -->
   <section class="cta-section">
+    <div style="margin-bottom:16px;"><span class="auto-badge">⚡ 100% Automático</span></div>
     <h2>¿Listo para Automatizar tu Empresa?</h2>
     <p>Transforma tus procesos administrativos y lleva tu negocio al siguiente nivel</p>
     <a href="/login" class="cta-button">Iniciar Sesión</a>
@@ -1918,7 +2151,7 @@
     }, observerOptions);
 
     // Observe all cards
-    document.querySelectorAll('.feature-card, .module-card, .future-module-card, .process-step, .preview-item, .benefit-column, .testimonial-card, .flow-step, .pitch-quote, .comp-table-wrap').forEach((el) => {
+    document.querySelectorAll('.feature-card, .module-card, .future-module-card, .process-step, .preview-item, .benefit-column, .testimonial-card, .flow-step, .pitch-quote, .optim-card, .categoria-block').forEach((el) => {
       observer.observe(el);
     });
 
@@ -1942,28 +2175,37 @@
     const inpHoras    = document.getElementById('inp-horas');
     const inpValor    = document.getElementById('inp-valor');
     const inpPersonas = document.getElementById('inp-personas');
+    const inpCartera  = document.getElementById('inp-cartera');
 
     function calcROI() {
       const horas    = parseInt(inpHoras.value);
       const valor    = parseInt(inpValor.value);
       const personas = parseInt(inpPersonas.value);
+      const cartera  = parseInt(inpCartera.value);
 
       document.getElementById('lbl-horas').textContent     = horas + ' h';
       document.getElementById('lbl-hora-valor').textContent = '$' + valor;
       document.getElementById('lbl-personas').textContent   = personas;
+      document.getElementById('lbl-cartera').textContent    = '$' + cartera.toLocaleString('es-MX');
 
       const costoMes = horas * 4.3 * valor * personas;
       const ahorro   = costoMes - 399;
+
+      // Estimado conservador: priorización automática de cobranza recupera ~20% de la cartera vencida
+      const liquidezRecuperada = cartera * 0.2;
 
       document.getElementById('roi-costo-actual').textContent =
         '$' + Math.round(costoMes).toLocaleString('es-MX');
       document.getElementById('roi-ahorro').textContent =
         '$' + Math.max(0, Math.round(ahorro)).toLocaleString('es-MX');
+      document.getElementById('roi-liquidez').textContent =
+        '$' + Math.round(liquidezRecuperada).toLocaleString('es-MX');
     }
 
     inpHoras.addEventListener('input', calcROI);
     inpValor.addEventListener('input', calcROI);
     inpPersonas.addEventListener('input', calcROI);
+    inpCartera.addEventListener('input', calcROI);
     calcROI();
   </script>
 
@@ -1975,11 +2217,15 @@
       btn.textContent = 'Enviando...';
       btn.disabled = true;
 
+      const reto = document.getElementById('c-reto').value;
+      const mensajeTexto = document.getElementById('c-mensaje').value.trim();
+      const mensaje = (reto ? `Reto principal: ${reto}.` : '') + (reto && mensajeTexto ? ' ' : '') + mensajeTexto;
+
       const body = {
         nombre:   document.getElementById('c-nombre').value.trim(),
         empresa:  document.getElementById('c-empresa').value.trim(),
         whatsapp: document.getElementById('c-whatsapp').value.trim(),
-        mensaje:  document.getElementById('c-mensaje').value.trim()
+        mensaje:  mensaje
       };
 
       try {
