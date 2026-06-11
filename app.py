@@ -34,6 +34,31 @@ else:
 
 app = Flask(__name__)
 
+# --- Google Tag Manager: inyectado globalmente en cada respuesta HTML ---
+GTM_HEAD_SNIPPET = """<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K8LJ449J');</script>
+<!-- End Google Tag Manager -->"""
+
+GTM_BODY_SNIPPET = """<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K8LJ449J"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->"""
+
+@app.after_request
+def inject_gtm(response):
+    if response.content_type and response.content_type.startswith('text/html'):
+        html = response.get_data(as_text=True)
+        if '<head>' in html:
+            html = html.replace('<head>', '<head>\n' + GTM_HEAD_SNIPPET, 1)
+        if '<body>' in html:
+            html = html.replace('<body>', '<body>\n' + GTM_BODY_SNIPPET, 1)
+        response.set_data(html)
+    return response
+
 # Función auxiliar para obtener credenciales de Google API
 def get_google_credentials(scopes=None):
     """Retorna credenciales de Google API desde variable de entorno o archivo local"""
