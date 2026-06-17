@@ -384,11 +384,19 @@
       text-align: center;
       font-size: clamp(1.8em, 4vw, 2.8em);
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
       background: var(--gradient-brand);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
       line-height: 1.2;
+    }
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 52px; height: 4px;
+      background: var(--gradient-brand);
+      border-radius: 4px;
+      margin: 12px auto 16px;
     }
     .section-subtitle {
       text-align: center;
@@ -618,38 +626,49 @@
     .feature-card:hover .feature-icon { transform: scale(1.1) rotate(-5deg); }
     .feature-card h3 { font-size: 1.35em; margin-bottom: 12px; color: var(--text-dark); }
     .feature-card p { color: var(--text-light); line-height: 1.75; }
+    /* Varied icon colors per card */
+    .feature-card:nth-child(1) .feature-icon { background: linear-gradient(135deg,#4361ee,#3f37c9); box-shadow:0 10px 28px rgba(67,97,238,0.3); }
+    .feature-card:nth-child(2) .feature-icon { background: linear-gradient(135deg,#7c3aed,#5b21b6); box-shadow:0 10px 28px rgba(124,58,237,0.3); }
+    .feature-card:nth-child(3) .feature-icon { background: linear-gradient(135deg,#059669,#047857); box-shadow:0 10px 28px rgba(5,150,105,0.3); }
+    .feature-card:nth-child(4) .feature-icon { background: linear-gradient(135deg,#ea580c,#c2410c); box-shadow:0 10px 28px rgba(234,88,12,0.3); }
+    .feature-card:nth-child(5) .feature-icon { background: linear-gradient(135deg,#e11d48,#be185d); box-shadow:0 10px 28px rgba(225,29,72,0.3); }
+    .feature-card:nth-child(6) .feature-icon { background: linear-gradient(135deg,#0284c7,#0369a1); box-shadow:0 10px 28px rgba(2,132,199,0.3); }
 
     /* ─── Modules ─── */
-    .modules { padding: 100px 40px; background: white; }
+    .modules { padding: 100px 40px; background: var(--bg-light); }
     .modules-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
-      gap: 20px; max-width: 1200px; margin: 0 auto;
+      gap: 18px; max-width: 1200px; margin: 0 auto;
     }
     .module-card {
-      background: var(--gradient-main);
-      padding: 30px 26px;
+      background: white;
+      padding: 22px 22px 22px 26px;
       border-radius: var(--radius-md);
-      color: white; text-align: center;
+      border: 1.5px solid rgba(67,97,238,0.09);
+      border-left: 4px solid var(--primary);
       transition: all var(--transition);
       cursor: pointer;
-      opacity: 0; transform: scale(0.92);
+      opacity: 0; transform: translateY(20px);
       position: relative; overflow: hidden;
+      text-align: left;
     }
-    .module-card::after {
+    .module-card::before {
       content: '';
-      position: absolute; inset: 0;
-      background: rgba(255,255,255,0);
-      transition: background var(--transition);
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--gradient-brand);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform var(--transition);
     }
-    .module-card:hover::after { background: rgba(255,255,255,0.07); }
-    .module-card.visible { opacity:1; transform:scale(1); }
+    .module-card:hover::before { transform: scaleX(1); }
+    .module-card.visible { opacity:1; transform:translateY(0); }
     .module-card:hover {
-      transform: scale(1.05) translateY(-4px);
-      box-shadow: 0 16px 48px rgba(103,126,234,0.45);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(67,97,238,0.22);
     }
-    .module-card h4 { font-size: 1.15em; margin-bottom: 8px; font-weight: 700; }
-    .module-card p { font-size: 0.85em; opacity: 0.88; line-height: 1.5; }
+    .module-card h4 { font-size: 0.93em; margin-bottom: 5px; font-weight: 700; color: var(--text-dark); }
+    .module-card p { font-size: 0.8em; color: var(--text-light); line-height: 1.5; }
 
     /* ─── Preview ─── */
     .preview { padding: 100px 40px; background: var(--bg-light); }
@@ -1017,7 +1036,7 @@
 
     /* ─── CTA ─── */
     .cta-section {
-      padding: 100px 40px;
+      padding: 110px 40px;
       background: var(--gradient-main);
       text-align: center; color: white;
       position: relative; overflow: hidden;
@@ -1025,11 +1044,25 @@
     .cta-section::before {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.08) 0%, transparent 70%);
+      background:
+        radial-gradient(ellipse at 20% 80%, rgba(247,37,133,0.22) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(76,201,240,0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.06) 0%, transparent 65%);
+      pointer-events: none;
     }
+    .cta-particles {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .cta-particles span {
+      position: absolute; border-radius: 50%; opacity: 0.08;
+      animation: floatParticle linear infinite;
+    }
+    .cta-particles span:nth-child(1) { width:260px;height:260px;background:#fff;top:-60px;right:-60px;animation-duration:20s; }
+    .cta-particles span:nth-child(2) { width:160px;height:160px;background:#f72585;bottom:5%;left:-40px;animation-duration:16s;animation-delay:-6s; }
+    .cta-particles span:nth-child(3) { width:90px;height:90px;background:#4cc9f0;top:40%;right:10%;animation-duration:14s;animation-delay:-3s; }
     .cta-section > * { position: relative; z-index: 1; }
-    .cta-section h2 { font-size: clamp(1.8em, 4vw, 3em); margin-bottom: 20px; font-weight: 800; }
-    .cta-section p { font-size: clamp(1em, 2vw, 1.3em); margin-bottom: 36px; opacity: 0.93; }
+    .cta-section h2 { font-size: clamp(2em, 4vw, 3.2em); margin-bottom: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .cta-section p { font-size: clamp(1em, 2vw, 1.25em); margin-bottom: 40px; opacity: 0.88; max-width: 520px; margin-left: auto; margin-right: auto; }
 
     /* ─── Footer ─── */
     footer {
@@ -1155,15 +1188,15 @@
   <!-- Stats bar -->
   <div class="stats-bar">
     <div class="stat-item">
-      <div class="stat-number">100%</div>
+      <div class="stat-number" data-target="100" data-suffix="%">0%</div>
       <div class="stat-label">Automático — sin operación manual</div>
     </div>
     <div class="stat-item">
-      <div class="stat-number">13</div>
+      <div class="stat-number" data-target="13">0</div>
       <div class="stat-label">Módulos especializados integrados</div>
     </div>
     <div class="stat-item">
-      <div class="stat-number">$399</div>
+      <div class="stat-number" data-target="399" data-prefix="$">$0</div>
       <div class="stat-label">MXN / mes · todo incluido</div>
     </div>
     <div class="stat-item">
@@ -1695,11 +1728,14 @@
 
   <!-- CTA Section -->
   <section class="cta-section">
+    <div class="cta-particles">
+      <span></span><span></span><span></span>
+    </div>
     <div style="margin-bottom:18px;"><span class="auto-badge">⚡ 100% Automático</span></div>
-    <h2>¿Listo para Automatizar tu Empresa?</h2>
-    <p>Transforma tus procesos administrativos y lleva tu negocio al siguiente nivel</p>
+    <h2>¿Listo para Automatizar<br>tu Distribuidora?</h2>
+    <p>Únete a las distribuidoras mexicanas que ya operan 100% automático. Onboarding gratis. Sin contratos largos.</p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-      <a href="/login" class="cta-button">Iniciar Sesión</a>
+      <a href="/login" class="cta-button">Empezar ahora →</a>
       <a href="#contacto" class="cta-button-ghost">Hablar con un asesor</a>
     </div>
   </section>
@@ -1713,6 +1749,31 @@
       &nbsp;·&nbsp; <a href="/terminos">Términos de Servicio</a>
     </p>
   </footer>
+
+  <script>
+    // ─── Stats counter ───
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = parseInt(el.dataset.target);
+        const prefix = el.dataset.prefix || '';
+        const suffix = el.dataset.suffix || '';
+        const duration = 1200;
+        const step = 16;
+        const steps = duration / step;
+        let current = 0;
+        const inc = target / steps;
+        const timer = setInterval(() => {
+          current = Math.min(current + inc, target);
+          el.textContent = prefix + Math.round(current).toLocaleString('es-MX') + suffix;
+          if (current >= target) clearInterval(timer);
+        }, step);
+        counterObs.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-number[data-target]').forEach(el => counterObs.observe(el));
+  </script>
 
   <script>
     // ─── Mobile hamburger ───
